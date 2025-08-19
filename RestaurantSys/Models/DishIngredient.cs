@@ -1,0 +1,15 @@
+﻿namespace RestaurantSys.Models
+{
+    public class DishIngredient
+    {
+        public int DishID { get; set; }
+
+        public int ItemID { get; set; }
+
+        public bool IsActive { get; set; } = true;
+
+        public virtual Dish Dish { get; set; } = null!;
+        public virtual Stock Item { get; set; } = null!;
+
+    }
+}
