@@ -17,7 +17,7 @@
         public string SupplierID { get; set; } = null!;
 
         public virtual Supplier Supplier { get; set; } = null!;
-        
-        public virtual ICollection<DishIngredient> DishIngredients { get; set; } = new List<DishIngredient>();
+
+        public virtual List<DishIngredient>? DishIngredients { get; set; }
     }
 }

@@ -17,6 +17,6 @@
         public virtual Member Member { get; set; } = null!;
         public virtual Staff Staff { get; set; } = null!;
 
-        public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
+        public virtual List<OrderDetail>? OrderDetails { get; set; }
     }
 }

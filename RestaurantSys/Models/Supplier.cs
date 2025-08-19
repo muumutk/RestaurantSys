@@ -12,6 +12,6 @@
 
         public string Address { get; set; } = null!;
 
-        public virtual ICollection<Stock> Stocks { get; set; } = new List<Stock>();
+        public virtual List<Stock>? Stocks { get; set; }
     }
 }

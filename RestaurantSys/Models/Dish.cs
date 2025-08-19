@@ -1,6 +1,6 @@
 ﻿namespace RestaurantSys.Models
 {
-    public class Dish
+    public partial class Dish
     {
         public int DishID { get; set; }
 
@@ -14,7 +14,7 @@
 
         public string? Note { get; set; }
 
-        public virtual ICollection<DishIngredient> DishIngredients { get; set; } = new List<DishIngredient>();
-        public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
+        public virtual List<DishIngredient>? DishIngredients { get; set; }
+        public virtual List<OrderDetail>? OrderDetails { get; set; }
     }
 }

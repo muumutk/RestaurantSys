@@ -16,7 +16,7 @@
 
         public string Password { get; set; } = null!;
 
-        public virtual ICollection<MemberTel> MemberTels { get; set; } = new List<MemberTel>();
-        public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
+        public virtual List<MemberTel>? MemberTels { get; set; }
+        public virtual List<Order>? Orders { get; set; }
     }
 }
