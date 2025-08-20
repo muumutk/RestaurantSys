@@ -1,6 +1,6 @@
 ﻿namespace RestaurantSys.Models
 {
-    public class Member
+    public partial class Member
     {
         public string MemberID { get; set; } = null!;
         

@@ -1,6 +1,6 @@
 ﻿namespace RestaurantSys.Models
 {
-    public class Supplier
+    public partial class Supplier
     {
         public int SupplierID { get; set; }
 

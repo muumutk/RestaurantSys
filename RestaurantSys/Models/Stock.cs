@@ -1,6 +1,6 @@
 ﻿namespace RestaurantSys.Models
 {
-    public class Stock
+    public partial class Stock
     {
         public int ItemID { get; set; }
 
@@ -11,6 +11,8 @@
         public int SafeStock { get; set; }
 
         public string Unit { get; set; } = null!;
+
+        public decimal ItemPrice { get; set; }
 
         public bool IsActive { get; set; } = true;
 

@@ -1,6 +1,6 @@
 ﻿namespace RestaurantSys.Models
 {
-    public class Staff
+    public partial class Staff
     {
         public string StaffID { get; set; } = null!;
 

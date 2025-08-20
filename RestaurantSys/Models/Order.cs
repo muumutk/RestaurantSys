@@ -1,6 +1,6 @@
 ﻿namespace RestaurantSys.Models
 {
-    public class Order
+    public partial class Order
     {
         public string OrderID { get; set; } = null!;
 

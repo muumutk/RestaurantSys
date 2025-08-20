@@ -10,7 +10,7 @@
 
         public string? PhotoPath { get; set; }
 
-        public decimal Price { get; set; }
+        public decimal DishPrice { get; set; }
 
         public string? Note { get; set; }
 

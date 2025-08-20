@@ -1,6 +1,6 @@
 ﻿namespace RestaurantSys.Models
 {
-    public class DishIngredient
+    public partial class DishIngredient
     {
         public int DishID { get; set; }
 

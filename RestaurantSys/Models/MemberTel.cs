@@ -1,6 +1,6 @@
 ﻿namespace RestaurantSys.Models
 {
-    public class MemberTel
+    public partial class MemberTel
     {
         public int SN { get; set; }
 
