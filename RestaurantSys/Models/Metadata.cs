@@ -72,6 +72,7 @@ public class MemberData
     [Display(Name = "密碼")]
     [Required(ErrorMessage = "請設定密碼")]
     [StringLength(20, ErrorMessage = "密碼長度不能超過 20 個字")]
+    [DataType(DataType.Password)]
     public string Password { get; set; } = null!;
 }
 
@@ -129,6 +130,7 @@ public class StaffData
     [Display(Name = "密碼")]
     [Required(ErrorMessage = "請設定密碼")]
     [StringLength(20, ErrorMessage = "密碼長度不能超過 20 個字")]
+    [DataType(DataType.Password)]
     public string Password { get; set; } = null!;
 }
 
