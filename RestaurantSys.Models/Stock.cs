@@ -16,7 +16,7 @@
 
         public bool IsActive { get; set; } = true;
 
-        public string SupplierID { get; set; } = null!;
+        public int SupplierID { get; set; }
 
         public virtual Supplier Supplier { get; set; } = null!;
 

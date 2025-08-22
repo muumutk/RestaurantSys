@@ -37,8 +37,8 @@ public class DishData
 public class MemberData
 {
     [Display(Name = "會員編號")]
-    [StringLength(9,ErrorMessage ="會員編號不可超過9個字")]
-    [Required(ErrorMessage ="會員編號為必填欄位")]
+    [StringLength(9)]
+    [HiddenInput]
     [Key]
     public string MemberID { get; set; } = null!;
 
@@ -196,7 +196,7 @@ public class StockData
 
     [ForeignKey("Supplier")]
     [HiddenInput]
-    public string SupplierID { get; set; } = null!;
+    public int SupplierID { get; set; }
 }
 
 public class OrderData
