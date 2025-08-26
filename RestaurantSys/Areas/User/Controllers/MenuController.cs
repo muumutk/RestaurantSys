@@ -8,24 +8,25 @@ using Microsoft.EntityFrameworkCore;
 using RestaurantSys.Access.Data;
 using RestaurantSys.Models;
 
-namespace RestaurantSys.Controllers
+namespace RestaurantSys.Areas.User.Controllers
 {
-    public class DishesController : Controller
+    [Area("User")]
+    public class MenuController : Controller
     {
         private readonly RestaurantSysContext _context;
 
-        public DishesController(RestaurantSysContext context)
+        public MenuController(RestaurantSysContext context)
         {
             _context = context;
         }
 
-        // GET: Dishes
+        // GET: User/Menu
         public async Task<IActionResult> Index()
         {
             return View(await _context.Dish.ToListAsync());
         }
 
-        // GET: Dishes/Details/5
+        // GET: User/Menu/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -43,13 +44,13 @@ namespace RestaurantSys.Controllers
             return View(dish);
         }
 
-        // GET: Dishes/Create
+        // GET: User/Menu/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Dishes/Create
+        // POST: User/Menu/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -65,7 +66,7 @@ namespace RestaurantSys.Controllers
             return View(dish);
         }
 
-        // GET: Dishes/Edit/5
+        // GET: User/Menu/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -81,7 +82,7 @@ namespace RestaurantSys.Controllers
             return View(dish);
         }
 
-        // POST: Dishes/Edit/5
+        // POST: User/Menu/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -116,7 +117,7 @@ namespace RestaurantSys.Controllers
             return View(dish);
         }
 
-        // GET: Dishes/Delete/5
+        // GET: User/Menu/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -134,7 +135,7 @@ namespace RestaurantSys.Controllers
             return View(dish);
         }
 
-        // POST: Dishes/Delete/5
+        // POST: User/Menu/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

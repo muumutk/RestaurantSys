@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using RestaurantSys.Access.Data;
 using RestaurantSys.Models;
 
-namespace RestaurantSys.Controllers
+namespace RestaurantSys.Areas.Manager.Controllers
 {
     public class SuppliersController : Controller
     {

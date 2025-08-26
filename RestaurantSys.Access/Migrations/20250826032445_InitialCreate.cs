@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace RestaurantSys.Migrations
+namespace RestaurantSys.Access.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration
@@ -29,6 +29,24 @@ namespace RestaurantSys.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Employee",
+                columns: table => new
+                {
+                    EmployeeID = table.Column<string>(type: "nvarchar(8)", maxLength: 8, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: false),
+                    EmployeeTel = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Birthday = table.Column<DateTime>(type: "date", nullable: false),
+                    HireDate = table.Column<DateTime>(type: "date", nullable: false),
+                    IsEmployed = table.Column<bool>(type: "bit", nullable: false),
+                    Password = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StaffID", x => x.EmployeeID);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Member",
                 columns: table => new
                 {
@@ -38,28 +56,11 @@ namespace RestaurantSys.Migrations
                     Address = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Birthday = table.Column<DateTime>(type: "date", nullable: false),
                     title = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
-                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Password = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_MemberID", x => x.MemberID);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Staff",
-                columns: table => new
-                {
-                    StaffID = table.Column<string>(type: "nvarchar(8)", maxLength: 8, nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: false),
-                    StaffTel = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    Address = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Birthday = table.Column<DateTime>(type: "date", nullable: false),
-                    HireDate = table.Column<DateTime>(type: "date", nullable: false),
-                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_StaffID", x => x.StaffID);
                 });
 
             migrationBuilder.CreateTable(
@@ -107,22 +108,23 @@ namespace RestaurantSys.Migrations
                     PickUpTime = table.Column<DateTime>(type: "date", nullable: false),
                     Note = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     MemberID = table.Column<string>(type: "nvarchar(9)", nullable: false),
-                    StaffID = table.Column<string>(type: "nvarchar(8)", nullable: false)
+                    EmployeefID = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    EmployeeID = table.Column<string>(type: "nvarchar(8)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_OrderID", x => x.OrderID);
                     table.ForeignKey(
+                        name: "FK_Order_Employee_EmployeeID",
+                        column: x => x.EmployeeID,
+                        principalTable: "Employee",
+                        principalColumn: "EmployeeID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
                         name: "FK_Order_Member_MemberID",
                         column: x => x.MemberID,
                         principalTable: "Member",
                         principalColumn: "MemberID",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Order_Staff_StaffID",
-                        column: x => x.StaffID,
-                        principalTable: "Staff",
-                        principalColumn: "StaffID",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -213,14 +215,14 @@ namespace RestaurantSys.Migrations
                 column: "MemberID");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Order_EmployeeID",
+                table: "Order",
+                column: "EmployeeID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Order_MemberID",
                 table: "Order",
                 column: "MemberID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Order_StaffID",
-                table: "Order",
-                column: "StaffID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderDetail_DishID",
@@ -258,10 +260,10 @@ namespace RestaurantSys.Migrations
                 name: "Supplier");
 
             migrationBuilder.DropTable(
-                name: "Member");
+                name: "Employee");
 
             migrationBuilder.DropTable(
-                name: "Staff");
+                name: "Member");
         }
     }
 }

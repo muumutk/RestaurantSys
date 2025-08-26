@@ -8,7 +8,7 @@ using RestaurantSys.Access.Data;
 
 #nullable disable
 
-namespace RestaurantSys.Migrations
+namespace RestaurantSys.Access.Migrations
 {
     [DbContext(typeof(RestaurantSysContext))]
     partial class RestaurantSysContextModelSnapshot : ModelSnapshot
@@ -77,6 +77,47 @@ namespace RestaurantSys.Migrations
                     b.ToTable("DishIngredient");
                 });
 
+            modelBuilder.Entity("RestaurantSys.Models.Employee", b =>
+                {
+                    b.Property<string>("EmployeeID")
+                        .HasMaxLength(8)
+                        .HasColumnType("nvarchar(8)");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("Birthday")
+                        .HasColumnType("date");
+
+                    b.Property<string>("EmployeeTel")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("HireDate")
+                        .HasColumnType("date");
+
+                    b.Property<bool>("IsEmployed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("EmployeeID")
+                        .HasName("PK_StaffID");
+
+                    b.ToTable("Employee");
+                });
+
             modelBuilder.Entity("RestaurantSys.Models.Member", b =>
                 {
                     b.Property<string>("MemberID")
@@ -103,7 +144,8 @@ namespace RestaurantSys.Migrations
 
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("title")
                         .IsRequired()
@@ -147,6 +189,14 @@ namespace RestaurantSys.Migrations
                     b.Property<string>("OrderID")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("EmployeeID")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(8)");
+
+                    b.Property<string>("EmployeefID")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("MemberID")
                         .IsRequired()
                         .HasColumnType("nvarchar(9)");
@@ -161,16 +211,12 @@ namespace RestaurantSys.Migrations
                     b.Property<DateTime>("PickUpTime")
                         .HasColumnType("date");
 
-                    b.Property<string>("StaffID")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(8)");
-
                     b.HasKey("OrderID")
                         .HasName("PK_OrderID");
 
-                    b.HasIndex("MemberID");
+                    b.HasIndex("EmployeeID");
 
-                    b.HasIndex("StaffID");
+                    b.HasIndex("MemberID");
 
                     b.ToTable("Order");
                 });
@@ -194,43 +240,6 @@ namespace RestaurantSys.Migrations
                     b.HasIndex("DishID");
 
                     b.ToTable("OrderDetail");
-                });
-
-            modelBuilder.Entity("RestaurantSys.Models.Staff", b =>
-                {
-                    b.Property<string>("StaffID")
-                        .HasMaxLength(8)
-                        .HasColumnType("nvarchar(8)");
-
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime>("Birthday")
-                        .HasColumnType("date");
-
-                    b.Property<DateTime>("HireDate")
-                        .HasColumnType("date");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)");
-
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("StaffTel")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.HasKey("StaffID")
-                        .HasName("PK_StaffID");
-
-                    b.ToTable("Staff");
                 });
 
             modelBuilder.Entity("RestaurantSys.Models.Stock", b =>
@@ -342,21 +351,21 @@ namespace RestaurantSys.Migrations
 
             modelBuilder.Entity("RestaurantSys.Models.Order", b =>
                 {
+                    b.HasOne("RestaurantSys.Models.Employee", "Employee")
+                        .WithMany("Orders")
+                        .HasForeignKey("EmployeeID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("RestaurantSys.Models.Member", "Member")
                         .WithMany("Orders")
                         .HasForeignKey("MemberID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("RestaurantSys.Models.Staff", "Staff")
-                        .WithMany("Orders")
-                        .HasForeignKey("StaffID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("Employee");
 
                     b.Navigation("Member");
-
-                    b.Navigation("Staff");
                 });
 
             modelBuilder.Entity("RestaurantSys.Models.OrderDetail", b =>
@@ -396,6 +405,11 @@ namespace RestaurantSys.Migrations
                     b.Navigation("OrderDetails");
                 });
 
+            modelBuilder.Entity("RestaurantSys.Models.Employee", b =>
+                {
+                    b.Navigation("Orders");
+                });
+
             modelBuilder.Entity("RestaurantSys.Models.Member", b =>
                 {
                     b.Navigation("MemberTels");
@@ -406,11 +420,6 @@ namespace RestaurantSys.Migrations
             modelBuilder.Entity("RestaurantSys.Models.Order", b =>
                 {
                     b.Navigation("OrderDetails");
-                });
-
-            modelBuilder.Entity("RestaurantSys.Models.Staff", b =>
-                {
-                    b.Navigation("Orders");
                 });
 
             modelBuilder.Entity("RestaurantSys.Models.Stock", b =>

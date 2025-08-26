@@ -12,10 +12,10 @@
 
         public string MemberID { get; set; } = null!;
 
-        public string StaffID { get; set; } = null!;
+        public string EmployeefID { get; set; } = null!;
 
         public virtual Member Member { get; set; } = null!;
-        public virtual Staff Staff { get; set; } = null!;
+        public virtual Employee Employee { get; set; } = null!;
 
         public virtual List<OrderDetail>? OrderDetails { get; set; }
     }

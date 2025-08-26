@@ -92,13 +92,13 @@ public class MemberTelData
     [HiddenInput]
     public string MemberID { get; set; } = null!;
 }
-public class StaffData
+public class EmployeeData
 {
     [Display(Name = "員工編號")]
     [Required(ErrorMessage = "員工編號為必填欄位")]
     [StringLength(8,ErrorMessage ="員工編號不可超過8個字")]
     [Key]
-    public string StaffID { get; set; } = null!;
+    public string EmployeeID { get; set; } = null!;
 
     [Display(Name="姓名")]
     [Required(ErrorMessage ="姓名欄位不可為空")]
@@ -108,7 +108,7 @@ public class StaffData
     [Display(Name="員工電話")]
     [Required(ErrorMessage ="電話欄位不可為空")]
     [StringLength(20,ErrorMessage ="電話欄位不可超過20碼")]
-    public string StaffTel { get; set; } = null!;
+    public string EmployeeTel { get; set; } = null!;
 
     [Display(Name = "地址")]
     [Required(ErrorMessage = "地址為必填欄位")]
@@ -126,6 +126,9 @@ public class StaffData
     [DisplayFormat(DataFormatString = "{0:yyyy/MM/dd}")]
     [Required(ErrorMessage = "起填寫到職日期")]
     public DateTime HireDate { get; set; }
+
+    [Display(Name = "是否在職")]
+    public bool IsEmployed { get; set; } = true;
 
     [Display(Name = "密碼")]
     [Required(ErrorMessage = "請設定密碼")]
@@ -287,8 +290,8 @@ public partial class MemberTel
 {
 }
 
-[ModelMetadataType(typeof(StaffData))]
-public partial class Staff
+[ModelMetadataType(typeof(EmployeeData))]
+public partial class Employee
 {
 }
 

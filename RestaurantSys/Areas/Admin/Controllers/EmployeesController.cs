@@ -8,24 +8,25 @@ using Microsoft.EntityFrameworkCore;
 using RestaurantSys.Access.Data;
 using RestaurantSys.Models;
 
-namespace RestaurantSys.Controllers
+namespace RestaurantSys.Areas.Admin.Controllers
 {
-    public class MembersController : Controller
+    [Area("Admin")]
+    public class EmployeesController : Controller
     {
         private readonly RestaurantSysContext _context;
 
-        public MembersController(RestaurantSysContext context)
+        public EmployeesController(RestaurantSysContext context)
         {
             _context = context;
         }
 
-        // GET: Members
+        // GET: Admin/Employees
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Member.ToListAsync());
+            return View(await _context.Employee.ToListAsync());
         }
 
-        // GET: Members/Details/5
+        // GET: Admin/Employees/Details/5
         public async Task<IActionResult> Details(string id)
         {
             if (id == null)
@@ -33,39 +34,39 @@ namespace RestaurantSys.Controllers
                 return NotFound();
             }
 
-            var member = await _context.Member
-                .FirstOrDefaultAsync(m => m.MemberID == id);
-            if (member == null)
+            var employee = await _context.Employee
+                .FirstOrDefaultAsync(m => m.EmployeeID == id);
+            if (employee == null)
             {
                 return NotFound();
             }
 
-            return View(member);
+            return View(employee);
         }
 
-        // GET: Members/Create
+        // GET: Admin/Employees/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Members/Create
+        // POST: Admin/Employees/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("MemberID,Name,City,Address,Birthday,title,Password")] Member member)
+        public async Task<IActionResult> Create([Bind("EmployeeID,Name,EmployeeTel,Address,Birthday,HireDate,IsEmployed,Password")] Employee employee)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(member);
+                _context.Add(employee);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(member);
+            return View(employee);
         }
 
-        // GET: Members/Edit/5
+        // GET: Admin/Employees/Edit/5
         public async Task<IActionResult> Edit(string id)
         {
             if (id == null)
@@ -73,22 +74,22 @@ namespace RestaurantSys.Controllers
                 return NotFound();
             }
 
-            var member = await _context.Member.FindAsync(id);
-            if (member == null)
+            var employee = await _context.Employee.FindAsync(id);
+            if (employee == null)
             {
                 return NotFound();
             }
-            return View(member);
+            return View(employee);
         }
 
-        // POST: Members/Edit/5
+        // POST: Admin/Employees/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("MemberID,Name,City,Address,Birthday,title,Password")] Member member)
+        public async Task<IActionResult> Edit(string id, [Bind("EmployeeID,Name,EmployeeTel,Address,Birthday,HireDate,IsEmployed,Password")] Employee employee)
         {
-            if (id != member.MemberID)
+            if (id != employee.EmployeeID)
             {
                 return NotFound();
             }
@@ -97,12 +98,12 @@ namespace RestaurantSys.Controllers
             {
                 try
                 {
-                    _context.Update(member);
+                    _context.Update(employee);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!MemberExists(member.MemberID))
+                    if (!EmployeeExists(employee.EmployeeID))
                     {
                         return NotFound();
                     }
@@ -113,14 +114,13 @@ namespace RestaurantSys.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(member);
+            return View(employee);
         }
 
- 
 
-        private bool MemberExists(string id)
+        private bool EmployeeExists(string id)
         {
-            return _context.Member.Any(e => e.MemberID == id);
+            return _context.Employee.Any(e => e.EmployeeID == id);
         }
     }
 }

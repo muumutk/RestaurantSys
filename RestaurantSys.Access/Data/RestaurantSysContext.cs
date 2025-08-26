@@ -16,7 +16,7 @@ namespace RestaurantSys.Access.Data
 
         public virtual DbSet<MemberTel> MemberTel { get; set; }
 
-        public virtual DbSet<Staff> Staff { get; set; }
+        public virtual DbSet<Employee> Employee { get; set; }
 
         public virtual DbSet<Supplier> Supplier { get; set; }
 
@@ -53,6 +53,7 @@ namespace RestaurantSys.Access.Data
                 entity.Property(e => e.Address).HasMaxLength(100);
                 entity.Property(e => e.Birthday).HasColumnType("date");
                 entity.Property(e => e.title).HasMaxLength(10);
+                entity.Property(e => e.Password).HasMaxLength(200);
             });
 
             modelBuilder.Entity<MemberTel>(entity =>
@@ -62,15 +63,16 @@ namespace RestaurantSys.Access.Data
                 entity.Property(e => e.MemberID).HasMaxLength(9);
             });
 
-            modelBuilder.Entity<Staff>(entity =>
+            modelBuilder.Entity<Employee>(entity =>
             {
-                entity.HasKey(e => e.StaffID).HasName("PK_StaffID");
-                entity.Property(e => e.StaffID).HasMaxLength(8);
+                entity.HasKey(e => e.EmployeeID).HasName("PK_StaffID");
+                entity.Property(e => e.EmployeeID).HasMaxLength(8);
                 entity.Property(e => e.Name).HasMaxLength(40);
-                entity.Property(e => e.StaffTel).HasMaxLength(20);
+                entity.Property(e => e.EmployeeTel).HasMaxLength(20);
                 entity.Property(e => e.Address).HasMaxLength(100);
                 entity.Property(e => e.Birthday).HasColumnType("date");
                 entity.Property(e => e.HireDate).HasColumnType("date");
+                entity.Property(e => e.Password).HasMaxLength(200);
             });
 
             modelBuilder.Entity<Supplier>(entity =>

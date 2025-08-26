@@ -1,18 +1,20 @@
 ﻿namespace RestaurantSys.Models
 {
-    public partial class Staff
+    public partial class Employee
     {
-        public string StaffID { get; set; } = null!;
+        public string EmployeeID { get; set; } = null!;
 
         public string Name { get; set; } = null!;
 
-        public string StaffTel { get; set; } = null!;   
+        public string EmployeeTel { get; set; } = null!;   
 
         public string Address { get; set; } = null!;
 
         public DateTime Birthday { get; set; }
 
         public DateTime HireDate { get; set; }
+
+        public bool IsEmployed { get; set; } = true;
 
         public string Password { get; set; } = null!;
 
