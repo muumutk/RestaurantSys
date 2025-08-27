@@ -8,24 +8,25 @@ using Microsoft.EntityFrameworkCore;
 using RestaurantSys.Access.Data;
 using RestaurantSys.Models;
 
-namespace RestaurantSys.Areas.Manager.Controllers
+namespace RestaurantSys.Controllers
 {
-    public class SuppliersController : Controller
+    [Area("User")]
+    public class MenuController : Controller
     {
         private readonly RestaurantSysContext _context;
 
-        public SuppliersController(RestaurantSysContext context)
+        public MenuController(RestaurantSysContext context)
         {
             _context = context;
         }
 
-        // GET: Suppliers
+        // GET: User/Menu
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Supplier.ToListAsync());
+            return View(await _context.Dish.ToListAsync());
         }
 
-        // GET: Suppliers/Details/5
+        // GET: User/Menu/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -33,39 +34,39 @@ namespace RestaurantSys.Areas.Manager.Controllers
                 return NotFound();
             }
 
-            var supplier = await _context.Supplier
-                .FirstOrDefaultAsync(m => m.SupplierID == id);
-            if (supplier == null)
+            var dish = await _context.Dish
+                .FirstOrDefaultAsync(m => m.DishID == id);
+            if (dish == null)
             {
                 return NotFound();
             }
 
-            return View(supplier);
+            return View(dish);
         }
 
-        // GET: Suppliers/Create
+        // GET: User/Menu/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Suppliers/Create
+        // POST: User/Menu/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("SupplierID,SupplierName,ContactPerson,SupplierTel,Address")] Supplier supplier)
+        public async Task<IActionResult> Create([Bind("DishID,DishName,Description,PhotoPath,DishPrice,Note")] Dish dish)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(supplier);
+                _context.Add(dish);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(supplier);
+            return View(dish);
         }
 
-        // GET: Suppliers/Edit/5
+        // GET: User/Menu/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -73,22 +74,22 @@ namespace RestaurantSys.Areas.Manager.Controllers
                 return NotFound();
             }
 
-            var supplier = await _context.Supplier.FindAsync(id);
-            if (supplier == null)
+            var dish = await _context.Dish.FindAsync(id);
+            if (dish == null)
             {
                 return NotFound();
             }
-            return View(supplier);
+            return View(dish);
         }
 
-        // POST: Suppliers/Edit/5
+        // POST: User/Menu/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("SupplierID,SupplierName,ContactPerson,SupplierTel,Address")] Supplier supplier)
+        public async Task<IActionResult> Edit(int id, [Bind("DishID,DishName,Description,PhotoPath,DishPrice,Note")] Dish dish)
         {
-            if (id != supplier.SupplierID)
+            if (id != dish.DishID)
             {
                 return NotFound();
             }
@@ -97,12 +98,12 @@ namespace RestaurantSys.Areas.Manager.Controllers
             {
                 try
                 {
-                    _context.Update(supplier);
+                    _context.Update(dish);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!SupplierExists(supplier.SupplierID))
+                    if (!DishExists(dish.DishID))
                     {
                         return NotFound();
                     }
@@ -113,12 +114,45 @@ namespace RestaurantSys.Areas.Manager.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(supplier);
+            return View(dish);
         }
 
-        private bool SupplierExists(int id)
+        // GET: User/Menu/Delete/5
+        public async Task<IActionResult> Delete(int? id)
         {
-            return _context.Supplier.Any(e => e.SupplierID == id);
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var dish = await _context.Dish
+                .FirstOrDefaultAsync(m => m.DishID == id);
+            if (dish == null)
+            {
+                return NotFound();
+            }
+
+            return View(dish);
+        }
+
+        // POST: User/Menu/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var dish = await _context.Dish.FindAsync(id);
+            if (dish != null)
+            {
+                _context.Dish.Remove(dish);
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        private bool DishExists(int id)
+        {
+            return _context.Dish.Any(e => e.DishID == id);
         }
     }
 }

@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Areas\Employee\**" />
+    <Content Remove="Areas\Employee\**" />
+    <EmbeddedResource Remove="Areas\Employee\**" />
+    <None Remove="Areas\Employee\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.8">
       <PrivateAssets>all</PrivateAssets>
@@ -18,13 +25,6 @@
   <ItemGroup>
     <ProjectReference Include="..\RestaurantSys.Access\RestaurantSys.Access.csproj" />
     <ProjectReference Include="..\RestaurantSys.Models\RestaurantSys.Models.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Areas\Employee\Controllers\" />
-    <Folder Include="Areas\Employee\Data\" />
-    <Folder Include="Areas\Employee\Models\" />
-    <Folder Include="Areas\Employee\Views\" />
   </ItemGroup>
 
 </Project>
