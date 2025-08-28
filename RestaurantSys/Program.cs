@@ -9,6 +9,14 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<RestaurantSysContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("RestaurantSysConnection")));
 
+builder.Services.AddAuthentication("MemberLogin").AddCookie("MemberLogin", options =>
+{
+    options.LoginPath = "/Login/Login"; 
+    options.LogoutPath = "/Login/Logout"; 
+    options.AccessDeniedPath = "/Menu/Index"; 
+});
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
