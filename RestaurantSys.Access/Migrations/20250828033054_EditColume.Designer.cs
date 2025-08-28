@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RestaurantSys.Access.Data;
 
@@ -11,9 +12,11 @@ using RestaurantSys.Access.Data;
 namespace RestaurantSys.Access.Migrations
 {
     [DbContext(typeof(RestaurantSysContext))]
-    partial class RestaurantSysContextModelSnapshot : ModelSnapshot
+    [Migration("20250828033054_EditColume")]
+    partial class EditColume
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -144,11 +147,6 @@ namespace RestaurantSys.Access.Migrations
                     b.Property<string>("MEmail")
                         .HasMaxLength(40)
                         .HasColumnType("nvarchar(40)");
-
-                    b.Property<string>("MemberTel")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("Name")
                         .IsRequired()

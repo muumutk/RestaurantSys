@@ -10,7 +10,6 @@ using RestaurantSys.Models;
 
 namespace RestaurantSys.Controllers
 {
-    [Area("User")]
     public class MenuController : Controller
     {
         private readonly RestaurantSysContext _context;

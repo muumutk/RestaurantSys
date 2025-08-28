@@ -6,6 +6,8 @@
         
         public string Name { get; set; } = null!;
         
+        public string MemberTel { get; set; } = null!;
+
         public string City { get; set; } = null!;
         
         public string Address { get; set; } = null!;
@@ -14,9 +16,10 @@
 
         public string title { get; set; } = null!;
 
+        public string? MEmail { get; set; }
+
         public string Password { get; set; } = null!;
 
-        public virtual List<MemberTel>? MemberTels { get; set; }
         public virtual List<Order>? Orders { get; set; }
     }
 }

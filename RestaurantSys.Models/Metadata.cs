@@ -47,6 +47,11 @@ public class MemberData
     [Required(ErrorMessage = "姓名為必填欄位")]
     public string Name { get; set; } = null!;
 
+    [Display(Name = "會員電話")]
+    [Required(ErrorMessage = "電話欄位不可為空")]
+    [StringLength(20,ErrorMessage ="電話欄位不可超過20碼")]
+    public string MemberTel { get; set; } = null!;
+
     [Display(Name="縣市")]
     [Required(ErrorMessage = "縣市為必填欄位")]
     [StringLength(10,ErrorMessage ="縣市欄位最多10個字")]
@@ -68,6 +73,10 @@ public class MemberData
     [StringLength(10, ErrorMessage = "稱謂長度不能超過 10 個字元")]
     public string title { get; set; } = null!;
 
+    [Display(Name = "電子郵件")]
+    [EmailAddress(ErrorMessage = "請輸入有效的電子郵件地址")]
+    [StringLength(40, ErrorMessage = "電子郵件最多40個字元")]
+    public string? MEmail { get; set; }
 
     [Display(Name = "密碼")]
     [Required(ErrorMessage = "請設定密碼")]
@@ -76,22 +85,6 @@ public class MemberData
     public string Password { get; set; } = null!;
 }
 
-public class MemberTelData
-{
-    [Display(Name = "序號")]
-    [Required]
-    [Key]
-    public int SN { get; set; }
-
-    [Display(Name ="會員電話")]
-    [Required]
-    [StringLength(20,ErrorMessage ="電話不可超過20碼")]
-    public string MemTel { get; set; } = null!;
-
-    [ForeignKey("Member)")]
-    [HiddenInput]
-    public string MemberID { get; set; } = null!;
-}
 public class EmployeeData
 {
     [Display(Name = "員工編號")]
@@ -129,6 +122,11 @@ public class EmployeeData
 
     [Display(Name = "是否在職")]
     public bool IsEmployed { get; set; } = true;
+
+    [Display(Name = "電子郵件")]
+    [EmailAddress(ErrorMessage = "請輸入有效的電子郵件地址")]
+    [StringLength(40, ErrorMessage = "電子郵件最多40個字元")]
+    public string? EEmail { get; set; }
 
     [Display(Name = "密碼")]
     [Required(ErrorMessage = "請設定密碼")]
@@ -229,9 +227,9 @@ public class OrderData
     [HiddenInput]
     public string MemberID { get; set; } = null!;
 
-    [ForeignKey("Staff")]
+    [ForeignKey("Employee")]
     [HiddenInput]
-    public string StaffID { get; set; } = null!;
+    public string EmployeeID { get; set; } = null!;
 }
 
 public class OrderDetailData
@@ -285,10 +283,6 @@ public partial class Member
 {
 }
 
-[ModelMetadataType(typeof(MemberTelData))]
-public partial class MemberTel
-{
-}
 
 [ModelMetadataType(typeof(EmployeeData))]
 public partial class Employee

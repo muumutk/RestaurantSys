@@ -12,7 +12,7 @@
 
         public string MemberID { get; set; } = null!;
 
-        public string EmployeefID { get; set; } = null!;
+        public string EmployeeID { get; set; } = null!;
 
         public virtual Member Member { get; set; } = null!;
         public virtual Employee Employee { get; set; } = null!;

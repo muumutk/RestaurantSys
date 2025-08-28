@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RestaurantSys.Access.Data;
 
@@ -11,9 +12,11 @@ using RestaurantSys.Access.Data;
 namespace RestaurantSys.Access.Migrations
 {
     [DbContext(typeof(RestaurantSysContext))]
-    partial class RestaurantSysContextModelSnapshot : ModelSnapshot
+    [Migration("20250828015445_ReNameEmployee")]
+    partial class ReNameEmployee
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -91,10 +94,6 @@ namespace RestaurantSys.Access.Migrations
                     b.Property<DateTime>("Birthday")
                         .HasColumnType("date");
 
-                    b.Property<string>("EEmail")
-                        .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)");
-
                     b.Property<string>("EmployeeTel")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -141,15 +140,6 @@ namespace RestaurantSys.Access.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
 
-                    b.Property<string>("MEmail")
-                        .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)");
-
-                    b.Property<string>("MemberTel")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(40)
@@ -169,6 +159,32 @@ namespace RestaurantSys.Access.Migrations
                         .HasName("PK_MemberID");
 
                     b.ToTable("Member");
+                });
+
+            modelBuilder.Entity("RestaurantSys.Models.MemberTel", b =>
+                {
+                    b.Property<int>("SN")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SN"));
+
+                    b.Property<string>("MemTel")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("MemberID")
+                        .IsRequired()
+                        .HasMaxLength(9)
+                        .HasColumnType("nvarchar(9)");
+
+                    b.HasKey("SN")
+                        .HasName("PK_SN");
+
+                    b.HasIndex("MemberID");
+
+                    b.ToTable("MemberTel");
                 });
 
             modelBuilder.Entity("RestaurantSys.Models.Order", b =>
@@ -321,6 +337,17 @@ namespace RestaurantSys.Access.Migrations
                     b.Navigation("Item");
                 });
 
+            modelBuilder.Entity("RestaurantSys.Models.MemberTel", b =>
+                {
+                    b.HasOne("RestaurantSys.Models.Member", "Member")
+                        .WithMany("MemberTels")
+                        .HasForeignKey("MemberID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Member");
+                });
+
             modelBuilder.Entity("RestaurantSys.Models.Order", b =>
                 {
                     b.HasOne("RestaurantSys.Models.Employee", "Employee")
@@ -384,6 +411,8 @@ namespace RestaurantSys.Access.Migrations
 
             modelBuilder.Entity("RestaurantSys.Models.Member", b =>
                 {
+                    b.Navigation("MemberTels");
+
                     b.Navigation("Orders");
                 });
 

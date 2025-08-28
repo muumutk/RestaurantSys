@@ -14,8 +14,6 @@ namespace RestaurantSys.Access.Data
 
         public virtual DbSet<Member> Member { get; set; }
 
-        public virtual DbSet<MemberTel> MemberTel { get; set; }
-
         public virtual DbSet<Employee> Employee { get; set; }
 
         public virtual DbSet<Supplier> Supplier { get; set; }
@@ -49,29 +47,25 @@ namespace RestaurantSys.Access.Data
                 entity.HasKey(e => e.MemberID).HasName("PK_MemberID");
                 entity.Property(e => e.MemberID).HasMaxLength(9);
                 entity.Property(e => e.Name).HasMaxLength(40);
+                entity.Property(e => e.MemberTel).HasMaxLength(20);
                 entity.Property(e => e.City).HasMaxLength(10);
                 entity.Property(e => e.Address).HasMaxLength(100);
                 entity.Property(e => e.Birthday).HasColumnType("date");
                 entity.Property(e => e.title).HasMaxLength(10);
+                entity.Property(e => e.MEmail).HasMaxLength(40);
                 entity.Property(e => e.Password).HasMaxLength(200);
-            });
-
-            modelBuilder.Entity<MemberTel>(entity =>
-            {
-                entity.HasKey(e => e.SN).HasName("PK_SN");
-                entity.Property(e => e.MemTel).HasMaxLength(20);
-                entity.Property(e => e.MemberID).HasMaxLength(9);
             });
 
             modelBuilder.Entity<Employee>(entity =>
             {
-                entity.HasKey(e => e.EmployeeID).HasName("PK_StaffID");
+                entity.HasKey(e => e.EmployeeID).HasName("PK_EmployeeID");
                 entity.Property(e => e.EmployeeID).HasMaxLength(8);
                 entity.Property(e => e.Name).HasMaxLength(40);
                 entity.Property(e => e.EmployeeTel).HasMaxLength(20);
                 entity.Property(e => e.Address).HasMaxLength(100);
                 entity.Property(e => e.Birthday).HasColumnType("date");
                 entity.Property(e => e.HireDate).HasColumnType("date");
+                entity.Property(e => e.EEmail).HasMaxLength(40);
                 entity.Property(e => e.Password).HasMaxLength(200);
             });
 

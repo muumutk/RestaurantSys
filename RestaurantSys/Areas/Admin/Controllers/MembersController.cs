@@ -82,40 +82,64 @@ namespace RestaurantSys.Areas.Admin.Controllers
             return View(member);
         }
 
-        // POST: Admin/Members/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("MemberID,Name,City,Address,Birthday,title,Password")] Member member)
+        public async Task<IActionResult> Edit(string id, [Bind("MemberID,Name,MemberTel,City,Address,Birthday,title,MEmail")] Member member)
         {
-            if (id != member.MemberID)
+            // 取得原本的會員資料
+            var original = await _context.Member.AsNoTracking().FirstOrDefaultAsync(m => m.MemberID == id);
+            if (original == null)
             {
                 return NotFound();
             }
 
+            // 保留原本的密碼
+            member.Password = original.Password;
+
+            // 移除密碼的 ModelState 錯誤
+            ModelState.Remove("Password");
+
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(member);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!MemberExists(member.MemberID))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                _context.Update(member);
+                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             return View(member);
         }
+
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Edit(string id, [Bind("MemberID,Name,City,Address,Birthday,title,Password")] Member member)
+        //{
+        //    if (id != member.MemberID)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    if (ModelState.IsValid)
+        //    {
+        //        try
+        //        {
+        //            _context.Update(member);
+        //            await _context.SaveChangesAsync();
+        //        }
+        //        catch (DbUpdateConcurrencyException)
+        //        {
+        //            if (!MemberExists(member.MemberID))
+        //            {
+        //                return NotFound();
+        //            }
+        //            else
+        //            {
+        //                throw;
+        //            }
+        //        }
+        //        return RedirectToAction(nameof(Index));
+        //    }
+        //    return View(member);
+        //}
 
         private bool MemberExists(string id)
         {

@@ -16,6 +16,8 @@
 
         public bool IsEmployed { get; set; } = true;
 
+        public string? EEmail { get; set; }
+
         public string Password { get; set; } = null!;
 
         public virtual List<Order>? Orders { get; set; }
