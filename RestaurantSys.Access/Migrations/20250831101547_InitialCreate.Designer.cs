@@ -12,7 +12,7 @@ using RestaurantSys.Access.Data;
 namespace RestaurantSys.Access.Migrations
 {
     [DbContext(typeof(RestaurantSysContext))]
-    [Migration("20250826032445_InitialCreate")]
+    [Migration("20250831101547_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -94,6 +94,15 @@ namespace RestaurantSys.Access.Migrations
                     b.Property<DateTime>("Birthday")
                         .HasColumnType("date");
 
+                    b.Property<string>("EEmail")
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<string>("EName")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
                     b.Property<string>("EmployeeTel")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -105,18 +114,13 @@ namespace RestaurantSys.Access.Migrations
                     b.Property<bool>("IsEmployed")
                         .HasColumnType("bit");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)");
-
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
                     b.HasKey("EmployeeID")
-                        .HasName("PK_StaffID");
+                        .HasName("PK_EmployeeID");
 
                     b.ToTable("Employee");
                 });
@@ -132,13 +136,22 @@ namespace RestaurantSys.Access.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<DateTime>("Birthday")
+                    b.Property<DateTime?>("Birthday")
                         .HasColumnType("date");
 
                     b.Property<string>("City")
                         .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("MEmail")
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<string>("MemberTel")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -161,44 +174,15 @@ namespace RestaurantSys.Access.Migrations
                     b.ToTable("Member");
                 });
 
-            modelBuilder.Entity("RestaurantSys.Models.MemberTel", b =>
-                {
-                    b.Property<int>("SN")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SN"));
-
-                    b.Property<string>("MemTel")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("MemberID")
-                        .IsRequired()
-                        .HasMaxLength(9)
-                        .HasColumnType("nvarchar(9)");
-
-                    b.HasKey("SN")
-                        .HasName("PK_SN");
-
-                    b.HasIndex("MemberID");
-
-                    b.ToTable("MemberTel");
-                });
-
             modelBuilder.Entity("RestaurantSys.Models.Order", b =>
                 {
                     b.Property<string>("OrderID")
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(12)
+                        .HasColumnType("nvarchar(12)");
 
                     b.Property<string>("EmployeeID")
                         .IsRequired()
                         .HasColumnType("nvarchar(8)");
-
-                    b.Property<string>("EmployeefID")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("MemberID")
                         .IsRequired()
@@ -209,10 +193,10 @@ namespace RestaurantSys.Access.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime>("OrderDate")
-                        .HasColumnType("date");
+                        .HasColumnType("datetime");
 
                     b.Property<DateTime>("PickUpTime")
-                        .HasColumnType("date");
+                        .HasColumnType("datetime");
 
                     b.HasKey("OrderID")
                         .HasName("PK_OrderID");
@@ -227,15 +211,18 @@ namespace RestaurantSys.Access.Migrations
             modelBuilder.Entity("RestaurantSys.Models.OrderDetail", b =>
                 {
                     b.Property<string>("OrderID")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(12)");
 
                     b.Property<int>("DishID")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("GetTime")
-                        .HasColumnType("date");
+                    b.Property<DateTime?>("GetTime")
+                        .HasColumnType("datetime");
 
-                    b.Property<decimal>("Price")
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("UnitPrice")
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("OrderID", "DishID");
@@ -253,7 +240,7 @@ namespace RestaurantSys.Access.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ItemID"));
 
-                    b.Property<int>("CurrentStock")
+                    b.Property<int?>("CurrentStock")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsActive")
@@ -263,13 +250,13 @@ namespace RestaurantSys.Access.Migrations
 
                     b.Property<string>("ItemName")
                         .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<decimal>("ItemPrice")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("SafeStock")
+                    b.Property<int?>("SafeStock")
                         .HasColumnType("int");
 
                     b.Property<int>("SupplierID")
@@ -286,6 +273,51 @@ namespace RestaurantSys.Access.Migrations
                     b.HasIndex("SupplierID");
 
                     b.ToTable("Stock");
+                });
+
+            modelBuilder.Entity("RestaurantSys.Models.StockBatch", b =>
+                {
+                    b.Property<int>("BatchID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BatchID"));
+
+                    b.Property<DateTime>("ArrivalDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("BatchNo")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
+
+                    b.Property<string>("EmployeeID")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(8)");
+
+                    b.Property<DateTime>("ExpiryDate")
+                        .HasColumnType("date");
+
+                    b.Property<int>("ItemID")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("ItemPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StockItemID")
+                        .HasColumnType("int");
+
+                    b.HasKey("BatchID")
+                        .HasName("PK_BatchID");
+
+                    b.HasIndex("EmployeeID");
+
+                    b.HasIndex("StockItemID");
+
+                    b.ToTable("StockBatch");
                 });
 
             modelBuilder.Entity("RestaurantSys.Models.Supplier", b =>
@@ -341,17 +373,6 @@ namespace RestaurantSys.Access.Migrations
                     b.Navigation("Item");
                 });
 
-            modelBuilder.Entity("RestaurantSys.Models.MemberTel", b =>
-                {
-                    b.HasOne("RestaurantSys.Models.Member", "Member")
-                        .WithMany("MemberTels")
-                        .HasForeignKey("MemberID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Member");
-                });
-
             modelBuilder.Entity("RestaurantSys.Models.Order", b =>
                 {
                     b.HasOne("RestaurantSys.Models.Employee", "Employee")
@@ -401,6 +422,25 @@ namespace RestaurantSys.Access.Migrations
                     b.Navigation("Supplier");
                 });
 
+            modelBuilder.Entity("RestaurantSys.Models.StockBatch", b =>
+                {
+                    b.HasOne("RestaurantSys.Models.Employee", "Employee")
+                        .WithMany("StockBatches")
+                        .HasForeignKey("EmployeeID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RestaurantSys.Models.Stock", "Stock")
+                        .WithMany("StockBatches")
+                        .HasForeignKey("StockItemID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
+
+                    b.Navigation("Stock");
+                });
+
             modelBuilder.Entity("RestaurantSys.Models.Dish", b =>
                 {
                     b.Navigation("DishIngredients");
@@ -411,12 +451,12 @@ namespace RestaurantSys.Access.Migrations
             modelBuilder.Entity("RestaurantSys.Models.Employee", b =>
                 {
                     b.Navigation("Orders");
+
+                    b.Navigation("StockBatches");
                 });
 
             modelBuilder.Entity("RestaurantSys.Models.Member", b =>
                 {
-                    b.Navigation("MemberTels");
-
                     b.Navigation("Orders");
                 });
 
@@ -428,6 +468,8 @@ namespace RestaurantSys.Access.Migrations
             modelBuilder.Entity("RestaurantSys.Models.Stock", b =>
                 {
                     b.Navigation("DishIngredients");
+
+                    b.Navigation("StockBatches");
                 });
 
             modelBuilder.Entity("RestaurantSys.Models.Supplier", b =>

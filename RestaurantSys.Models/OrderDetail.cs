@@ -6,9 +6,11 @@
 
         public int DishID { get; set; }
 
-        public decimal Price { get; set; }
+        public int Quantity { get; set; }
 
-        public DateTime GetTime { get; set; }
+        public decimal UnitPrice { get; set; }
+
+        public DateTime? GetTime { get; set; }
 
         public virtual Order Order { get; set; } = null!;
         public virtual Dish Dish { get; set; } = null!;

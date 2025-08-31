@@ -11,23 +11,23 @@ using RestaurantSys.Models;
 namespace RestaurantSys.Areas.Backend.Controllers
 {
     [Area("Backend")]
-    public class StocksController : Controller
+    public class StockBatchesController : Controller
     {
         private readonly RestaurantSysContext _context;
 
-        public StocksController(RestaurantSysContext context)
+        public StockBatchesController(RestaurantSysContext context)
         {
             _context = context;
         }
 
-        // GET: Backend/Stocks
+        // GET: Backend/StockBatches
         public async Task<IActionResult> Index()
         {
-            var restaurantSysContext = _context.Stock.Include(s => s.Supplier);
+            var restaurantSysContext = _context.StockBatch.Include(s => s.Employee);
             return View(await restaurantSysContext.ToListAsync());
         }
 
-        // GET: Backend/Stocks/Details/5
+        // GET: Backend/StockBatches/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -35,42 +35,42 @@ namespace RestaurantSys.Areas.Backend.Controllers
                 return NotFound();
             }
 
-            var stock = await _context.Stock
-                .Include(s => s.Supplier)
-                .FirstOrDefaultAsync(m => m.ItemID == id);
-            if (stock == null)
+            var stockBatch = await _context.StockBatch
+                .Include(s => s.Employee)
+                .FirstOrDefaultAsync(m => m.BatchID == id);
+            if (stockBatch == null)
             {
                 return NotFound();
             }
 
-            return View(stock);
+            return View(stockBatch);
         }
 
-        // GET: Backend/Stocks/Create
+        // GET: Backend/StockBatches/Create
         public IActionResult Create()
         {
-            ViewData["SupplierID"] = new SelectList(_context.Supplier, "SupplierID", "SupplierName");
+            ViewData["EmployeeID"] = new SelectList(_context.Employee, "EmployeeID", "EmployeeID");
             return View();
         }
 
-        // POST: Backend/Stocks/Create
+        // POST: Backend/StockBatches/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ItemName,CurrentStock,SafeStock,Unit,ItemPrice,IsActive,SupplierID")] Stock stock)
+        public async Task<IActionResult> Create([Bind("BatchID,BatchNo,EmployeeID,ItemID,Quantity,ItemPrice,ArrivalDate,ExpiryDate")] StockBatch stockBatch)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(stock);
+                _context.Add(stockBatch);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["SupplierID"] = new SelectList(_context.Supplier, "SupplierID", "SupplierName", stock.SupplierID);
-            return View(stock);
+            ViewData["EmployeeID"] = new SelectList(_context.Employee, "EmployeeID", "EmployeeID", stockBatch.EmployeeID);
+            return View(stockBatch);
         }
 
-        // GET: Backend/Stocks/Edit/5
+        // GET: Backend/StockBatches/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -78,23 +78,23 @@ namespace RestaurantSys.Areas.Backend.Controllers
                 return NotFound();
             }
 
-            var stock = await _context.Stock.FindAsync(id);
-            if (stock == null)
+            var stockBatch = await _context.StockBatch.FindAsync(id);
+            if (stockBatch == null)
             {
                 return NotFound();
             }
-            ViewData["SupplierID"] = new SelectList(_context.Supplier, "SupplierID", "SupplierName", stock.SupplierID);
-            return View(stock);
+            ViewData["EmployeeID"] = new SelectList(_context.Employee, "EmployeeID", "EmployeeID", stockBatch.EmployeeID);
+            return View(stockBatch);
         }
 
-        // POST: Backend/Stocks/Edit/5
+        // POST: Backend/StockBatches/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ItemID,ItemName,CurrentStock,SafeStock,Unit,ItemPrice,IsActive,SupplierID")] Stock stock)
+        public async Task<IActionResult> Edit(int id, [Bind("BatchID,BatchNo,EmployeeID,ItemID,Quantity,ItemPrice,ArrivalDate,ExpiryDate")] StockBatch stockBatch)
         {
-            if (id != stock.ItemID)
+            if (id != stockBatch.BatchID)
             {
                 return NotFound();
             }
@@ -103,12 +103,12 @@ namespace RestaurantSys.Areas.Backend.Controllers
             {
                 try
                 {
-                    _context.Update(stock);
+                    _context.Update(stockBatch);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!StockExists(stock.ItemID))
+                    if (!StockBatchExists(stockBatch.BatchID))
                     {
                         return NotFound();
                     }
@@ -119,11 +119,11 @@ namespace RestaurantSys.Areas.Backend.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["SupplierID"] = new SelectList(_context.Supplier, "SupplierID", "SupplierName", stock.SupplierID);
-            return View(stock);
+            ViewData["EmployeeID"] = new SelectList(_context.Employee, "EmployeeID", "EmployeeID", stockBatch.EmployeeID);
+            return View(stockBatch);
         }
 
-        // GET: Backend/Stocks/Delete/5
+        // GET: Backend/StockBatches/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -131,35 +131,35 @@ namespace RestaurantSys.Areas.Backend.Controllers
                 return NotFound();
             }
 
-            var stock = await _context.Stock
-                .Include(s => s.Supplier)
-                .FirstOrDefaultAsync(m => m.ItemID == id);
-            if (stock == null)
+            var stockBatch = await _context.StockBatch
+                .Include(s => s.Employee)
+                .FirstOrDefaultAsync(m => m.BatchID == id);
+            if (stockBatch == null)
             {
                 return NotFound();
             }
 
-            return View(stock);
+            return View(stockBatch);
         }
 
-        // POST: Backend/Stocks/Delete/5
+        // POST: Backend/StockBatches/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var stock = await _context.Stock.FindAsync(id);
-            if (stock != null)
+            var stockBatch = await _context.StockBatch.FindAsync(id);
+            if (stockBatch != null)
             {
-                _context.Stock.Remove(stock);
+                _context.StockBatch.Remove(stockBatch);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool StockExists(int id)
+        private bool StockBatchExists(int id)
         {
-            return _context.Stock.Any(e => e.ItemID == id);
+            return _context.StockBatch.Any(e => e.BatchID == id);
         }
     }
 }

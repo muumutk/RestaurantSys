@@ -6,9 +6,9 @@
 
         public string ItemName { get; set; } = null!;
 
-        public int CurrentStock { get; set; }
+        public int? CurrentStock { get; set; }
 
-        public int SafeStock { get; set; }
+        public int? SafeStock { get; set; }
 
         public string Unit { get; set; } = null!;
 
@@ -21,5 +21,7 @@
         public virtual Supplier Supplier { get; set; } = null!;
 
         public virtual List<DishIngredient>? DishIngredients { get; set; }
+
+        public virtual List<StockBatch>? StockBatches { get; set; }
     }
 }

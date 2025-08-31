@@ -36,13 +36,9 @@ app.MapControllerRoute(
     pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
 
-app.MapControllerRoute(
-        name: "admin",
-        pattern: "Admin/{controller=Dashboard}/{action=Index}/{id?}");
-
-app.MapControllerRoute(
-        name: "backend",
-        pattern: "Backend/{controller=Dashboard}/{action=Index}/{id?}");
+//app.MapControllerRoute(
+//        name: "admin",
+//        pattern: "Admin/{controller=Dashboard}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
     name: "default",

@@ -1,7 +1,10 @@
-﻿namespace RestaurantSys.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace RestaurantSys.Models
 {
     public partial class Member
     {
+        [Key]
         public string MemberID { get; set; } = null!;
         
         public string Name { get; set; } = null!;
@@ -12,7 +15,7 @@
         
         public string Address { get; set; } = null!;
 
-        public DateTime Birthday { get; set; }
+        public DateTime? Birthday { get; set; }
 
         public string title { get; set; } = null!;
 

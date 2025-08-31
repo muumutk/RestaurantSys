@@ -4,7 +4,7 @@
     {
         public string EmployeeID { get; set; } = null!;
 
-        public string Name { get; set; } = null!;
+        public string EName { get; set; } = null!;
 
         public string EmployeeTel { get; set; } = null!;   
 
@@ -21,5 +21,7 @@
         public string Password { get; set; } = null!;
 
         public virtual List<Order>? Orders { get; set; }
+
+        public virtual List<StockBatch>? StockBatches { get; set; }
     }
 }

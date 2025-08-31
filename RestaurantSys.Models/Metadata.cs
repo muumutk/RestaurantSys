@@ -6,6 +6,7 @@ namespace RestaurantSys.Models;
 public class DishData
 {
     [Display(Name = "餐點編號")]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Key]
     [HiddenInput]
     public int DishID { get; set; }
@@ -39,8 +40,7 @@ public class MemberData
     [Display(Name = "會員編號")]
     [StringLength(9)]
     [HiddenInput]
-    [Key]
-    public string MemberID { get; set; } = null!;
+    public string? MemberID { get; set; } = null!;
 
     [Display(Name = "姓名")]
     [StringLength(40,ErrorMessage ="姓名最多40個字")]
@@ -64,13 +64,11 @@ public class MemberData
 
     [Display(Name = "生日")]
     [DataType(DataType.DateTime)]
-    [DisplayFormat(DataFormatString = "{0:yyyy/MM/dd}")]
-    [Required(ErrorMessage ="生日欄位不可為空")]
-    public DateTime Birthday { get; set; }
+    [DisplayFormat(DataFormatString = "{0:yyyy/MM/dd}", ApplyFormatInEditMode = true)]
+    public DateTime? Birthday { get; set; }
 
     [Display(Name = "稱謂")]
-    [Required(ErrorMessage = "請輸入稱謂，例如：先生、小姐、Mr.、Ms.")]
-    [StringLength(10, ErrorMessage = "稱謂長度不能超過 10 個字元")]
+    [Required(ErrorMessage = "請選擇稱謂")]
     public string title { get; set; } = null!;
 
     [Display(Name = "電子郵件")]
@@ -83,6 +81,11 @@ public class MemberData
     [StringLength(20, ErrorMessage = "密碼長度不能超過 20 個字")]
     [DataType(DataType.Password)]
     public string Password { get; set; } = null!;
+
+    [Display(Name = "確認密碼")]
+    [DataType(DataType.Password)]
+    [Compare("Password", ErrorMessage = "密碼不同！")]
+    public string ConfirmPassword { get; set; } = null!;
 }
 
 public class EmployeeData
@@ -96,7 +99,7 @@ public class EmployeeData
     [Display(Name="姓名")]
     [Required(ErrorMessage ="姓名欄位不可為空")]
     [StringLength(40,ErrorMessage ="姓名欄位最多40個字")]
-    public string Name { get; set; } = null!;
+    public string EName { get; set; } = null!;
 
     [Display(Name="員工電話")]
     [Required(ErrorMessage ="電話欄位不可為空")]
@@ -110,14 +113,14 @@ public class EmployeeData
 
     [Display(Name = "生日")]
     [DataType(DataType.DateTime)]
-    [DisplayFormat(DataFormatString = "{0:yyyy/MM/dd}")]
+    [DisplayFormat(DataFormatString = "{0:yyyy/MM/dd}", ApplyFormatInEditMode = true)]
     [Required(ErrorMessage = "生日欄位不可為空")]
     public DateTime Birthday { get; set; }
 
     [Display(Name = "到職日")]
     [DataType(DataType.DateTime)]
-    [DisplayFormat(DataFormatString = "{0:yyyy/MM/dd}")]
-    [Required(ErrorMessage = "起填寫到職日期")]
+    [DisplayFormat(DataFormatString = "{0:yyyy/MM/dd}", ApplyFormatInEditMode = true)]
+    [Required(ErrorMessage = "請填寫到職日期")]
     public DateTime HireDate { get; set; }
 
     [Display(Name = "是否在職")]
@@ -138,7 +141,7 @@ public class EmployeeData
 public class SupplierData
 {
     [Display(Name = "供應商編號")]
-    [Required]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Key]
     public int SupplierID { get; set; }
 
@@ -166,7 +169,7 @@ public class SupplierData
 public class StockData
 {
     [Display(Name = "物品編號")]
-    [Required]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Key]
     public int ItemID { get; set; }
 
@@ -177,11 +180,11 @@ public class StockData
 
     [Display(Name ="現有庫存量")]
     [Required(ErrorMessage ="請填寫現有庫存數量")]
-    public int CurrentStock { get; set; }
+    public int? CurrentStock { get; set; }
 
     [Display(Name ="安全庫存量")]
     [Required(ErrorMessage ="請填寫安全庫存數量")]
-    public int SafeStock { get; set; }
+    public int? SafeStock { get; set; }
 
     [Display(Name ="單位")]
     [StringLength(10,ErrorMessage ="請填寫單位")]
@@ -195,9 +198,53 @@ public class StockData
     [Display(Name = "是否啟用")]
     public bool IsActive { get; set; } = true;
 
+    [Display(Name = "供應商編號")]
     [ForeignKey("Supplier")]
     [HiddenInput]
     public int SupplierID { get; set; }
+}
+
+public class StockBatchData
+{
+    [Display(Name = "批次序號")]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    [Key]
+    public int BatchID { get; set; }
+
+    [Display(Name = "批次編號")]
+    [Required(ErrorMessage = "請輸入批次編號")]
+    [StringLength(15, ErrorMessage = "批次編號不能超過15個字元")]
+    public string BatchNo { get; set; } = null!;
+
+    [Display(Name = "數量")]
+    [Required(ErrorMessage = "請輸入數字")]
+    public int Quantity { get; set; }
+
+    [Display(Name = "進貨單價")]
+    [Required(ErrorMessage = "請輸入此批貨的單價")]
+    public decimal ItemPrice { get; set; }
+
+    [Display(Name = "到貨日期")]
+    [DataType(DataType.Date)]
+    [DisplayFormat(DataFormatString = "{0:yyyy/MM/dd}", ApplyFormatInEditMode = true)]
+    [Required(ErrorMessage = "請選擇到貨日期")]
+    public DateTime ArrivalDate { get; set; }
+
+    [Display(Name = "有效日期")]
+    [DataType(DataType.Date)]
+    [DisplayFormat(DataFormatString = "{0:yyyy/MM/dd}", ApplyFormatInEditMode = true)]
+    [Required(ErrorMessage = "請選擇有效日期")]
+    public DateTime ExpiryDate { get; set; }
+
+    [Display(Name = "員工")]
+    [ForeignKey("Employee")]
+    [Required(ErrorMessage = "請選擇員工")]
+    public string EmployeeID { get; set; } = null!;
+
+    [Display(Name = "物品編號")]
+    [Required(ErrorMessage = "請選擇物品")]
+    [ForeignKey("Stock")]
+    public int ItemID { get; set; }
 }
 
 public class OrderData
@@ -210,23 +257,25 @@ public class OrderData
 
     [Display(Name = "訂單日期")]
     [DataType(DataType.DateTime)]
-    [DisplayFormat(DataFormatString = "{0:yyyy/MM/dd hh:mm:ss}")]
+    [DisplayFormat(DataFormatString = "{0:yyyy/MM/dd hh:mm:ss}", ApplyFormatInEditMode = true)]
     [Required]
     public DateTime OrderDate { get; set; }
 
     [Display(Name = "預計取餐時間")]
     [DataType(DataType.DateTime)]
-    [DisplayFormat(DataFormatString = "{0:yyyy/MM/dd hh:mm}")]
+    [DisplayFormat(DataFormatString = "{0:yyyy/MM/dd hh:mm}", ApplyFormatInEditMode = true)]
     public DateTime PickUpTime { get; set; }
 
     [Display(Name = "備註")]
     [StringLength(100, ErrorMessage = "備註不能超過100個字")]
     public string? Note { get; set; }
 
+    [Display(Name = "會員編號")]
     [ForeignKey("Member")]
     [HiddenInput]
     public string MemberID { get; set; } = null!;
 
+    [Display(Name = "員工編號")]
     [ForeignKey("Employee")]
     [HiddenInput]
     public string EmployeeID { get; set; } = null!;
@@ -246,14 +295,18 @@ public class OrderDetailData
     [ForeignKey("Dish")]
     public int DishID { get; set; }
 
-    [Display(Name = "總金額")]
-    public decimal Price { get; set; }
+    [Display(Name = "餐點數量")]
+    [Required]
+    public int Quantity { get; set; }
+
+    [Display(Name = "餐點金額")]
+    [Required]
+    public decimal UnitPrice { get; set; }
 
     [Display(Name = "實際取餐時間")]
     [DataType(DataType.DateTime)]
-    [DisplayFormat(DataFormatString = "{0:yyyy/MM/dd hh:mm}")]
-    [Required]
-    public DateTime GetTime { get; set; }
+    [DisplayFormat(DataFormatString = "{0:yyyy/MM/dd hh:mm}", ApplyFormatInEditMode = true)]
+    public DateTime? GetTime { get; set; }
 }
 
     public class DishIngredientData
@@ -261,12 +314,12 @@ public class OrderDetailData
     [Display(Name = "餐點編號")]
     [Key]
     [ForeignKey("Dish")]
-    public long DishID { get; set; }
+    public int DishID { get; set; }
 
     [Display(Name = "物品編號")]
     [Key]
     [ForeignKey("Stock")]
-    public long ItemID { get; set; }
+    public int ItemID { get; set; }
 
     [Display(Name = "是否啟用")]
     [Required]
@@ -296,6 +349,11 @@ public partial class Supplier
 
 [ModelMetadataType(typeof(StockData))]
 public partial class Stock
+{
+}
+
+[ModelMetadataType(typeof(StockBatchData))]
+public partial class StockBatch
 {
 }
 

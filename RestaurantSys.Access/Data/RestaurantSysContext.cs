@@ -20,6 +20,8 @@ namespace RestaurantSys.Access.Data
 
         public virtual DbSet<Stock> Stock { get; set; }
 
+        public virtual DbSet<StockBatch> StockBatch { get; set; }
+
         public virtual DbSet<Order> Order { get; set; }
 
         public virtual DbSet<OrderDetail> OrderDetail { get; set; }
@@ -33,8 +35,6 @@ namespace RestaurantSys.Access.Data
             modelBuilder.Entity<Dish>(entity =>
             {
                 entity.HasKey(e => e.DishID).HasName("PK_DishID");
-
-
                 entity.Property(e => e.DishName).HasMaxLength(20);
                 entity.Property(e => e.Description).HasMaxLength(50);
                 entity.Property(e => e.PhotoPath).HasMaxLength(50);
@@ -60,7 +60,7 @@ namespace RestaurantSys.Access.Data
             {
                 entity.HasKey(e => e.EmployeeID).HasName("PK_EmployeeID");
                 entity.Property(e => e.EmployeeID).HasMaxLength(8);
-                entity.Property(e => e.Name).HasMaxLength(40);
+                entity.Property(e => e.EName).HasMaxLength(40);
                 entity.Property(e => e.EmployeeTel).HasMaxLength(20);
                 entity.Property(e => e.Address).HasMaxLength(100);
                 entity.Property(e => e.Birthday).HasColumnType("date");
@@ -81,25 +81,37 @@ namespace RestaurantSys.Access.Data
             modelBuilder.Entity<Stock>(entity =>
             {
                 entity.HasKey(e => e.ItemID).HasName("PK_StockID");
-                entity.Property(e => e.ItemName).HasMaxLength(10);
+                entity.Property(e => e.ItemName).HasMaxLength(20);
                 entity.Property(e => e.Unit).HasMaxLength(10);
                 entity.Property(e => e.ItemPrice).HasColumnType("decimal(18,2)");
                 entity.Property(e => e.IsActive).HasDefaultValue(true);
             });
 
+            modelBuilder.Entity<StockBatch>(entity =>
+            {
+                entity.HasKey(e => new { e.ItemID,e.EmployeeID });
+                entity.HasKey(e => e.BatchID).HasName("PK_BatchID");
+                entity.Property(e => e.BatchNo).HasMaxLength(15);
+                entity.Property(e => e.Quantity);
+                entity.Property(e => e.ItemPrice).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.ArrivalDate).HasColumnType("date");
+                entity.Property(e => e.ExpiryDate).HasColumnType("date");
+            });
+
             modelBuilder.Entity<Order>(entity =>
             {
                 entity.HasKey(e => e.OrderID).HasName("PK_OrderID");
-                entity.Property(e => e.OrderDate).HasColumnType("date");
-                entity.Property(e => e.PickUpTime).HasColumnType("date");
+                entity.Property(e => e.OrderID).HasMaxLength(12);
+                entity.Property(e => e.OrderDate).HasColumnType("datetime");
+                entity.Property(e => e.PickUpTime).HasColumnType("datetime");
                 entity.Property(e => e.Note).HasMaxLength(100);
             });
 
             modelBuilder.Entity<OrderDetail>(entity =>
             {
                 entity.HasKey(e => new { e.OrderID, e.DishID });
-                entity.Property(e => e.Price).HasColumnType("decimal(18,2)");
-                entity.Property(e => e.GetTime).HasColumnType("date");
+                entity.Property(e => e.UnitPrice).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.GetTime).HasColumnType("datetime");
             });
 
             modelBuilder.Entity<DishIngredient>(entity =>
