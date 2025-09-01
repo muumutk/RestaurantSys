@@ -31,7 +31,7 @@
                 @Html.DisplayNameFor(model => model.ExpiryDate)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Employee)
+                @Html.DisplayNameFor(model => model.Employee.EmployeeID)
             </th>
             <th></th>
         </tr>
@@ -58,7 +58,7 @@
                 @Html.DisplayFor(modelItem => item.ExpiryDate)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Employee.EName)
+                @Html.DisplayFor(modelItem => item.Employee.EmployeeID)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.BatchID">Edit</a> |
