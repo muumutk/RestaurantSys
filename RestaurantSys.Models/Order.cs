@@ -14,8 +14,8 @@
 
         public string EmployeeID { get; set; } = null!;
 
-        public virtual Member Member { get; set; } = null!;
-        public virtual Employee Employee { get; set; } = null!;
+        public virtual Member? Member { get; set; }
+        public virtual Employee? Employee { get; set; }
 
         public virtual List<OrderDetail>? OrderDetails { get; set; }
     }

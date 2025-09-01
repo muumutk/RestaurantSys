@@ -1,17 +1,20 @@
 ﻿@model IEnumerable<RestaurantSys.Models.Stock>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "庫存管理";
 }
 
-<h1>Index</h1>
+<h2 class="fw-bold">@ViewData["Title"]</h2>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a class="btn btn-outline-dark" asp-action="Create">新增庫存</a>
 </p>
 <table class="table">
     <thead>
         <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ItemID)
+            </th>
             <th>
                 @Html.DisplayNameFor(model => model.ItemName)
             </th>
@@ -39,6 +42,9 @@
     <tbody>
 @foreach (var item in Model) {
         <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.ItemID)
+            </td>
             <td>
                 @Html.DisplayFor(modelItem => item.ItemName)
             </td>
@@ -69,3 +75,8 @@
 }
     </tbody>
 </table>
+
+<div>
+    <a class="btn btn-outline-dark" asp-area="Backend" asp-controller="StockBatches" asp-action="Index">進貨紀錄</a>
+    <a class="btn btn-outline-dark" asp-area="Backend" asp-controller="BackendHome" asp-action="Index">回到後台首頁</a>
+</div>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,9 +25,10 @@ namespace RestaurantSys.Models
 
         public DateTime ExpiryDate { get; set; }
 
-        public virtual Stock Stock { get; set; } = null!;
+        [ForeignKey("ItemID")]
+        public virtual Stock? Stock { get; set; }
 
-        public virtual Employee Employee { get; set; } = null!;
+        public virtual Employee? Employee { get; set; }
 
     }
 

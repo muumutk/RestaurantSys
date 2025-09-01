@@ -1,0 +1,75 @@
+﻿@model IEnumerable<RestaurantSys.Models.Employee>
+
+@{
+    ViewData["Title"] = "所有員工";
+}
+
+<h2 class="fw-bold">@ViewData["Title"]</h2>
+
+<p>
+    <a class="btn btn-outline-dark" asp-action="Create">新增員工</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.EName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EmployeeTel)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Address)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Birthday)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.HireDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsEmployed)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EEmail)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.EName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EmployeeTel)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Address)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Birthday)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.HireDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsEmployed)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EEmail)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.EmployeeID">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.EmployeeID">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.EmployeeID">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+<div>
+    <a class="btn btn-outline-dark" asp-area="Backend" asp-controller="BackendHome" asp-action="Index">回到後台首頁</a>
+</div>

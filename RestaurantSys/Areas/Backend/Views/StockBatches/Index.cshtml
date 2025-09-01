@@ -1,13 +1,13 @@
 ﻿@model IEnumerable<RestaurantSys.Models.StockBatch>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "進貨紀錄";
 }
 
-<h1>Index</h1>
+<h2 class="fw-bold">@ViewData["Title"]</h2>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a class="btn btn-outline-dark" asp-action="Create">新增進貨紀錄</a>
 </p>
 <table class="table">
     <thead>
@@ -58,7 +58,7 @@
                 @Html.DisplayFor(modelItem => item.ExpiryDate)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Employee.EmployeeID)
+                @Html.DisplayFor(modelItem => item.Employee.EName)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.BatchID">Edit</a> |
@@ -69,3 +69,8 @@
 }
     </tbody>
 </table>
+
+<div>
+    <a class="btn btn-outline-dark" asp-area="Backend" asp-controller="Stocks" asp-action="Index">回到庫存管理</a>
+    <a class="btn btn-outline-dark" asp-area="Backend" asp-controller="BackendHome" asp-action="Index">回到後台首頁</a>
+</div>

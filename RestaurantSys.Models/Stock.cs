@@ -18,7 +18,7 @@
 
         public int SupplierID { get; set; }
 
-        public virtual Supplier Supplier { get; set; } = null!;
+        public virtual Supplier? Supplier { get; set; }
 
         public virtual List<DishIngredient>? DishIngredients { get; set; }
 

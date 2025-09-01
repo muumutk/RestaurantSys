@@ -96,7 +96,7 @@ public class EmployeeData
     [Key]
     public string EmployeeID { get; set; } = null!;
 
-    [Display(Name="姓名")]
+    [Display(Name="員工姓名")]
     [Required(ErrorMessage ="姓名欄位不可為空")]
     [StringLength(40,ErrorMessage ="姓名欄位最多40個字")]
     public string EName { get; set; } = null!;
@@ -212,7 +212,6 @@ public class StockBatchData
     public int BatchID { get; set; }
 
     [Display(Name = "批次編號")]
-    [Required(ErrorMessage = "請輸入批次編號")]
     [StringLength(15, ErrorMessage = "批次編號不能超過15個字元")]
     public string BatchNo { get; set; } = null!;
 

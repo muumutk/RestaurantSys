@@ -8,8 +8,8 @@
 
         public bool IsActive { get; set; } = true;
 
-        public virtual Dish Dish { get; set; } = null!;
-        public virtual Stock Item { get; set; } = null!;
+        public virtual Dish? Dish { get; set; }
+        public virtual Stock? Item { get; set; }
 
     }
 }

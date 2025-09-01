@@ -47,9 +47,19 @@ namespace RestaurantSys.Areas.Backend.Controllers
         }
 
         // GET: Backend/StockBatches/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["EmployeeID"] = new SelectList(_context.Employee, "EmployeeID", "EmployeeID");
+            ViewData["EmployeeID"] = new SelectList(await _context.Employee.ToListAsync(), "EmployeeID", "EName");
+
+            var stockItems = await _context.Stock.ToListAsync();
+
+            var itemsWithCombinedText = stockItems.Select(s => new
+            {
+                ItemID = s.ItemID,
+                ItemName = $"{s.ItemID} - {s.ItemName}"
+            }).ToList();
+
+            ViewData["ItemID"] = new SelectList(itemsWithCombinedText, "ItemID", "ItemName");
             return View();
         }
 
@@ -58,15 +68,27 @@ namespace RestaurantSys.Areas.Backend.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("BatchID,BatchNo,EmployeeID,ItemID,Quantity,ItemPrice,ArrivalDate,ExpiryDate")] StockBatch stockBatch)
+        public async Task<IActionResult> Create([Bind("EmployeeID,ItemID,Quantity,ItemPrice,ArrivalDate,ExpiryDate")] StockBatch stockBatch)
         {
+            ModelState.Remove("BatchNo");
             if (ModelState.IsValid)
             {
+                stockBatch.BatchNo = DateTime.Now.ToString("yyyyMMdd");
+
                 _context.Add(stockBatch);
                 await _context.SaveChangesAsync();
+
+                var stockItem = await _context.Stock.FindAsync(stockBatch.ItemID);
+                if (stockItem != null)
+                {
+                    stockItem.CurrentStock += stockBatch.Quantity;
+                    _context.Update(stockItem);
+                    await _context.SaveChangesAsync();
+                }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["EmployeeID"] = new SelectList(_context.Employee, "EmployeeID", "EmployeeID", stockBatch.EmployeeID);
+            ViewData["EmployeeID"] = new SelectList(_context.Employee, "EmployeeID", "EName", stockBatch.EmployeeID);
+            ViewData["ItemID"] = new SelectList(_context.Stock, "ItemID", "ItemName" , stockBatch.ItemID);
             return View(stockBatch);
         }
 

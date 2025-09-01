@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using RestaurantSys.Access.Data;
+using RestaurantSys.Areas.Backend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,8 @@ builder.Services.AddAuthentication("MemberLogin").AddCookie("MemberLogin", optio
     options.AccessDeniedPath = "/Menu/Index"; 
 });
 
+
+builder.Services.AddScoped<EmployeeService>();
 
 var app = builder.Build();
 
