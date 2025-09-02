@@ -37,7 +37,7 @@ namespace RestaurantSys.Access.Data
                 entity.HasKey(e => e.DishID).HasName("PK_DishID");
                 entity.Property(e => e.DishName).HasMaxLength(20);
                 entity.Property(e => e.Description).HasMaxLength(50);
-                entity.Property(e => e.PhotoPath).HasMaxLength(50);
+                entity.Property(e => e.PhotoPath).HasMaxLength(300);
                 entity.Property(e => e.DishPrice).HasColumnType("decimal(18, 2)");
                 entity.Property(e => e.Note).HasMaxLength(40);
             });

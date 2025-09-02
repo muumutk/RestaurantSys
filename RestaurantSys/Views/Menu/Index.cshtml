@@ -1,69 +1,45 @@
 ﻿@model IEnumerable<RestaurantSys.Models.Dish>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "菜單一覽";
 }
 
-<h1>Index</h1>
+<h2 class="fw-bold">@ViewData["Title"]</h2>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+<div class="container-fluid">
+    <div class="row g-4">
+        @foreach (var item in Model)
+        {
+            <div class="col-12 col-md-6 col-lg-4 d-flex">
+                <div class="card w-100 shadow-sm">
+                    <div class="card-img-top-container text-center pt-3">
+                        <img src="@Url.Content(item.PhotoPath)" class="card-img-top" alt="@item.DishName" style="max-height: 200px; object-fit: cover;">
+                    </div>
 
-<div class="card" style="width: 18rem;">
-    <img src="..." class="card-img-top" alt="...">
-    <div class="card-body">
-        <h5 class="card-title">Card title</h5>
-        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card’s content.</p>
-        <a href="#" class="btn btn-primary">Go somewhere</a>
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title fw-bold">@Html.DisplayFor(modelItem => item.DishName)</h5>
+                        <p class="card-text text-muted">@Html.DisplayFor(modelItem => item.Description)</p>
+
+                        <div class="mt-auto">
+                            <h4 class="text-end fw-bold text-danger">
+                                NT$ @Html.DisplayFor(modelItem => item.DishPrice)
+                            </h4>
+                            @if (!string.IsNullOrEmpty(item.Note))
+                            {
+                                <p class="text-secondary small fst-italic">備註：@Html.DisplayFor(modelItem => item.Note)</p>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="card-footer p-0">
+                        <div class="d-grid gap-2">
+                            <div class="btn-group">
+                                <a class="btn btn btn-outline-dark" asp-action="" asp-route-id="@item.DishID"><i class="bi bi-cart2"></i> 加入購物車</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
     </div>
 </div>
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.DishName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PhotoPath)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DishPrice)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Note)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.DishName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PhotoPath)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DishPrice)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Note)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.DishID">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.DishID">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.DishID">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>

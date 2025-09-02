@@ -22,132 +22,32 @@ namespace RestaurantSys.Controllers
         // GET: User/Menu
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Dish.ToListAsync());
+            var activeDishes = await _context.Dish
+                                 .Where(d => d.IsActive)
+                                 .OrderBy(d => d.DishID) // 依 ID 排序，讓順序固定
+                                 .ToListAsync();
+            return View(activeDishes);
         }
 
         // GET: User/Menu/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
+        //public async Task<IActionResult> Details(int? id)
+        //{
+        //    if (id == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            var dish = await _context.Dish
-                .FirstOrDefaultAsync(m => m.DishID == id);
-            if (dish == null)
-            {
-                return NotFound();
-            }
+        //    var dish = await _context.Dish
+        //        .FirstOrDefaultAsync(m => m.DishID == id);
+        //    if (dish == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            return View(dish);
-        }
+        //    return View(dish);
+        //}
 
-        // GET: User/Menu/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
 
-        // POST: User/Menu/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("DishID,DishName,Description,PhotoPath,DishPrice,Note")] Dish dish)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(dish);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(dish);
-        }
-
-        // GET: User/Menu/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var dish = await _context.Dish.FindAsync(id);
-            if (dish == null)
-            {
-                return NotFound();
-            }
-            return View(dish);
-        }
-
-        // POST: User/Menu/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("DishID,DishName,Description,PhotoPath,DishPrice,Note")] Dish dish)
-        {
-            if (id != dish.DishID)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(dish);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!DishExists(dish.DishID))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(dish);
-        }
-
-        // GET: User/Menu/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var dish = await _context.Dish
-                .FirstOrDefaultAsync(m => m.DishID == id);
-            if (dish == null)
-            {
-                return NotFound();
-            }
-
-            return View(dish);
-        }
-
-        // POST: User/Menu/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var dish = await _context.Dish.FindAsync(id);
-            if (dish != null)
-            {
-                _context.Dish.Remove(dish);
-            }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
 
         private bool DishExists(int id)
         {

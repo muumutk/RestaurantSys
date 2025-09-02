@@ -14,6 +14,8 @@
 
         public string? Note { get; set; }
 
+        public bool IsActive { get; set; } = true;
+
         public virtual List<DishIngredient>? DishIngredients { get; set; }
         public virtual List<OrderDetail>? OrderDetails { get; set; }
     }

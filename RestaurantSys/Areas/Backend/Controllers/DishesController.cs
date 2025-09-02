@@ -1,13 +1,14 @@
 ﻿
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using RestaurantSys.Access.Data;
 using RestaurantSys.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace RestaurantSys.Areas.Backend.Controllers
 {
@@ -15,10 +16,12 @@ namespace RestaurantSys.Areas.Backend.Controllers
     public class DishesController : Controller
     {
         private readonly RestaurantSysContext _context;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public DishesController(RestaurantSysContext context)
+        public DishesController(RestaurantSysContext context, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         // GET: Backend/Dishes
@@ -56,7 +59,7 @@ namespace RestaurantSys.Areas.Backend.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("DishID,DishName,Description,PhotoPath,DishPrice,Note")] Dish dish)
+        public async Task<IActionResult> Create([Bind("DishID,DishName,Description,PhotoPath,DishPrice,Note,IsActive")] Dish dish)
         {
             if (ModelState.IsValid)
             {
@@ -80,6 +83,7 @@ namespace RestaurantSys.Areas.Backend.Controllers
             {
                 return NotFound();
             }
+            Console.WriteLine($"Edit GET: Dish {dish.DishID}, IsActive={dish.IsActive}");
             return View(dish);
         }
 
@@ -88,8 +92,9 @@ namespace RestaurantSys.Areas.Backend.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("DishID,DishName,Description,PhotoPath,DishPrice,Note")] Dish dish)
+        public async Task<IActionResult> Edit(int id, [Bind("DishID,DishName,Description,PhotoPath,DishPrice,Note,IsActive")] Dish dish, IFormFile DishPhoto)
         {
+            ModelState.Remove("DishPhoto");
             if (id != dish.DishID)
             {
                 return NotFound();
@@ -97,14 +102,55 @@ namespace RestaurantSys.Areas.Backend.Controllers
 
             if (ModelState.IsValid)
             {
+                var dishToUpdate = await _context.Dish.FindAsync(id);
+                if (dishToUpdate == null)
+                {
+                    return NotFound();
+                }
+
+                // 照片處理（略，同你原本的程式碼）
+                if (DishPhoto != null && DishPhoto.Length > 0)
+                {
+                    if (!string.IsNullOrEmpty(dishToUpdate.PhotoPath))
+                    {
+                        var oldFilePath = Path.Combine(_webHostEnvironment.WebRootPath, dishToUpdate.PhotoPath.TrimStart('~', '/'));
+                        if (System.IO.File.Exists(oldFilePath))
+                        {
+                            System.IO.File.Delete(oldFilePath);
+                        }
+                    }
+
+                    var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "DishPhotos");
+                    if (!Directory.Exists(uploadsFolder))
+                    {
+                        Directory.CreateDirectory(uploadsFolder);
+                    }
+                    var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(DishPhoto.FileName);
+                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await DishPhoto.CopyToAsync(fileStream);
+                    }
+
+                    dishToUpdate.PhotoPath = "/DishPhotos/" + uniqueFileName;
+                }
+
+                // 更新其他欄位（包含 IsActive）
+                dishToUpdate.DishName = dish.DishName;
+                dishToUpdate.Description = dish.Description;
+                dishToUpdate.DishPrice = dish.DishPrice;
+                dishToUpdate.Note = dish.Note;
+                dishToUpdate.IsActive = dish.IsActive;
+
                 try
                 {
-                    _context.Update(dish);
+                    _context.Update(dishToUpdate);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!DishExists(dish.DishID))
+                    if (!DishExists(dishToUpdate.DishID))
                     {
                         return NotFound();
                     }
@@ -115,6 +161,7 @@ namespace RestaurantSys.Areas.Backend.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            Console.WriteLine($"Edit POST: Dish {dish.DishID}, IsActive={dish.IsActive}");
             return View(dish);
         }
 

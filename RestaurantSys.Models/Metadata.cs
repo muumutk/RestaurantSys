@@ -22,7 +22,7 @@ public class DishData
     public string Description { get; set; } = null!;
 
     [Display(Name = "照片")]
-    [StringLength(50,ErrorMessage ="照片路徑最多50字元")]
+    [StringLength(300,ErrorMessage ="照片路徑最多300字元")]
     public string? PhotoPath { get; set; }
 
     [Display(Name = "價格")]
@@ -32,6 +32,9 @@ public class DishData
     [Display(Name = "備註")]
     [StringLength(40, ErrorMessage = "備註最多40個字")]
     public string? Note { get; set; }
+
+    [Display(Name ="是否啟用")]
+    public bool IsActive { get; set; } = true;
 }
 
 
