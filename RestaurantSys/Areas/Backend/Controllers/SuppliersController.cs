@@ -26,6 +26,34 @@ namespace RestaurantSys.Areas.Backend.Controllers
             return View(await _context.Supplier.ToListAsync());
         }
 
+
+        [HttpGet]
+        public async Task<IActionResult> GetProductsBySupplier(int id)
+        {
+            var supplier = await _context.Supplier.Include(s => s.Stocks).FirstOrDefaultAsync(s => s.SupplierID == id);
+
+            if(supplier == null)
+            {
+                return NotFound();
+            }
+
+            var productsData = supplier.Stocks.Select(p => new
+            {
+                stockID = p.ItemID,
+                stockName = p.ItemName,
+                unitPrice = p.ItemPrice,
+                currentStock = p.CurrentStock,
+                isActive = p.IsActive
+            }).ToList();
+
+            return Json(new
+            {
+                supplierName = supplier.SupplierName,
+                products = productsData
+            });
+        }
+
+
         // GET: Backend/Suppliers/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -115,39 +143,6 @@ namespace RestaurantSys.Areas.Backend.Controllers
                 return RedirectToAction(nameof(Index));
             }
             return View(supplier);
-        }
-
-        // GET: Backend/Suppliers/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var supplier = await _context.Supplier
-                .FirstOrDefaultAsync(m => m.SupplierID == id);
-            if (supplier == null)
-            {
-                return NotFound();
-            }
-
-            return View(supplier);
-        }
-
-        // POST: Backend/Suppliers/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var supplier = await _context.Supplier.FindAsync(id);
-            if (supplier != null)
-            {
-                _context.Supplier.Remove(supplier);
-            }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
         }
 
         private bool SupplierExists(int id)

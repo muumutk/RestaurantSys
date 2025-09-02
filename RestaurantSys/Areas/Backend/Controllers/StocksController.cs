@@ -53,6 +53,26 @@ namespace RestaurantSys.Areas.Backend.Controllers
             return View();
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetSupplierDetails(int id)
+        {
+            var supplier = await _context.Supplier.FirstOrDefaultAsync(s => s.SupplierID == id);
+
+            if (supplier == null)
+            {
+                return NotFound();
+            }
+
+            return Json(new
+            {
+                supplierID = supplier.SupplierID,
+                supplierName = supplier.SupplierName,
+                contactPerson = supplier.ContactPerson,
+                supplierTel = supplier.SupplierTel,
+                address = supplier.Address
+            });
+        }
+
         // POST: Backend/Stocks/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.

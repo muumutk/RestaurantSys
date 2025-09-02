@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RestaurantSys.Access.Data;
@@ -70,6 +71,15 @@ namespace RestaurantSys.Controllers
                 return View(member);
 
             }
+
+
+        [Authorize]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync("MemberLogin"); // 登出時清除 Cookie
+            return RedirectToAction("Index", "Rooms");
+        }
+
 
         private static string ComputeSha256Hash(string rawData)
         {

@@ -1,13 +1,13 @@
 ﻿@model IEnumerable<RestaurantSys.Models.Supplier>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "所有供應商";
 }
 
-<h1>Index</h1>
+<h2 class="fw-bold">@ViewData["Title"]</h2>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a class="btn btn-outline-dark" asp-action="Create">新增供應商</a>
 </p>
 <table class="table">
     <thead>
@@ -43,11 +43,102 @@
                 @Html.DisplayFor(modelItem => item.Address)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.SupplierID">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.SupplierID">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.SupplierID">Delete</a>
+                    <a class="btn btn-outline-dark btn-sm" asp-action="Edit" asp-route-id="@item.SupplierID">編輯</a> |
+                    <a class="btn btn-outline-dark btn-sm" asp-action="Details" asp-route-id="@item.SupplierID">詳細資料</a> |
+                    <button type="button" class="btn btn-outline-dark btn-sm show-products-btn" data-supplier-id="@item.SupplierID">
+                        查看產品
+                    </button>
             </td>
         </tr>
 }
     </tbody>
 </table>
+
+
+<div id="productModal" class="modal" style="display: none;">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle"></h5>
+                <button type="button" class="btn-close close-btn" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table id="productsTable" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>物品編號</th>
+                            <th>物品名稱</th>
+                            <th>單價</th>
+                            <th>現有庫存</th>
+                            <th>是否啟用</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                <div class="text-end">
+                <a class="btn btn-outline-dark btn-sm" asp-area="Backend" asp-controller="Stocks" asp-action="Index">前往產品列表</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div>
+    <a class="btn btn-outline-dark" asp-area="Backend" asp-controller="BackendHome" asp-action="Index">回到後台首頁</a>
+</div>
+
+
+@section Scripts {
+
+    <script>
+        $(document).ready(function() {
+            // 處理「查看產品」按鈕點擊事件
+            $('.show-products-btn').on('click', function() {
+                var supplierId = $(this).data('supplier-id');
+                var url = '@Url.Action("GetProductsBySupplier", "Suppliers", new { area = "Backend" })';
+
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    data: { id: supplierId },
+                    success: function(data) {
+                        $('#productsTable tbody').empty(); // 清空舊內容
+                        $('#modalTitle').text(data.supplierName + ' 的產品列表');
+
+                        // 遍歷並新增每一筆產品資料
+                        $.each(data.products, function(index, product) {
+                            var isActiveText = product.isActive ? '是' : '否';
+
+                            var categoryText = product.stockCategory || '無';
+
+                            var newRow = `<tr>
+                                            <td>${product.stockID}</td>
+                                            <td>${product.stockName}</td>
+                                            <td>${product.unitPrice}</td>
+                                            <td>${product.currentStock}</td>
+                                            <td>${isActiveText}</td>
+                                          </tr>`;
+                            $('#productsTable tbody').append(newRow);
+                        });
+
+                        // 使用 Bootstrap 的方法顯示 Modal
+                        var myModal = new bootstrap.Modal(document.getElementById('productModal'));
+                        myModal.show();
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("AJAX Error: " + status + " - " + error);
+                        alert('載入產品時發生錯誤。');
+                    }
+                });
+            });
+
+            // 關閉 Modal 按鈕
+            $('.close-btn').on('click', function() {
+                var myModal = bootstrap.Modal.getInstance(document.getElementById('productModal'));
+                myModal.hide();
+            });
+        });
+    </script>
+}

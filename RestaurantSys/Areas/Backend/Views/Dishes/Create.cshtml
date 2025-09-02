@@ -24,7 +24,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="PhotoPath" class="control-label"></label>
-                <input asp-for="PhotoPath" class="form-control" />
+                <input type="file" name="newPhoto" id="newPhoto" class="form-control" />
                 <span asp-validation-for="PhotoPath" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -50,4 +50,24 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $('#newPhoto').on( 'change' , function(){
+            let file= this.files[0];
+
+            if (file) {
+                let reader = new FileReader();
+
+                reader.onload = function (e) {
+                    $('#photoPreview').attr('src', e.target.result);
+                }
+                reader.readAsDataURL(file);
+
+            } else {
+                $('#photoPreview').attr('src', '');
+            }
+
+        } );
+    </script>
+
 }
