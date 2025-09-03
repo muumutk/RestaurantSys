@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using RestaurantSys.Access.Data;
-using RestaurantSys.Areas.Backend.Services;
+using RestaurantSys.Areas.Admin.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,8 +12,8 @@ builder.Services.AddDbContext<RestaurantSysContext>(options =>
 
 builder.Services.AddAuthentication("MemberLogin").AddCookie("MemberLogin", options =>
 {
-    options.LoginPath = "/Login/Login"; 
-    options.LogoutPath = "/Login/Logout"; 
+    options.LoginPath = "/MemberLogin/Login"; 
+    options.LogoutPath = "/Logout/Logout"; 
     options.AccessDeniedPath = "/Menu/Index"; 
 });
 
@@ -30,6 +30,8 @@ if (!app.Environment.IsDevelopment())
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

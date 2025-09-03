@@ -1,0 +1,92 @@
+﻿@model IEnumerable<RestaurantSys.Models.Stock>
+
+@{
+    ViewData["Title"] = "庫存管理";
+}
+
+<h2 class="fw-bold">@ViewData["Title"]</h2>
+
+<p>
+    <a class="btn btn-outline-dark" asp-action="Create">新增庫存</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ItemID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ItemName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CurrentStock)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SafeStock)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Unit)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ItemPrice)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsActive)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Supplier.SupplierName)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.ItemID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ItemName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CurrentStock)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SafeStock)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Unit)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ItemPrice)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsActive)
+            </td>
+                <td>
+                    @if (item.Supplier != null)
+                    {
+                        <a asp-controller="Suppliers" asp-action="Details" asp-route-id="@item.SupplierID">
+                            @Html.DisplayFor(modelItem => item.Supplier.SupplierName)
+                        </a>
+                    }
+                    else
+                    {
+                        <span>無供應商資訊</span>
+                        <a asp-asp-controller="Suppliers" asp-action="Create">立即建立？</a>
+                    }
+                </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.ItemID">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.ItemID">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.ItemID">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+<div>
+    <a class="btn btn-outline-dark" asp-area="Admin" asp-controller="StockBatches" asp-action="Index">進貨紀錄</a>
+    <a class="btn btn-outline-dark" asp-area="Admin" asp-controller="AdminHome" asp-action="Index">回到後台首頁</a>
+</div>

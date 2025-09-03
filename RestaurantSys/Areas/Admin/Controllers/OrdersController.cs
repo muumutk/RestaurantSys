@@ -6,30 +6,28 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using RestaurantSys.Access.Data;
-using System.Threading.Tasks;
 using RestaurantSys.Models;
-using RestaurantSys.Areas.Admin.Services;
 
 namespace RestaurantSys.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class EmployeesController : Controller
+    public class OrdersController : Controller
     {
         private readonly RestaurantSysContext _context;
 
-        private readonly EmployeeService _employeeService;
-
-        public EmployeesController(RestaurantSysContext context , EmployeeService employeeService)
+        public OrdersController(RestaurantSysContext context)
         {
             _context = context;
-            _employeeService = employeeService;
         }
 
+        // GET: Backend/Orders
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Employee.ToListAsync());
+            var restaurantSysContext = _context.Order.Include(o => o.Member);
+            return View(await restaurantSysContext.ToListAsync());
         }
 
+        // GET: Backend/Orders/Details/5
         public async Task<IActionResult> Details(string id)
         {
             if (id == null)
@@ -37,49 +35,42 @@ namespace RestaurantSys.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var employee = await _context.Employee
-                .FirstOrDefaultAsync(m => m.EmployeeID == id);
-            if (employee == null)
+            var order = await _context.Order
+                .Include(o => o.Member)
+                .FirstOrDefaultAsync(m => m.OrderID == id);
+            if (order == null)
             {
                 return NotFound();
             }
 
-            return View(employee);
+            return View(order);
         }
 
+        // GET: Backend/Orders/Create
         public IActionResult Create()
         {
+            ViewData["MemberID"] = new SelectList(_context.Member, "MemberID", "MemberID");
             return View();
         }
 
-        // POST: Backend/Employees/Create
+        // POST: Backend/Orders/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("EName,EmployeeTel,Address,Birthday,HireDate,IsEmployed,EEmail,Password")] Employee newEmployee)
+        public async Task<IActionResult> Create([Bind("OrderID,OrderDate,PickUpTime,Note,MemberID,EmployeefID")] Order order)
         {
-            ModelState.Remove("EmployeeID");
-
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-                return View(newEmployee);
-            }
-            
-            try
-            {
-                await _employeeService.AddEmployeeAsync(newEmployee);
+                _context.Add(order);
+                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError("","無法新增員工: " + ex.Message);
-                return View(newEmployee);
-            }
-
+            ViewData["MemberID"] = new SelectList(_context.Member, "MemberID", "MemberID", order.MemberID);
+            return View(order);
         }
 
-        // GET: Backend/Employees/Edit/5
+        // GET: Backend/Orders/Edit/5
         public async Task<IActionResult> Edit(string id)
         {
             if (id == null)
@@ -87,21 +78,23 @@ namespace RestaurantSys.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var employee = await _context.Employee.FindAsync(id);
-            if (employee == null)
+            var order = await _context.Order.FindAsync(id);
+            if (order == null)
             {
                 return NotFound();
             }
-            return View(employee);
+            ViewData["MemberID"] = new SelectList(_context.Member, "MemberID", "MemberID", order.MemberID);
+            return View(order);
         }
 
+        // POST: Backend/Orders/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("EmployeeID,EName,EmployeeTel,Address,Birthday,HireDate,IsEmployed,EEmail,Password")] Employee employee)
+        public async Task<IActionResult> Edit(string id, [Bind("OrderID,OrderDate,PickUpTime,Note,MemberID,EmployeefID")] Order order)
         {
-            if (id != employee.EmployeeID)
+            if (id != order.OrderID)
             {
                 return NotFound();
             }
@@ -110,12 +103,12 @@ namespace RestaurantSys.Areas.Admin.Controllers
             {
                 try
                 {
-                    _context.Update(employee);
+                    _context.Update(order);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!EmployeeExists(employee.EmployeeID))
+                    if (!OrderExists(order.OrderID))
                     {
                         return NotFound();
                     }
@@ -126,9 +119,11 @@ namespace RestaurantSys.Areas.Admin.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(employee);
+            ViewData["MemberID"] = new SelectList(_context.Member, "MemberID", "MemberID", order.MemberID);
+            return View(order);
         }
 
+        // GET: Backend/Orders/Delete/5
         public async Task<IActionResult> Delete(string id)
         {
             if (id == null)
@@ -136,33 +131,35 @@ namespace RestaurantSys.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var employee = await _context.Employee
-                .FirstOrDefaultAsync(m => m.EmployeeID == id);
-            if (employee == null)
+            var order = await _context.Order
+                .Include(o => o.Member)
+                .FirstOrDefaultAsync(m => m.OrderID == id);
+            if (order == null)
             {
                 return NotFound();
             }
 
-            return View(employee);
+            return View(order);
         }
 
+        // POST: Backend/Orders/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            var employee = await _context.Employee.FindAsync(id);
-            if (employee != null)
+            var order = await _context.Order.FindAsync(id);
+            if (order != null)
             {
-                _context.Employee.Remove(employee);
+                _context.Order.Remove(order);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool EmployeeExists(string id)
+        private bool OrderExists(string id)
         {
-            return _context.Employee.Any(e => e.EmployeeID == id);
+            return _context.Order.Any(e => e.OrderID == id);
         }
     }
 }

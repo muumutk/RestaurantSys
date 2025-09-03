@@ -1,0 +1,72 @@
+.centered-input {
+    display: block;
+    margin: 0 auto; 
+    border-radius: 50px; 
+    padding: 10px 20px; 
+    border: 1px solid #ccc; 
+    font-size: 16px; 
+}
+/* 整個頁面的淺色漸層背景 */
+body {
+    background: linear-gradient(to bottom, #fdfbfb, #fafafa);
+    color: #343a40;
+}
+
+/* 導覽列風格調整 */
+header .navbar {
+    background-color: #ffffff !important;
+    border-bottom: 1px solid #f0f0f0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+}
+
+.navbar-brand {
+    font-weight: 600;
+}
+
+/* 主頁面標題 */
+h2 {
+    color: #343a40;
+    font-weight: 600;
+    text-align: center;
+    margin-top: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+/* 卡片樣式 */
+.card {
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease-in-out;
+    border: 1px solid #e8e8e8;
+    background: #ffffff;
+}
+
+    .card:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+/* 卡片內文與圖示風格 */
+.card-body {
+    padding: 2.5rem;
+    display: flex;
+    flex-direction: column;
+}
+
+
+.card-text {
+    font-size: 1rem;
+    color: #6c757d;
+}
+
+/* 移除連結下劃線 */
+a.text-decoration-none {
+    text-decoration: none;
+}
+
+/* 頁腳 */
+footer {
+    background: #fdfdfd;
+    border-top: 1px solid #e8e8e8;
+    color: #a0a0a0;
+}
