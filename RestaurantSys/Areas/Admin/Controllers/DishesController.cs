@@ -1,10 +1,10 @@
-﻿
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using RestaurantSys.Access.Data;
 using RestaurantSys.Models;
+using RestaurantSys.ViewComponents;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -68,19 +68,37 @@ namespace RestaurantSys.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("DishID,DishName,DishCategoryID,Description,PhotoPath,DishPrice,Note,IsActive")] Dish dish)
+        public async Task<IActionResult> Create([Bind("DishID,DishName,DishCategoryID,Description,PhotoPath,DishPrice,Note,IsActive")] Dish dish, IFormFile DishPhoto)
         {
             if (ModelState.IsValid)
             {
+                if (DishPhoto != null && DishPhoto.Length > 0)
+                {
+                    var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "DishPhotos");
+                    if (!Directory.Exists(uploadsFolder))
+                    {
+                        Directory.CreateDirectory(uploadsFolder);
+                    }
+                    var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(DishPhoto.FileName);
+                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await DishPhoto.CopyToAsync(fileStream);
+                    }
+
+                    dish.PhotoPath = "/DishPhotos/" + uniqueFileName;
+                }
+
                 _context.Add(dish);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["DishCategoryID"] = new SelectList(_context.DishCategory, "DishCategoryID", "DishCategoryName", dish.DishCategory);
+            ViewData["DishCategoryID"] = new SelectList(_context.DishCategory, "DishCategoryID", "DishCategoryName", dish.DishCategoryID);
             return View(dish);
         }
 
-        // GET: Backend/Dishes/Edit/5
+        // GET: Admin/Dishes/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -99,7 +117,7 @@ namespace RestaurantSys.Areas.Admin.Controllers
             return View(dish);
         }
 
-        // POST: Backend/Dishes/Edit/5
+        // POST: Admin/Dishes/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -120,7 +138,6 @@ namespace RestaurantSys.Areas.Admin.Controllers
                     return NotFound();
                 }
 
-                // 照片處理（略，同你原本的程式碼）
                 if (DishPhoto != null && DishPhoto.Length > 0)
                 {
                     if (!string.IsNullOrEmpty(dishToUpdate.PhotoPath))
@@ -154,6 +171,7 @@ namespace RestaurantSys.Areas.Admin.Controllers
                 dishToUpdate.DishPrice = dish.DishPrice;
                 dishToUpdate.Note = dish.Note;
                 dishToUpdate.IsActive = dish.IsActive;
+                dishToUpdate.DishCategoryID = dish.DishCategoryID;
 
                 try
                 {
@@ -173,7 +191,7 @@ namespace RestaurantSys.Areas.Admin.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            Console.WriteLine($"Edit POST: Dish {dish.DishID}, IsActive={dish.IsActive}");
+            ViewData["DishCategoryID"] = new SelectList(_context.DishCategory, "DishCategoryID", "DishCategoryName", dish.DishCategoryID);
             return View(dish);
         }
 

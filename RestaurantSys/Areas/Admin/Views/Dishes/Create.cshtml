@@ -10,7 +10,7 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Create">
+        <form asp-action="Create" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="DishName" class="control-label"></label>
@@ -18,14 +18,17 @@
                 <span asp-validation-for="DishName" class="text-danger"></span>
             </div>
             <div class="form-group">
+                <label class="control-label">餐點分類</label>
+                <select asp-for="DishCategoryID" class="form-control" asp-items="ViewBag.DishCategoryID"></select>
+            </div>
+            <div class="form-group">
                 <label asp-for="Description" class="control-label"></label>
                 <input asp-for="Description" class="form-control" />
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="PhotoPath" class="control-label"></label>
-                <input type="file" name="newPhoto" id="newPhoto" class="form-control" />
-                <span asp-validation-for="PhotoPath" class="text-danger"></span>
+                <label for="DishPhoto" class="control-label">上傳照片</label>
+                <input type="file" id="DishPhoto" name="DishPhoto" class="form-control" />
             </div>
             <div class="form-group">
                 <label asp-for="DishPrice" class="control-label"></label>

@@ -13,16 +13,7 @@
             <div class="col-12 col-md-6 col-lg-4 d-flex">
                 <div class="card w-100 border-0 shadow-sm">
                     <div class="position-relative">
-                        @if (!string.IsNullOrEmpty(item.PhotoPath))
-                        {
-                            <img src="@Url.Content(item.PhotoPath)" class="card-img-top" alt="@item.DishName" style="max-height: 200px; object-fit: cover;">
-                        }
-                        else
-                        {
-                            <div class="no-photo-placeholder" style="max-height: 200px; display: flex; align-items: center; justify-content: center; background-color: #f0f0f0; color: #888; font-size: 14px; text-align: center; padding: 10px;">
-                                尚無照片
-                            </div>
-                        }
+                        @await Component.InvokeAsync("VCDishPhoto", new { photoPath = item.PhotoPath, dishName = item.DishName })
                     </div>
 
                     <div class="card-body d-flex flex-column">
@@ -34,7 +25,7 @@
                                 <p class="text-secondary small fst-italic">@Html.DisplayFor(modelItem => item.Note)</p>
                             }
                             <h4 class="text-end fw-bold text-danger">
-                                NT$ @Html.DisplayFor(modelItem => item.DishPrice)
+                                NT$ @item.DishPrice.ToString("0")
                             </h4>
                         </div>
                     </div>
