@@ -19,6 +19,10 @@
                 <span asp-validation-for="DishName" class="text-danger"></span>
             </div>
             <div class="form-group">
+                <label class="control-label">餐點分類</label>
+                <select asp-for="DishCategoryID" class="form-control" asp-items="ViewBag.DishCategoryID"></select>
+            </div>
+            <div class="form-group">
                 <label asp-for="Description" class="control-label"></label>
                 <input asp-for="Description" class="form-control" />
                 <span asp-validation-for="Description" class="text-danger"></span>

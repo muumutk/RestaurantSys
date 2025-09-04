@@ -41,10 +41,10 @@ h2 {
     background: #ffffff;
 }
 
-    .card:hover {
+/*    .card:hover {
         transform: translateY(-8px) scale(1.02);
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-    }
+    }*/
 
 /* 卡片內文與圖示風格 */
 .card-body {
@@ -69,4 +69,37 @@ footer {
     background: #fdfdfd;
     border-top: 1px solid #e8e8e8;
     color: #a0a0a0;
+}
+
+/**/
+.maintenance-container.light {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    text-align: center;
+    background-color: #f8f9fa; /* 淡灰色背景 */
+    color: #343a40; /* 深灰色文字 */
+    font-family: 'Segoe UI', Arial, sans-serif;
+    padding: 2rem;
+}
+
+.maintenance-icon.light-icon {
+    font-size: 5rem;
+    color: #0d6efd; /* Bootstrap 藍色 */
+    margin-bottom: 1.5rem;
+}
+
+.maintenance-container.light h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.maintenance-container.light p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    max-width: 600px;
+    margin: 0.5rem auto;
+    color: #6c757d;
 }

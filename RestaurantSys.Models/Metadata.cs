@@ -35,8 +35,26 @@ public class DishData
 
     [Display(Name ="是否啟用")]
     public bool IsActive { get; set; } = true;
+
+    [Display(Name = "類別編號")]
+    [ForeignKey("DishCategory")]
+    [HiddenInput]
+    public int DishCategoryID { get; set; }
 }
 
+
+public class DishCategoryData
+{
+    [Display(Name = "類別編號")]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    [Key]
+    public int DishCategoryID { get; set; }
+
+    [Display(Name = "類別名稱")]
+    [StringLength(20, ErrorMessage = "類別名稱最多20個字")]
+    [Required(ErrorMessage = "類別名稱為必填欄位")]
+    public string DishCategoryName { get; set; } = null!;
+}
 
 public class MemberData
 {
@@ -331,6 +349,11 @@ public class OrderDetailData
 [ModelMetadataType(typeof(DishData))]
 public partial class Dish
 { 
+}
+
+[ModelMetadataType(typeof(DishCategoryData))]
+public partial class DishCategory
+{
 }
 
 [ModelMetadataType(typeof(MemberData))]

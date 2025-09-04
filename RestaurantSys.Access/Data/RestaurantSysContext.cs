@@ -12,6 +12,8 @@ namespace RestaurantSys.Access.Data
 
         public virtual DbSet<Dish> Dish { get; set; }
 
+        public virtual DbSet<DishCategory> DishCategory { get; set; }
+
         public virtual DbSet<Member> Member { get; set; }
 
         public virtual DbSet<Employee> Employee { get; set; }
@@ -40,6 +42,12 @@ namespace RestaurantSys.Access.Data
                 entity.Property(e => e.PhotoPath).HasMaxLength(300);
                 entity.Property(e => e.DishPrice).HasColumnType("decimal(18, 2)");
                 entity.Property(e => e.Note).HasMaxLength(40);
+            });
+
+            modelBuilder.Entity<DishCategory>(entity =>
+            {
+                entity.HasKey(e => e.DishCategoryID).HasName("PK_DishCategoryID");
+                entity.Property(e => e.DishCategoryName).HasMaxLength(20);
             });
 
             modelBuilder.Entity<Member>(entity =>

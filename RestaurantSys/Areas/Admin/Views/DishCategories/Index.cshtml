@@ -1,0 +1,44 @@
+﻿@model IEnumerable<RestaurantSys.Models.DishCategory>
+
+@{
+    ViewData["Title"] = "餐點分類";
+}
+
+<h2 class="fw-bold">@ViewData["Title"]</h2>
+
+<div class="d-flex justify-content-center mb-4 gap-3">
+    <a class="btn btn-outline-dark" asp-action="Create">新增分類</a>
+    <a class="btn btn-outline-dark" asp-controller="Dishes" asp-action="Index">回到菜單</a>
+    <a class="btn btn-outline-dark" asp-controller="AdminHome" asp-action="Index">回到後台首頁</a>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.DishCategoryID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DishCategoryName)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.DishCategoryID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DishCategoryName)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.DishCategoryID">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.DishCategoryID">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.DishCategoryID">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

@@ -1,0 +1,33 @@
+﻿<ul class="navbar-nav flex-grow-1">
+    <li class="nav-item">
+        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Maintenance">About Us</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-dark" asp-area="" asp-controller="Menu" asp-action="Index">瀏覽菜單</a>
+    </li>
+</ul>
+<div class="text-center">
+    @if (User.Identity.IsAuthenticated)
+    {
+        <a class="position-relative me-5 CartStatus" asp-area="User" asp-action="ShowMyCart" asp-controller="Members">
+            <i class="bi bi-cart2 text-dark fs-2"></i>
+            <span id="cart-item-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                0
+            </span>
+        </a>
+
+        var MemberName = User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value;
+        <span class="fw-bold me-4 rounded textShadow">@MemberName 你好，今天想點些什麼嗎？ </span>
+        <a class="btn btn-light fs-5 fw-bold border-4 textShadow" asp-area="User" asp-controller="Members" asp-action="Index"><i class="bi bi-person"></i> 會員中心</a>
+        <span> | </span>
+        <a class="btn btn-light fs-5 fw-bold border-4 textShadow" asp-area="" asp-controller="Logout" asp-action="Logout">登出</a>
+    }
+    else
+    {
+        <a class="btn btn-outline-dark fs-5 fw-bold textShadow" asp-area="" asp-controller="MemberLogin" asp-action="Login"><i class="bi bi-person-fill"></i> 登入</a>
+        <a class="btn btn-outline-dark fs-5 fw-bold textShadow" asp-area="" asp-controller="Register" asp-action="Register"> 註冊會員</a>
+    }
+</div>

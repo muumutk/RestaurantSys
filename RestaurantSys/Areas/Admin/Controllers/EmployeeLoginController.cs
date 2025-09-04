@@ -43,7 +43,7 @@ namespace RestaurantSys.Areas.Admin.Controllers
             if (employee != null)
             {
                 // 判斷角色，雖然現在都導向到 Admin，但保留這個邏輯有利於未來擴充
-                string role = employee.EmployeeID.StartsWith("Admin") ? "Admin" : "Backend";
+                string role = employee.EmployeeID.StartsWith("Admin") ? "Admin" : "Admin";
 
                 var claims = new List<Claim>
         {
@@ -56,7 +56,7 @@ namespace RestaurantSys.Areas.Admin.Controllers
                 await HttpContext.SignInAsync("EmployeeLogin", new ClaimsPrincipal(claimsIdentity));
 
                 // 所有登入成功的用戶都導向到 Admin Area 的首頁
-                return RedirectToAction("Index", "Home", new { area = "Admin" });
+                return RedirectToAction("Index", "AdminHome", new { area = "Admin" });
             }
 
             ViewData["Error"] = "帳號或密碼錯誤。";

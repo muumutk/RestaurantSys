@@ -59,6 +59,7 @@ namespace RestaurantSys.Areas.Admin.Controllers
         // GET: Backend/Dishes/Create
         public IActionResult Create()
         {
+            ViewData["DishCategoryID"] = new SelectList(_context.DishCategory, "DishCategoryID", "DishCategoryName");
             return View();
         }
 
@@ -67,7 +68,7 @@ namespace RestaurantSys.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("DishID,DishName,Description,PhotoPath,DishPrice,Note,IsActive")] Dish dish)
+        public async Task<IActionResult> Create([Bind("DishID,DishName,DishCategoryID,Description,PhotoPath,DishPrice,Note,IsActive")] Dish dish)
         {
             if (ModelState.IsValid)
             {
@@ -75,6 +76,7 @@ namespace RestaurantSys.Areas.Admin.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["DishCategoryID"] = new SelectList(_context.DishCategory, "DishCategoryID", "DishCategoryName", dish.DishCategory);
             return View(dish);
         }
 
@@ -86,12 +88,14 @@ namespace RestaurantSys.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var dish = await _context.Dish.FindAsync(id);
+            var dish = await _context.Dish
+                                 .Include(d => d.DishCategory)
+                                 .FirstOrDefaultAsync(m => m.DishID == id);
             if (dish == null)
             {
                 return NotFound();
             }
-            Console.WriteLine($"Edit GET: Dish {dish.DishID}, IsActive={dish.IsActive}");
+            ViewData["DishCategoryID"] = new SelectList(_context.DishCategory, "DishCategoryID", "DishCategoryName", dish.DishCategory);
             return View(dish);
         }
 
@@ -100,7 +104,7 @@ namespace RestaurantSys.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("DishID,DishName,Description,PhotoPath,DishPrice,Note,IsActive")] Dish dish, IFormFile DishPhoto)
+        public async Task<IActionResult> Edit(int id, [Bind("DishID,DishName,DishCategoryID,Description,PhotoPath,DishPrice,Note,IsActive")] Dish dish, IFormFile DishPhoto)
         {
             ModelState.Remove("DishPhoto");
             if (id != dish.DishID)

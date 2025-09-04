@@ -10,11 +10,22 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<RestaurantSysContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("RestaurantSysConnection")));
 
-builder.Services.AddAuthentication("MemberLogin").AddCookie("MemberLogin", options =>
+
+builder.Services.AddAuthentication(options =>
 {
-    options.LoginPath = "/MemberLogin/Login"; 
-    options.LogoutPath = "/Logout/Logout"; 
-    options.AccessDeniedPath = "/Menu/Index"; 
+    options.DefaultScheme = "MemberLogin";
+})
+.AddCookie("MemberLogin", options =>
+{
+    options.LoginPath = "/MemberLogin/Login";
+    options.LogoutPath = "/Logout/Logout";
+    options.AccessDeniedPath = "/Menu/Index";
+})
+.AddCookie("EmployeeLogin", options =>
+{
+    options.LoginPath = "/EmployeeLogin/Login";
+    options.LogoutPath = "/Logout/Logout";
+    options.AccessDeniedPath = "/Menu/Index";
 });
 
 

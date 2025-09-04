@@ -18,6 +18,11 @@ namespace RestaurantSys.Controllers
             return View();
         }
 
+        public IActionResult Maintenance()
+        {
+            return View();
+        }
+
         public IActionResult Privacy()
         {
             return View();

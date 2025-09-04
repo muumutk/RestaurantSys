@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RestaurantSys.Access.Data;
 
@@ -11,9 +12,11 @@ using RestaurantSys.Access.Data;
 namespace RestaurantSys.Access.Migrations
 {
     [DbContext(typeof(RestaurantSysContext))]
-    partial class RestaurantSysContextModelSnapshot : ModelSnapshot
+    [Migration("20250904072443_dishCategoryModel")]
+    partial class dishCategoryModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,12 +33,15 @@ namespace RestaurantSys.Access.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DishID"));
 
+                    b.Property<int>("CategoryID")
+                        .HasColumnType("int");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<int>("DishCategoryID")
+                    b.Property<int?>("DishCategoryID")
                         .HasColumnType("int");
 
                     b.Property<string>("DishName")
@@ -81,7 +87,7 @@ namespace RestaurantSys.Access.Migrations
                     b.HasKey("DishCategoryID")
                         .HasName("PK_DishCategoryID");
 
-                    b.ToTable("DishCategory");
+                    b.ToTable("DishCategories");
                 });
 
             modelBuilder.Entity("RestaurantSys.Models.DishIngredient", b =>
@@ -379,9 +385,7 @@ namespace RestaurantSys.Access.Migrations
                 {
                     b.HasOne("RestaurantSys.Models.DishCategory", "DishCategory")
                         .WithMany("Dishes")
-                        .HasForeignKey("DishCategoryID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("DishCategoryID");
 
                     b.Navigation("DishCategory");
                 });

@@ -1,0 +1,99 @@
+﻿@{
+    ViewData["Title"] = "我的購物車";
+}
+
+<h1 class="text-center">@ViewData["Title"]</h1>
+
+<div id="cart-container" class="mt-4">
+</div>
+
+<a class="btn btn-outline-dark" asp-area="" asp-controller="Menu" asp-action="Index">再繼續逛逛</a>
+
+@section Scripts {
+    <script>
+        let toNTD = new Intl.NumberFormat('zh-TW', {
+            style: 'currency',
+            currency: 'TWD',
+            minimumFractionDigits: 0
+        });
+
+        function showMyCart() {
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+            if (cart.length === 0) {
+                document.getElementById('cart-container').innerHTML = `
+                    <div class="alert alert-warning text-center" role="alert">
+                        目前沒有任何商品喔，快去新增餐點吧！
+                    </div>
+                `;
+                return;
+            }
+
+            let items = '';
+            let sum = 0;
+            let counter = 1;
+
+            items += `<div class="table-responsive">
+                          <table class="table table-hover" id="myCart">
+                              <thead>
+                                  <tr>
+                                      <th>序號</th>
+                                      <th>菜色名稱</th>
+                                      <th>單價</th>
+                                      <th>數量</th>
+                                      <th>小計</th>
+                                      <th></th>
+                                  </tr>
+                              </thead>
+                              <tbody>`;
+
+            for (let item of cart) {
+                let subtotal = item.DishPrice * item.Qty;
+                sum += subtotal;
+
+                items += `<tr>
+                              <td>${counter++}</td>
+                              <td>${item.DishName}</td>
+                              <td>${toNTD.format(item.DishPrice)}</td>
+                              <td>${item.Qty}</td>
+                              <td><span class="text-danger fw-bold">${toNTD.format(subtotal)}</span></td>
+                              <td>
+                                  <button class="btn btn-danger btn-sm" onclick="removeItem(${item.DishID})">
+                                      <i class="bi bi-trash3"></i> 移除
+                                  </button>
+                              </td>
+                          </tr>`;
+            }
+
+            items += `</tbody>
+                      <tfoot>
+                          <tr>
+                              <td colspan="4" class="text-end fw-bold">總計：</td>
+                              <td colspan="2"><h4 class="text-danger fw-bold">${toNTD.format(sum)}</h4></td>
+                          </tr>
+                      </tfoot>
+                    </table>
+                </div>`;
+
+            document.getElementById('cart-container').innerHTML = items;
+        }
+
+        // 移除商品的函數
+        function removeItem(dishId) {
+            if (confirm("確定要移除此商品嗎？")) {
+                let cart = JSON.parse(localStorage.getItem("cart")) || [];
+                let updatedCart = cart.filter(item => item.DishID !== dishId);
+                localStorage.setItem("cart", JSON.stringify(updatedCart));
+
+                // 重新載入購物車內容以更新畫面
+                showMyCart();
+                // 同時更新導覽列的購物車總數
+                CartStatusCheck();
+            }
+        }
+
+        // 頁面載入時執行顯示購物車的函數
+        showMyCart();
+
+    </script>
+}
