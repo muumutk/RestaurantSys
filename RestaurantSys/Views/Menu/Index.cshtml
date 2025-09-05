@@ -13,7 +13,7 @@
             <div class="col-12 col-md-6 col-lg-4 d-flex">
                 <div class="card w-100 border-0 shadow-sm">
                     <div class="position-relative">
-                        @await Component.InvokeAsync("VCDishPhoto", new { photoPath = item.PhotoPath, dishName = item.DishName })
+                        @await Html.PartialAsync("_PhotoDisplayPartial", item)
                     </div>
 
                     <div class="card-body d-flex flex-column">

@@ -99,7 +99,7 @@ namespace RestaurantSys.Areas.Admin.Controllers
         }
 
         // GET: Admin/Dishes/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int? id , string source)
         {
             if (id == null)
             {
@@ -113,7 +113,9 @@ namespace RestaurantSys.Areas.Admin.Controllers
             {
                 return NotFound();
             }
-            ViewData["DishCategoryID"] = new SelectList(_context.DishCategory, "DishCategoryID", "DishCategoryName", dish.DishCategory);
+            //ViewData["DishCategoryID"] = new SelectList(_context.DishCategory, "DishCategoryID", "DishCategoryName", dish.DishCategory);
+            ViewData["DishCategoryID"] = new SelectList(_context.DishCategory, "DishCategoryID", "DishCategoryName", dish.DishCategoryID);
+            ViewBag.Source = source;
             return View(dish);
         }
 
@@ -122,7 +124,7 @@ namespace RestaurantSys.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("DishID,DishName,DishCategoryID,Description,PhotoPath,DishPrice,Note,IsActive")] Dish dish, IFormFile DishPhoto)
+        public async Task<IActionResult> Edit(int id, [Bind("DishID,DishName,DishCategoryID,Description,PhotoPath,DishPrice,Note,IsActive")] Dish dish, IFormFile DishPhoto , string source)
         {
             ModelState.Remove("DishPhoto");
             if (id != dish.DishID)
@@ -165,7 +167,6 @@ namespace RestaurantSys.Areas.Admin.Controllers
                     dishToUpdate.PhotoPath = "/DishPhotos/" + uniqueFileName;
                 }
 
-                // 更新其他欄位（包含 IsActive）
                 dishToUpdate.DishName = dish.DishName;
                 dishToUpdate.Description = dish.Description;
                 dishToUpdate.DishPrice = dish.DishPrice;
@@ -189,9 +190,18 @@ namespace RestaurantSys.Areas.Admin.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+
+                if(source == "InactiveDishes")
+                {
+                    return RedirectToAction("InactiveDishes");
+                }
+                else
+                {
+                    return RedirectToAction(nameof(Index));
+                }
             }
             ViewData["DishCategoryID"] = new SelectList(_context.DishCategory, "DishCategoryID", "DishCategoryName", dish.DishCategoryID);
+            ViewBag.Source = source;
             return View(dish);
         }
 

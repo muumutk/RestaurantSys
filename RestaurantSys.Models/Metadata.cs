@@ -267,7 +267,29 @@ public class StockBatchData
     public int ItemID { get; set; }
 }
 
-public class OrderData
+public class StockBatchWarningLogData
+{
+    [Display(Name = "警示紀錄編號")]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    [Key]
+    public int StockBatchWarningLogID { get; set; }
+
+    [Display(Name = "警示發送日期")]
+    [DataType(DataType.DateTime)]
+    [DisplayFormat(DataFormatString = "{0:yyyy/MM/dd hh:mm:ss}", ApplyFormatInEditMode = true)]
+    public DateTime WarningSentDate { get; set; }
+
+    [Display(Name = "批次序號")]
+    [ForeignKey("StockBatch")]
+    public int? BatchID { get; set; }
+
+
+    [Display(Name ="員工編號")]
+    [ForeignKey("Employee")]
+    public string? EmployeeID { get; set; } = null!;
+}
+
+    public class OrderData
 {
     [Display(Name = "訂單編號")]
     [Required]

@@ -31,6 +31,8 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddScoped<EmployeeService>();
 
+builder.Services.AddScoped<InventoryWarningService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

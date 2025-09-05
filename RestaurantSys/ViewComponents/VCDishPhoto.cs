@@ -6,20 +6,8 @@ namespace RestaurantSys.ViewComponents
     {
         public IViewComponentResult Invoke(string photoPath, string dishName)
         {
-            var model = new DishPhotoViewModel
-            {
-                PhotoPath = photoPath,
-                DishName = dishName
-            };
 
-            return View(model);
+            return View(new { PhotoPath = photoPath, DishName = dishName });
         }
     }
-
-    public class DishPhotoViewModel
-    {
-        public string PhotoPath { get; set; }
-        public string DishName { get; set; }
-    }
-
 }

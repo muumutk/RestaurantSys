@@ -37,8 +37,6 @@ function removeItem(dishId) {
 
         localStorage.setItem("cart", JSON.stringify(updatedCart));
         CartStatusCheck();
-        // 如果你的購物車頁面需要更新，這裡可以呼叫更新函數
-        // refreshCartView(); 
     }
 }
 

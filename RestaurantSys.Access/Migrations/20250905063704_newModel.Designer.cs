@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RestaurantSys.Access.Data;
 
@@ -11,9 +12,11 @@ using RestaurantSys.Access.Data;
 namespace RestaurantSys.Access.Migrations
 {
     [DbContext(typeof(RestaurantSysContext))]
-    partial class RestaurantSysContextModelSnapshot : ModelSnapshot
+    [Migration("20250905063704_newModel")]
+    partial class newModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -349,11 +352,11 @@ namespace RestaurantSys.Access.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StockBatchWarningLogID"));
 
-                    b.Property<int?>("BatchID")
+                    b.Property<int>("BatchID")
                         .HasColumnType("int");
 
-                    b.Property<string>("EmployeeID")
-                        .HasColumnType("nvarchar(8)");
+                    b.Property<int?>("StockBatchBatchID")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("WarningSentDate")
                         .HasColumnType("datetime");
@@ -361,9 +364,7 @@ namespace RestaurantSys.Access.Migrations
                     b.HasKey("StockBatchWarningLogID")
                         .HasName("PK_StockBatchWarningLogID");
 
-                    b.HasIndex("BatchID");
-
-                    b.HasIndex("EmployeeID");
+                    b.HasIndex("StockBatchBatchID");
 
                     b.ToTable("StockBatchWarningLog");
                 });
@@ -504,13 +505,7 @@ namespace RestaurantSys.Access.Migrations
                 {
                     b.HasOne("RestaurantSys.Models.StockBatch", "StockBatch")
                         .WithMany()
-                        .HasForeignKey("BatchID");
-
-                    b.HasOne("RestaurantSys.Models.Employee", "Employee")
-                        .WithMany()
-                        .HasForeignKey("EmployeeID");
-
-                    b.Navigation("Employee");
+                        .HasForeignKey("StockBatchBatchID");
 
                     b.Navigation("StockBatch");
                 });

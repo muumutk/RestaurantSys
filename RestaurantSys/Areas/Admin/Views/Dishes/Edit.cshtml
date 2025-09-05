@@ -13,6 +13,7 @@
         <form asp-action="Edit" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="DishID" />
+            <input type="hidden" name="source" value="@ViewBag.Source" />
             <div class="form-group">
                 <label asp-for="DishName" class="control-label"></label>
                 <input asp-for="DishName" class="form-control" />

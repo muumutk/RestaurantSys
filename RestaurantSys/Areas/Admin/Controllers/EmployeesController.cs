@@ -80,7 +80,7 @@ namespace RestaurantSys.Areas.Admin.Controllers
         }
 
         // GET: Backend/Employees/Edit/5
-        public async Task<IActionResult> Edit(string id)
+        public async Task<IActionResult> Edit(string id , DateTime? employeeBDay)
         {
             if (id == null)
             {

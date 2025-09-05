@@ -30,6 +30,8 @@ namespace RestaurantSys.Access.Data
 
         public virtual DbSet<DishIngredient> DishIngredient { get; set; }
 
+        public virtual DbSet<StockBatchWarningLog> StockBatchWarningLog { get; set; }
+
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -104,6 +106,12 @@ namespace RestaurantSys.Access.Data
                 entity.Property(e => e.ItemPrice).HasColumnType("decimal(18,2)");
                 entity.Property(e => e.ArrivalDate).HasColumnType("date");
                 entity.Property(e => e.ExpiryDate).HasColumnType("date");
+            });
+
+            modelBuilder.Entity<StockBatchWarningLog>(entity =>
+            {
+                entity.HasKey(e => e.StockBatchWarningLogID).HasName("PK_StockBatchWarningLogID");
+                entity.Property(e => e.WarningSentDate).HasColumnType("datetime");
             });
 
             modelBuilder.Entity<Order>(entity =>
