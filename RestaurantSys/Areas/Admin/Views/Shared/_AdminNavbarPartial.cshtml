@@ -1,0 +1,26 @@
+﻿@using Microsoft.AspNetCore.Authentication
+<ul class="navbar-nav flex-grow-1">
+    <li class="nav-item">
+        <a class="nav-link text-dark" asp-area="Admin" asp-controller="AdminHome" asp-action="Index">Home</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-dark" asp-area="Admin" asp-controller="Dishes" asp-action="Index">菜單管理</a>
+    </li>
+</ul>
+<div class="text-center">
+    @{
+        var employeeAuth = await Context.AuthenticateAsync("EmployeeLogin");
+    }
+
+    @if (employeeAuth.Succeeded)
+    {
+        var employeeName = employeeAuth.Principal.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value;
+        <span class="fw-bold me-4 rounded textShadow">@employeeName 你好！ </span>
+        <span> | </span>
+        <a class="btn btn-light fs-5 fw-bold border-4 textShadow" asp-area="Admin" asp-controller="EmployeeLogout" asp-action="Logout">登出</a>
+    }
+    else
+    {
+        <a class="btn btn-outline-dark fs-5 fw-bold textShadow" asp-area="Admin" asp-controller="EmployeeLogin" asp-action="Login"><i class="bi bi-person-fill"></i> 員工登入</a>
+    }
+</div>

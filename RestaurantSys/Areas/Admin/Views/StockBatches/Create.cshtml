@@ -18,14 +18,19 @@
             </div>
             <div class="form-group">
                 <label asp-for="ItemID" class="control-label"></label>
-                <select asp-for="ItemID" class="form-control" asp-items="ViewBag.ItemID"></select>
+                <select asp-for="ItemID" id="itemDropdown" class="form-control" asp-items="ViewBag.ItemID"></select>
                 <span asp-validation-for="ItemID" class="text-danger"></span>
             </div>
+
             <div class="form-group">
                 <label asp-for="Quantity" class="control-label"></label>
-                <input asp-for="Quantity" class="form-control" />
+                <div class="d-flex align-items-center">
+                    <input asp-for="Quantity" class="form-control" />
+                    <span id="unitDisplay" class="ms-2"></span>
+                </div>
                 <span asp-validation-for="Quantity" class="text-danger"></span>
             </div>
+
             <div class="form-group">
                 <label asp-for="ItemPrice" class="control-label"></label>
                 <input asp-for="ItemPrice" class="form-control" />
@@ -52,3 +57,43 @@
     <a asp-action="Index">Back to List</a>
 </div>
 
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        // 等待網頁內容載入完畢
+        $(document).ready(function () {
+            // 監聽物品下拉選單的變動事件
+            $('#itemDropdown').change(function () {
+                var selectedItemID = $(this).val();
+                var unitDisplay = $('#unitDisplay');
+
+                // 如果選中了一個物品
+                if (selectedItemID) {
+                    // 發送 AJAX 請求到後端
+                    $.ajax({
+                        url: '@Url.Action("GetUnitByItemID", "StockBatches")', // ⚠️ URL
+                        type: 'GET',
+                        data: { itemID: selectedItemID },
+                        success: function (unit) {
+                            // 成功後，更新單位顯示區塊的文字
+                            unitDisplay.text(unit);
+                        },
+                        error: function () {
+                            // 失敗後，清空顯示區塊
+                            unitDisplay.text('');
+                        }
+                    });
+                } else {
+                    // 如果沒有選中物品，清空顯示區塊
+                    unitDisplay.text('');
+                }
+            });
+
+            // 觸發一次 change 事件，以在載入頁面時顯示預設單位的單位
+            $('#itemDropdown').trigger('change');
+        });
+    </script>
+}

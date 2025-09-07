@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RestaurantSys.Access.Data;
+using RestaurantSys.Areas.Admin.Services;
 using RestaurantSys.Areas.Admin.ViewModels;
+using RestaurantSys.Services;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
@@ -13,9 +15,12 @@ namespace RestaurantSys.Areas.Admin.Controllers
     public class EmployeeLoginController : Controller
     {
         private readonly RestaurantSysContext _context;
-        public EmployeeLoginController(RestaurantSysContext context)
+        private readonly InventoryWarningService _inventoryWarningService;
+
+        public EmployeeLoginController(RestaurantSysContext context , InventoryWarningService inventoryWarningService)
         {
             _context = context;
+            _inventoryWarningService = inventoryWarningService;
         }
 
         public IActionResult Login()
@@ -34,7 +39,7 @@ namespace RestaurantSys.Areas.Admin.Controllers
                 return View(model);
             }
 
-            var hashedPassword = ComputeSha256Hash(model.Password);
+            var hashedPassword = HashService.HashPasswordSHA256(model.Password);
 
             var employee = await _context.Employee.FirstOrDefaultAsync(
                 e => e.EmployeeID == model.EmployeeID && e.Password == hashedPassword
@@ -42,18 +47,25 @@ namespace RestaurantSys.Areas.Admin.Controllers
 
             if (employee != null)
             {
-                // 判斷角色，雖然現在都導向到 Admin，但保留這個邏輯有利於未來擴充
-                string role = employee.EmployeeID.StartsWith("Admin") ? "Admin" : "Admin";
+                //// 判斷角色，不是Admin就導向Employee
+                string role = employee.EmployeeID.StartsWith("Admin") ? "Admin" : "Employee";
 
                 var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.NameIdentifier, employee.EmployeeID),
-            new Claim(ClaimTypes.Role, role),
-            new Claim(ClaimTypes.Name, employee.EName)
-        };
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, employee.EmployeeID),
+                        new Claim(ClaimTypes.Role, role),
+                        new Claim(ClaimTypes.Name, employee.EName)
+                    };
 
                 var claimsIdentity = new ClaimsIdentity(claims, "EmployeeLogin");
                 await HttpContext.SignInAsync("EmployeeLogin", new ClaimsPrincipal(claimsIdentity));
+
+                //成功登入後，呼叫服務並將結果儲存到 TempData
+                var warnings = await _inventoryWarningService.CheckAndLogExpiringBatchesAsync(employee.EmployeeID);
+                if (warnings.Any())
+                {
+                    TempData["ExpiringWarnings"] = warnings;
+                }
 
                 // 所有登入成功的用戶都導向到 Admin Area 的首頁
                 return RedirectToAction("Index", "AdminHome", new { area = "Admin" });
@@ -62,20 +74,7 @@ namespace RestaurantSys.Areas.Admin.Controllers
             ViewData["Error"] = "帳號或密碼錯誤。";
             return View(model);
         }
-        // 你提供的 SHA256 雜湊函式
-        private static string ComputeSha256Hash(string rawData)
-        {
-            using (SHA256 sha256Hash = SHA256.Create())
-            {
-                byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(rawData));
-                StringBuilder builder = new StringBuilder();
-                for (int i = 0; i < bytes.Length; i++)
-                {
-                    builder.Append(bytes[i].ToString("x2"));
-                }
-                return builder.ToString();
-            }
-        }
+
 
     }
 }

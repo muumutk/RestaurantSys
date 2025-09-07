@@ -1,0 +1,75 @@
+﻿@model IEnumerable<RestaurantSys.Models.StockBatch>
+
+@{
+    ViewData["Title"] = "過期庫存紀錄";
+}
+
+<h1>過期庫存紀錄</h1>
+<p class="text-danger">以下是所有已過期的庫存批次，請盡快處理。</p>
+
+@if (Model != null && Model.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.BatchNo)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Quantity)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.ItemPrice)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.ArrivalDate)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.ExpiryDate)
+                </th>
+                <th>
+                    經辦員工
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.BatchNo)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Quantity)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ItemPrice)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ArrivalDate)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ExpiryDate)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Employee.EName)
+                    </td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@item.BatchID">詳細</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="alert alert-warning" role="alert">
+        尚無過期庫存紀錄。
+    </div>
+}
+
+<div>
+    <a class="btn btn-outline-dark" asp-action="Index">返回庫存清單</a>
+</div>

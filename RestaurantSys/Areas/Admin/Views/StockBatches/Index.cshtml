@@ -8,7 +8,13 @@
 
 <p>
     <a class="btn btn-outline-dark" asp-action="Create">新增進貨紀錄</a>
+    <a class="btn btn-outline-dark" asp-action="Expired">已過期紀錄</a>
 </p>
+
+<h4>
+    <span class="badge bg-warning text-dark">即將到期（15天內）</span>
+</h4>
+
 <table class="table">
     <thead>
         <tr>
@@ -37,35 +43,46 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.BatchNo)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ItemID)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Quantity)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ItemPrice)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ArrivalDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ExpiryDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Employee.EmployeeID)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.BatchID">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.BatchID">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.BatchID">Delete</a>
-            </td>
-        </tr>
+        @foreach (var item in Model)
+        {
+            // 檢查到期日是否在30天內
+            var isExpiringSoon = item.ExpiryDate.Date <= DateTime.Now.AddDays(15).Date;
+
+            // 根據到期日判斷顯示的樣式
+            var rowClass = "";
+            if (isExpiringSoon)
+            {
+                rowClass = "table-warning"; // 30天內到期，標記為黃色
+            }
+
+
+            <tr class="@rowClass">
+                <td>
+                    @Html.DisplayFor(modelItem => item.BatchNo)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ItemID)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Quantity)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ItemPrice)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ArrivalDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ExpiryDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Employee.EmployeeID)
+                </td>
+                <td>
+                    <a class="btn btn-outline-dark btn-sm" asp-action="Edit" asp-route-id="@item.BatchID">編輯</a> |
+                    <a class="btn btn-outline-dark btn-sm" asp-action="Details" asp-route-id="@item.BatchID">Details</a>
+                </td>
+            </tr>
 }
     </tbody>
 </table>

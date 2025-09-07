@@ -6,6 +6,7 @@ using System.Diagnostics;
 namespace RestaurantSys.Areas.Admin.Controllers
 {
     [Area("Admin")]
+
     public class AdminHomeController : Controller
     {
         private readonly ILogger<AdminHomeController> _logger;

@@ -1,23 +1,28 @@
-﻿
-@{
+﻿@{
     ViewData["Title"] = "餐飲管理系統";
 }
 
-<h2>@ViewData["Title"]</h2>
+<h2 class="fw-bold">@ViewData["Title"]</h2>
 
 @{
-    var warnings = ViewBag.InventoryWarnings as List<string>;
+    // 從 TempData 讀取警示訊息
+    var warnings = TempData["ExpiringWarnings"] as List<string>;
 }
 
 @if (warnings != null && warnings.Any())
 {
-    <div class="alert alert-warning">
+    // 將兩個重複的警示區塊合併成一個，並使用 Bootstrap 樣式
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <h4 class="alert-heading">庫存警示！</h4>
+        <p>下列物品即將到期，請盡快處理：</p>
+        <hr>
         <ul>
-            @foreach (var msg in warnings)
+            @foreach (var warning in warnings)
             {
-                <li>@msg</li>
+                <li>@warning</li>
             }
         </ul>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 }
 
@@ -86,9 +91,6 @@
                     </div>
                 </div>
             </a>
-
-
         </div>
-
     </div>
 </div>

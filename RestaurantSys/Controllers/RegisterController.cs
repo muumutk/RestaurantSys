@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.EntityFrameworkCore;
 using RestaurantSys.Access.Data;
 using RestaurantSys.Models;
+using RestaurantSys.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -79,7 +80,7 @@ namespace RestaurantSys.Controllers
                 member.MemberID = $"M{yearMonth}{newSerialNumber}";
 
                 // 將密碼進行 SHA256 雜湊處理
-                member.Password = HashPasswordSHA256(member.Password);
+                member.Password = HashService.HashPasswordSHA256(member.Password);
 
                 _context.Member.Add(member);
                 await _context.SaveChangesAsync();
@@ -88,23 +89,6 @@ namespace RestaurantSys.Controllers
             }
 
             return View(member);
-        }
-
-        private static string HashPasswordSHA256(string rawData)
-        {
-            using (SHA256 sha256Hash = SHA256.Create())
-            {
-                // 計算雜湊值
-                byte[] bytes = sha256Hash.ComputeHash(System.Text.Encoding.UTF8.GetBytes(rawData));
-
-                // 將 byte 陣列轉換成十六進位字串
-                StringBuilder builder = new StringBuilder();
-                for (int i = 0; i < bytes.Length; i++)
-                {
-                    builder.Append(bytes[i].ToString("x2"));
-                }
-                return builder.ToString();
-            }
         }
 
     }

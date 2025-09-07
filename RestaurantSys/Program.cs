@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using RestaurantSys.Access.Data;
 using RestaurantSys.Areas.Admin.Services;
+using RestaurantSys.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,16 +24,21 @@ builder.Services.AddAuthentication(options =>
 })
 .AddCookie("EmployeeLogin", options =>
 {
-    options.LoginPath = "/EmployeeLogin/Login";
-    options.LogoutPath = "/Logout/Logout";
-    options.AccessDeniedPath = "/Menu/Index";
+    options.LoginPath = "/Admin/EmployeeLogin/Login";
+    options.LogoutPath = "/Admin/EmployeeLogout/Logout";
+    options.AccessDeniedPath = "/Admin/AdminHome/Index";
 });
+
 
 
 builder.Services.AddScoped<EmployeeService>();
 
 builder.Services.AddScoped<InventoryWarningService>();
 
+builder.Services.AddScoped<HashService>();
+
+
+/////////////////////////////////////////////////////////////////
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

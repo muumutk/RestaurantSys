@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RestaurantSys.Access.Data;
 using RestaurantSys.Models;
+using RestaurantSys.Services;
 using RestaurantSys.ViewModels;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -37,7 +38,7 @@ namespace RestaurantSys.Controllers
                 return View(model);
             }
 
-            var hashedPassword = ComputeSha256Hash(model.Password);
+            var hashedPassword = HashService.HashPasswordSHA256(model.Password);
 
             var user = await _context.Member.FirstOrDefaultAsync(
                 m => (m.MemberTel == model.EmailOrPhone || m.MEmail == model.EmailOrPhone) && m.Password == hashedPassword
@@ -60,25 +61,6 @@ namespace RestaurantSys.Controllers
 
             ViewData["Error"] = "帳號或密碼錯誤。";
             return View(model);
-        }
-
-
-
-        private static string ComputeSha256Hash(string rawData)
-        {
-            using (SHA256 sha256Hash = SHA256.Create())
-            {
-                // 計算雜湊值
-                byte[] bytes = sha256Hash.ComputeHash(System.Text.Encoding.UTF8.GetBytes(rawData));
-
-                // 將 byte 陣列轉換成十六進位字串
-                StringBuilder builder = new StringBuilder();
-                for (int i = 0; i < bytes.Length; i++)
-                {
-                    builder.Append(bytes[i].ToString("x2"));
-                }
-                return builder.ToString();
-            }
         }
 
     }

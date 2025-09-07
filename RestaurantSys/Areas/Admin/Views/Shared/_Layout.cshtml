@@ -20,32 +20,7 @@
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div>
-
-                <div class="text-center">
-                    @if (User.IsInRole("Employee"))
-                    {
-                        var EmployeeName = User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value;
-
-                        <span class="text-white fw-bold me-4 rounded textShadow">歡迎 @EmployeeName  </span>
-                        <a class="btn btn-light fs-5 fw-bold border-4 textShadow" asp-area="" asp-controller="Logout" asp-action="Logout"><i class="bi bi-person"></i> 登出</a>
-
-                    }
-                    else
-                    {
-                        <a class="btn btn-outline-dark fs-5 fw-bold textShadow" asp-area="Admin" asp-controller="EmployeeLogin" asp-action="Login"><i class="bi bi-person-fill"></i> 登入</a>
-                    }
-                </div>
-
+                @await Html.PartialAsync("_AdminNavbarPartial")
             </div>
         </nav>
     </header>
