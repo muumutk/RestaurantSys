@@ -1,67 +1,58 @@
-﻿@model IEnumerable<RestaurantSys.Models.Member>
+﻿@model RestaurantSys.Models.Member
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "會員中心";
 }
 
-<h1>Index</h1>
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MemberTel)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.City)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Address)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Birthday)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.title)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MEmail)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.MemberTel)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.City)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Address)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Birthday)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.MEmail)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.MemberID">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.MemberID">Details</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-dark text-white text-center">
+                    <h1 class="card-title mb-0">會員中心</h1>
+                </div>
+                <div class="card-body p-4">
+                    <h4 class="mb-4">基本資料</h4>
+                    <div class="row mb-3">
+                        <div class="col-sm-3 fw-bold">會員編號</div>
+                        <div class="col-sm-9">@Html.DisplayFor(model => model.MemberID)</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3 fw-bold">姓名</div>
+                        <div class="col-sm-9">@Html.DisplayFor(model => model.Name)</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3 fw-bold">電子郵件</div>
+                        <div class="col-sm-9">@Html.DisplayFor(model => model.MEmail)</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3 fw-bold">聯絡電話</div>
+                        <div class="col-sm-9">@Html.DisplayFor(model => model.MemberTel)</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3 fw-bold">職稱</div>
+                        <div class="col-sm-9">@Html.DisplayFor(model => model.title)</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3 fw-bold">生日</div>
+                        <div class="col-sm-9">@Html.DisplayFor(model => model.Birthday)</div>
+                    </div>
+                    <hr />
+                    <h4 class="mb-4">地址資訊</h4>
+                    <div class="row mb-3">
+                        <div class="col-sm-3 fw-bold">城市</div>
+                        <div class="col-sm-9">@Html.DisplayFor(model => model.City)</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3 fw-bold">詳細地址</div>
+                        <div class="col-sm-9">@Html.DisplayFor(model => model.Address)</div>
+                    </div>
+                </div>
+                <div class="card-footer d-flex justify-content-between">
+                    <a asp-action="Edit" asp-route-id="@Model.MemberID" class="btn btn-primary">編輯資料</a>
+                    <a asp-action="Index" asp-controller="Orders" class="btn btn-secondary">我的訂單</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -8,6 +8,7 @@ using RestaurantSys.Services;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 
 namespace RestaurantSys.Areas.Admin.Controllers
 {
@@ -64,7 +65,7 @@ namespace RestaurantSys.Areas.Admin.Controllers
                 var warnings = await _inventoryWarningService.CheckAndLogExpiringBatchesAsync(employee.EmployeeID);
                 if (warnings.Any())
                 {
-                    TempData["ExpiringWarnings"] = warnings;
+                    HttpContext.Session.SetString("ExpiringWarnings", System.Text.Json.JsonSerializer.Serialize(warnings));
                 }
 
                 // 所有登入成功的用戶都導向到 Admin Area 的首頁

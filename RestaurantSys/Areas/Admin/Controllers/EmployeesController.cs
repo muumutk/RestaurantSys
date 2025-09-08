@@ -21,10 +21,9 @@ namespace RestaurantSys.Areas.Admin.Controllers
     public class EmployeesController : Controller
     {
         private readonly RestaurantSysContext _context;
-
         private readonly EmployeeService _employeeService;
 
-        public EmployeesController(RestaurantSysContext context , EmployeeService employeeService)
+        public EmployeesController(RestaurantSysContext context,EmployeeService employeeService)
         {
             _context = context;
             _employeeService = employeeService;
@@ -75,7 +74,7 @@ namespace RestaurantSys.Areas.Admin.Controllers
             {
                 newEmployee.Password = HashService.HashPasswordSHA256(newEmployee.Password);
 
-                await _employeeService.AddEmployeeAsync(newEmployee);
+                await _employeeService.CreateEmployeeAsync(newEmployee);
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)

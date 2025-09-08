@@ -1,12 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.CodeAnalysis.Scripting;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using RestaurantSys.Access.Data;
 using RestaurantSys.Models;
 using RestaurantSys.Services;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Runtime.Intrinsics.Arm;
 using System.Security.Cryptography;
@@ -57,27 +59,23 @@ namespace RestaurantSys.Controllers
                     }
                 }
 
-                // 取得當前日期
-                var now = DateTime.Now;
-                string yearMonth = $"{now.ToString("yy")}{now.ToString("MM")}";
-
-                // 查詢今天註冊的最後一個會員
-                var lastMember = await _context.Member
-                    .Where(m => m.MemberID.StartsWith($"M{yearMonth}"))
-                    .OrderByDescending(m => m.MemberID)
-                    .FirstOrDefaultAsync();
-
-                string newSerialNumber = "0001";
-                if (lastMember != null)
+                //使用SQL預存程序生成會員編號
+                var registerDateParam = new SqlParameter("@RegisterDate", DateTime.Now);
+                var newMemberIDParam = new SqlParameter
                 {
-                    // 解析流水號並加一
-                    string lastSerialNumberStr = lastMember.MemberID.Substring(6); // 取得流水號部分
-                    int lastSerialNumber = int.Parse(lastSerialNumberStr);
-                    newSerialNumber = (lastSerialNumber + 1).ToString("D4"); // D4 表示格式化成四位數
-                }
+                    ParameterName = "@NewMemberID",
+                    SqlDbType = SqlDbType.VarChar,
+                    Size = 20,
+                    Direction = ParameterDirection.Output
+                };
 
-                // 組裝新的會員編號
-                member.MemberID = $"M{yearMonth}{newSerialNumber}";
+                await _context.Database.ExecuteSqlRawAsync(
+                    "EXEC GetNextMemberID @RegisterDate , @NewMemberID OUT",
+                    registerDateParam, newMemberIDParam);
+
+                string newMemberID = (string)newMemberIDParam.Value;
+                member.MemberID = newMemberID;
+
 
                 // 將密碼進行 SHA256 雜湊處理
                 member.Password = HashService.HashPasswordSHA256(member.Password);

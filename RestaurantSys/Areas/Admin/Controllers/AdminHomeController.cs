@@ -1,7 +1,9 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RestaurantSys.Areas.Admin.Services;
 using RestaurantSys.Models;
 using System.Diagnostics;
+using System.Security.Claims;
 
 namespace RestaurantSys.Areas.Admin.Controllers
 {
@@ -18,16 +20,23 @@ namespace RestaurantSys.Areas.Admin.Controllers
             _warningService = inventoryWarningService;
         }
 
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            // 取得目前登入員工ID（依你的登入邏輯調整）
-            string? employeeId = User.Identity?.Name; // 或從 Claims/Session 取得
+            // 從 Session 讀取 JSON 字串
+            var warningsJson = HttpContext.Session.GetString("ExpiringWarnings");
+
             List<string> warnings = new();
-            if (!string.IsNullOrEmpty(employeeId))
+            if (!string.IsNullOrEmpty(warningsJson))
             {
-                warnings = await _warningService.CheckAndLogExpiringBatchesAsync(employeeId);
+                // 將 JSON 字串還原為 List<string>
+                warnings = System.Text.Json.JsonSerializer.Deserialize<List<string>>(warningsJson);
+
+                // 為了確保警示只顯示一次，讀取後可以將它從 Session 移除
+                HttpContext.Session.Remove("ExpiringWarnings");
             }
+
             ViewBag.InventoryWarnings = warnings;
+
             return View();
         }
 

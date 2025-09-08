@@ -11,6 +11,12 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<RestaurantSysContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("RestaurantSysConnection")));
 
+builder.Services.AddDistributedMemoryCache(); // 添加分散式記憶體快取服務
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30); // 設定 Session 過期時間
+    options.Cookie.IsEssential = true; // 讓 Session Cookie 成為必要的
+});
 
 builder.Services.AddAuthentication(options =>
 {
@@ -49,6 +55,8 @@ if (!app.Environment.IsDevelopment())
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseSession();
 
 app.UseAuthentication();
 

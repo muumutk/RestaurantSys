@@ -7,6 +7,7 @@ using RestaurantSys.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace RestaurantSys.Areas.User.Controllers
@@ -25,24 +26,19 @@ namespace RestaurantSys.Areas.User.Controllers
         // GET: User/Members
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Member.ToListAsync());
-        }
+            // 取得當前登入會員的 MemberID
+            var currentMemberID = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        public IActionResult ShowMyCart()
-        {
-            return View();
-        }
-
-        // GET: User/Members/Details/5
-        public async Task<IActionResult> Details(string id)
-        {
-            if (id == null)
+            // 如果會員ID為空，導向登入頁面或顯示錯誤
+            if (string.IsNullOrEmpty(currentMemberID))
             {
-                return NotFound();
+                return RedirectToAction("MemberLogin", "Login");
             }
 
+            //根據當前會員ID，從資料庫查詢對應的會員資料
             var member = await _context.Member
-                .FirstOrDefaultAsync(m => m.MemberID == id);
+                .FirstOrDefaultAsync(m => m.MemberID == currentMemberID);
+
             if (member == null)
             {
                 return NotFound();
@@ -51,17 +47,42 @@ namespace RestaurantSys.Areas.User.Controllers
             return View(member);
         }
 
-      
-
-        // GET: User/Members/Edit/5
-        public async Task<IActionResult> Edit(string id)
+        public IActionResult ShowMyCart()
         {
-            if (id == null)
+            return View();
+        }
+
+        // GET: User/Members/Details/5
+        public async Task<IActionResult> Details()
+        {
+            var currentMemberID = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(currentMemberID))
             {
                 return NotFound();
             }
 
-            var member = await _context.Member.FindAsync(id);
+            var member = await _context.Member
+                .FirstOrDefaultAsync(m => m.MemberID == currentMemberID);
+
+            if (member == null)
+            {
+                return NotFound();
+            }
+
+            return View(member);
+        }
+
+        // GET: User/Members/Edit
+        public async Task<IActionResult> Edit()
+        {
+            var currentMemberID = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(currentMemberID))
+            {
+                return NotFound();
+            }
+
+            var member = await _context.Member.FindAsync(currentMemberID);
             if (member == null)
             {
                 return NotFound();
@@ -74,11 +95,13 @@ namespace RestaurantSys.Areas.User.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("MemberID,Name,MemberTel,City,Address,Birthday,title,MEmail,Password")] Member member)
+        public async Task<IActionResult> Edit([Bind("MemberID,Name,MemberTel,City,Address,Birthday,title,MEmail")] Member member)
         {
-            if (id != member.MemberID)
+            // 驗證提交的 MemberID 是否與當前登入者一致，防止使用者竄改資料
+            var currentMemberID = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (member.MemberID != currentMemberID)
             {
-                return NotFound();
+                return Forbid(); // 返回 403 Forbidden
             }
 
             if (ModelState.IsValid)
@@ -104,10 +127,9 @@ namespace RestaurantSys.Areas.User.Controllers
             return View(member);
         }
 
-       
-
         private bool MemberExists(string id)
         {
+            // 這裡也應該加上安全性檢查，但由於已經在上面過濾，這行程式碼可能用不到
             return _context.Member.Any(e => e.MemberID == id);
         }
     }

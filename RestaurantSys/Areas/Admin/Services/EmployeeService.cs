@@ -1,6 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using RestaurantSys.Access.Data;
 using RestaurantSys.Models;
+using System.Data;
 
 namespace RestaurantSys.Areas.Admin.Services
 {
@@ -13,47 +15,32 @@ namespace RestaurantSys.Areas.Admin.Services
             _context = context;
         }
 
-        /// <summary>
-        /// 非同步新增員工，包含自動產生編號的邏輯。
-        /// </summary>
-        /// <param name="newEmployee">待新增的員工物件。</param>
-        public async Task AddEmployeeAsync(Employee newEmployee)
+        public async Task CreateEmployeeAsync(Employee newEmployee)
         {
-            // 核心業務邏輯：生成員工編號
-            string newEmployeeId = await GenerateEmployeeIDAsync(newEmployee.HireDate);
-            newEmployee.EmployeeID = newEmployeeId;
+            var hireDateParam = new SqlParameter("@HireDate", newEmployee.HireDate);
+            var newEmployeeIDParam = new SqlParameter
+            {
+                ParameterName = "@NewEmployeeID",
+                SqlDbType = SqlDbType.VarChar,
+                Size = 20,
+                Direction = ParameterDirection.Output
+            };
 
-            // 非同步資料庫操作
+            await _context.Database.ExecuteSqlRawAsync(
+                //OUT 關鍵字明確標示 @NewEmployeeID 是一個輸出參數
+                "EXEC GetNextEmployeeID @HireDate, @NewEmployeeID OUT",
+                //將前面建立的兩個參數傳入命令中
+                hireDateParam, newEmployeeIDParam);
+
+            string newEmployeeID = (string)newEmployeeIDParam.Value;
+
+            //將從資料庫預存程序中獲得的新員工編號，賦值給 newEmployee 物件的 EmployeeID 屬性
+            newEmployee.EmployeeID = newEmployeeID;
+
             await _context.Employee.AddAsync(newEmployee);
             await _context.SaveChangesAsync();
         }
 
-        /// <summary>
-        /// 私有方法：非同步產生員工編號。
-        /// </summary>
-        private async Task<string> GenerateEmployeeIDAsync(DateTime hireDate)
-        {
-            string year = hireDate.ToString("yy");
-            string month = hireDate.ToString("MM");
-            string prefix = $"E{year}{month}";
-
-            string latestEmployeeID = await _context.Employee
-                                                    .Where(e => e.EmployeeID.StartsWith(prefix))
-                                                    .OrderByDescending(e => e.EmployeeID)
-                                                    .Select(e => e.EmployeeID)
-                                                    .FirstOrDefaultAsync();
-
-            int serialNumber = 1;
-            if (!string.IsNullOrEmpty(latestEmployeeID))
-            {
-                string serialPart = latestEmployeeID.Substring(prefix.Length);
-                if (int.TryParse(serialPart, out int currentSerial))
-                {
-                    serialNumber = currentSerial + 1;
-                }
-            }
-
-            return $"{prefix}{serialNumber.ToString("D3")}";
-        }
     }
 }
+      

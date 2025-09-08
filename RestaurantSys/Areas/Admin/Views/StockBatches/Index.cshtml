@@ -13,6 +13,7 @@
 
 <h4>
     <span class="badge bg-warning text-dark">即將到期（15天內）</span>
+    <span class="badge bg-danger text-dark">即將到期（3天內）</span>
 </h4>
 
 <table class="table">
@@ -45,14 +46,20 @@
     <tbody>
         @foreach (var item in Model)
         {
-            // 檢查到期日是否在30天內
+            // 檢查到期日
             var isExpiringSoon = item.ExpiryDate.Date <= DateTime.Now.AddDays(15).Date;
+            var isExpiringCritical = item.ExpiryDate.Date <= DateTime.Now.AddDays(3).Date;
 
             // 根據到期日判斷顯示的樣式
             var rowClass = "";
-            if (isExpiringSoon)
+            if (isExpiringCritical)
             {
-                rowClass = "table-warning"; // 30天內到期，標記為黃色
+                rowClass = "table-danger"; // 3天內到期，標記為紅色
+            }
+            // 接著判斷次緊急的條件：15天內到期
+            else if (isExpiringSoon)
+            {
+                rowClass = "table-warning"; // 15天內到期，標記為黃色
             }
 
 

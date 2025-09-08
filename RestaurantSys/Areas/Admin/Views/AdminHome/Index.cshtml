@@ -5,24 +5,34 @@
 <h2 class="fw-bold">@ViewData["Title"]</h2>
 
 @{
-    // 從 TempData 讀取警示訊息
-    var warnings = TempData["ExpiringWarnings"] as List<string>;
+    // 從 ViewBag 讀取警示訊息
+    var warnings = ViewBag.InventoryWarnings as List<string>;
 }
 
 @if (warnings != null && warnings.Any())
 {
-    // 將兩個重複的警示區塊合併成一個，並使用 Bootstrap 樣式
-    <div class="alert alert-warning alert-dismissible fade show" role="alert">
-        <h4 class="alert-heading">庫存警示！</h4>
-        <p>下列物品即將到期，請盡快處理：</p>
-        <hr>
-        <ul>
-            @foreach (var warning in warnings)
-            {
-                <li>@warning</li>
-            }
-        </ul>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <div class="modal fade" id="inventoryWarningModal" tabindex="-1" aria-labelledby="inventoryWarningModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="inventoryWarningModalLabel">庫存警示！</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>下列物品即將到期，請盡快處理：</p>
+                    <hr>
+                    <ul>
+                        @foreach (var warning in warnings)
+                        {
+                            <li>@warning</li>
+                        }
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                </div>
+            </div>
+        </div>
     </div>
 }
 
@@ -94,3 +104,17 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    @if (warnings != null && warnings.Any())
+    {
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var myModal = new bootstrap.Modal(document.getElementById('inventoryWarningModal'), {
+                    keyboard: false
+                });
+                myModal.show();
+            });
+        </script>
+    }
+}
