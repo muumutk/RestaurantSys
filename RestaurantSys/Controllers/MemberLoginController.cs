@@ -56,7 +56,7 @@ namespace RestaurantSys.Controllers
                 var claimsIdentity = new ClaimsIdentity(claims, "MemberLogin");
                 await HttpContext.SignInAsync("MemberLogin", new ClaimsPrincipal(claimsIdentity));
 
-                return RedirectToAction("Index", "Orders", new { area = "User" });
+                return RedirectToAction("Index", "Members", new { area = "User" });
             }
 
             ViewData["Error"] = "帳號或密碼錯誤。";

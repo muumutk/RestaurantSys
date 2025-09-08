@@ -2,8 +2,6 @@
     ViewData["Title"] = "餐飲管理系統";
 }
 
-<h2 class="fw-bold">@ViewData["Title"]</h2>
-
 @{
     // 從 ViewBag 讀取警示訊息
     var warnings = ViewBag.InventoryWarnings as List<string>;
@@ -29,12 +27,76 @@
                     </ul>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">我知道了</button>
                 </div>
             </div>
         </div>
     </div>
 }
+
+<!-- 頂部橫幅 -->
+<div class="gradient-bg text-white">
+    <div class="max-w-7xl mx-auto px-4 py-12">
+        <div class="text-center">
+            <h1 class="text-4xl font-bold mb-4">餐飲管理系統</h1>
+            <p class="text-xl text-orange-100">全方位餐廳營運管理解決方案</p>
+        </div>
+    </div>
+</div>
+
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <!-- 快速統計 -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+        <div class="bg-white rounded-xl shadow-sm p-6">
+            <div class="flex items-center">
+                <div class="p-3 bg-warm-orange-light rounded-lg">
+                    <i class="fas fa-box warm-orange text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-gray-500 text-sm">庫存項目</p>
+                    <p class="text-2xl font-bold text-gray-900"></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-6">
+            <div class="flex items-center">
+                <div class="p-3 bg-soft-coral-light rounded-lg">
+                    <i class="fas fa-exclamation-triangle soft-coral text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-gray-500 text-sm">低庫存警示</p>
+                    <p class="text-2xl font-bold soft-coral"></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-6">
+            <div class="flex items-center">
+                <div class="p-3 bg-sage-green-light rounded-lg">
+                    <i class="fas fa-users sage-green text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-gray-500 text-sm">員工總數</p>
+                    <p class="text-2xl font-bold text-gray-900"></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-6">
+            <div class="flex items-center">
+                <div class="p-3 bg-sky-blue-light rounded-lg">
+                    <i class="fas fa-utensils sky-blue text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-gray-500 text-sm">菜單項目</p>
+                    <p class="text-2xl font-bold text-gray-900">@ViewBag.MenuCount</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 
 <div class="container">
     <div class="row">
@@ -103,6 +165,7 @@
             </a>
         </div>
     </div>
+</div>
 </div>
 
 @section Scripts {

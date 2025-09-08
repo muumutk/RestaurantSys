@@ -103,6 +103,11 @@ public class MemberData
     [DataType(DataType.Password)]
     public string Password { get; set; } = null!;
 
+    [Display(Name = "會員頭像")]
+    [StringLength(300, ErrorMessage = "頭像路徑最多300字元")]
+    public string? AvatarUrl { get; set; }
+
+
     [Display(Name = "確認密碼")]
     [DataType(DataType.Password)]
     [Compare("Password", ErrorMessage = "密碼不同！")]

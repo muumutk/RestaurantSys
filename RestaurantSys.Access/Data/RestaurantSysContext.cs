@@ -64,6 +64,7 @@ namespace RestaurantSys.Access.Data
                 entity.Property(e => e.title).HasMaxLength(10);
                 entity.Property(e => e.MEmail).HasMaxLength(40);
                 entity.Property(e => e.Password).HasMaxLength(200);
+                entity.Property(e => e.AvatarUrl).HasMaxLength(300);
             });
 
             modelBuilder.Entity<Employee>(entity =>

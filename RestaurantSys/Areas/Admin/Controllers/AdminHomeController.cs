@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using RestaurantSys.Access.Data;
 using RestaurantSys.Areas.Admin.Services;
 using RestaurantSys.Models;
 using System.Diagnostics;
@@ -13,14 +15,16 @@ namespace RestaurantSys.Areas.Admin.Controllers
     {
         private readonly ILogger<AdminHomeController> _logger;
         private readonly InventoryWarningService _warningService;
+        private readonly RestaurantSysContext _context;
 
-        public AdminHomeController(ILogger<AdminHomeController> logger, InventoryWarningService inventoryWarningService)
+        public AdminHomeController(ILogger<AdminHomeController> logger, InventoryWarningService inventoryWarningService,RestaurantSysContext restaurantSysContext)
         {
             _logger = logger;
             _warningService = inventoryWarningService;
+            _context = restaurantSysContext;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index() // 在這裡加上 async
         {
             // 從 Session 讀取 JSON 字串
             var warningsJson = HttpContext.Session.GetString("ExpiringWarnings");
@@ -37,8 +41,13 @@ namespace RestaurantSys.Areas.Admin.Controllers
 
             ViewBag.InventoryWarnings = warnings;
 
+            // 新增的程式碼：計算菜單品項總數
+            var menuCount = await _context.Dish.CountAsync(d => d.IsActive == true);
+            ViewBag.MenuCount = menuCount;
+
             return View();
         }
+
 
         public IActionResult Privacy()
         {
