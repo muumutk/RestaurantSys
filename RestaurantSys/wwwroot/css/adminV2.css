@@ -1,26 +1,6 @@
+/* 自訂顏色與漸層 */
 .gradient-bg {
     background: linear-gradient(135deg, #d4a574 0%, #c4956c 50%, #7a9b8e 100%);
-}
-
-.card-hover {
-    transition: all 0.3s ease;
-}
-
-    .card-hover:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 20px 25px -5px rgba(212, 165, 116, 0.2), 0 10px 10px -5px rgba(196, 149, 108, 0.15);
-    }
-
-.feature-card {
-    background: white;
-    border-radius: 16px;
-    padding: 2rem;
-    text-align: center;
-    height: 280px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    box-shadow: 0 4px 6px -1px rgba(212, 165, 116, 0.1);
 }
 
 .warm-orange {
@@ -95,6 +75,58 @@
     background-color: #faf6f3;
 }
 
+/* 卡片 Hover 效果 */
+.card-hover {
+    transition: all 0.3s ease;
+}
+
+    .card-hover:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 25px -5px rgba(212, 165, 116, 0.2), 0 10px 10px -5px rgba(196, 149, 108, 0.15);
+    }
+
+/* 功能卡片樣式 */
+.feature-card {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+    height: 280px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-shadow: 0 4px 6px -1px rgba(212, 165, 116, 0.1);
+}
+
+/* 自訂圓形圖示容器尺寸 (保持與原樣式一致) */
+.p-3.rounded-circle {
+    width: 4rem;
+    height: 4rem;
+}
+
+/* 快速操作按鈕 Hover 效果 */
+.quick-action-btn:hover {
+    background-color: #e6b89c !important;
+    transition: background-color 0.3s ease;
+}
+
+.card-image-container {
+    width: 100%;
+    height: 200px; /* 確保所有圖片和佔位符的高度都是固定的 */
+    overflow: hidden; /* 防止內容溢出 */
+}
+
+    /* 確保你的 _PhotoDisplayPartial 內的圖片和佔位符也適應容器 */
+    .card-image-container img,
+    .card-image-container .no-photo-placeholder {
+        width: 100%;
+        height: 100%; /* 讓圖片和佔位符填滿容器 */
+    }
+
+    .card-image-container img {
+        object-fit: cover; /* 保持圖片比例並裁剪 */
+    }
+
 /* 主頁面標題 */
 h2 {
     color: #343a40;
@@ -122,6 +154,9 @@ header .navbar {
     transition: all 0.3s ease-in-out;
     border: 1px solid #e8e8e8;
     background: #ffffff;
+    /* Flex 容器：確保 footer 永遠在最底下 */
+    display: flex;
+    flex-direction: column;
 }
 
     .card:hover {
@@ -132,26 +167,29 @@ header .navbar {
 /* 卡片內文與圖示風格 */
 .card-body {
     padding: 2.5rem;
+    flex-grow: 1; /* 撐開中間空間 */
     display: flex;
     flex-direction: column;
 }
-
 
 .card-text {
     font-size: 1rem;
     color: #6c757d;
 }
 
-
+.card-footer {
+    margin-top: auto; /* 保證在最底部 */
+    background: #fff; /* 確保背景一致 */
+    border-top: 1px solid #f0f0f0;
+}
 
 /* 頁腳 */
 footer {
-    background: #fdfdfd;
-    border-top: 1px solid #e8e8e8;
-    color: #a0a0a0;
+    position: static; /* 讓它回到正常文檔流 */
+    bottom: auto;
 }
 
-/*照片展示*/
+/* 照片展示 */
 .no-photo-placeholder {
     width: 100%;
     height: 200px;

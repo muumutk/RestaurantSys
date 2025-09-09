@@ -41,7 +41,15 @@ namespace RestaurantSys.Areas.Admin.Controllers
 
             ViewBag.InventoryWarnings = warnings;
 
-            // 新增的程式碼：計算菜單品項總數
+            //計算低庫存
+            var lowStockCount = await _context.Stock.CountAsync(s => s.SafeStock > s.CurrentStock);
+            ViewBag.LowStockCount = lowStockCount;
+
+            // 計算在職員工總數
+            var employeeComunt = await _context.Employee.CountAsync(e => e.IsEmployed == true);
+            ViewBag.EmployeeCount = employeeComunt;
+
+            // 計算菜單品項總數
             var menuCount = await _context.Dish.CountAsync(d => d.IsActive == true);
             ViewBag.MenuCount = menuCount;
 

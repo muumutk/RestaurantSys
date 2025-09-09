@@ -57,6 +57,32 @@
         }
     </div>
 </div>
+<button onclick="scrollToTop()" id="scrollToTopBtn" title="回到頂部">
+    <i class="bi bi-arrow-up"></i>
+</button>
 
 @section Scripts {
+    <script>
+                // 當使用者向下滾動 100px 時，顯示按鈕
+        window.onscroll = function() {
+            scrollFunction();
+        };
+
+        function scrollFunction() {
+            const btn = document.getElementById("scrollToTopBtn");
+            if (document.body.scrollTop > 50 || document.documentElement.scrollTop > 50) {
+                btn.style.display = "block";
+            } else {
+                btn.style.display = "none";
+            }
+        }
+
+        // 點擊按鈕時，平滑滾動回到頁面頂部
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+    </script>
 }

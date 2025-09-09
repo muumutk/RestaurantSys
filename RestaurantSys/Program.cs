@@ -2,11 +2,17 @@ using Microsoft.EntityFrameworkCore;
 using RestaurantSys.Access.Data;
 using RestaurantSys.Areas.Admin.Services;
 using RestaurantSys.Services;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews()
+        .AddJsonOptions(options =>
+        {
+                                                             //告訴序列化器，當它發現一個循環參考時，直接忽略它，不再繼續處理。
+            options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        });
 
 builder.Services.AddDbContext<RestaurantSysContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("RestaurantSysConnection")));

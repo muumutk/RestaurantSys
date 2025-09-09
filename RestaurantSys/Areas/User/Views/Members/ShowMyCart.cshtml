@@ -11,12 +11,14 @@
 
 @section Scripts {
     <script>
+        // 金額格式化工具
         let toNTD = new Intl.NumberFormat('zh-TW', {
             style: 'currency',
             currency: 'TWD',
             minimumFractionDigits: 0
         });
 
+        // 顯示購物車內容的主函數
         function showMyCart() {
             let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
@@ -52,16 +54,23 @@
                 sum += subtotal;
 
                 items += `<tr>
-                              <td>${counter++}</td>
-                              <td>${item.DishName}</td>
-                              <td>${toNTD.format(item.DishPrice)}</td>
-                              <td>${item.Qty}</td>
-                              <td><span class="text-danger fw-bold">${toNTD.format(subtotal)}</span></td>
-                              <td>
-                                  <button class="btn btn-danger btn-sm" onclick="removeItem(${item.DishID})">
-                                      <i class="bi bi-trash3"></i> 移除
-                                  </button>
-                              </td>
+                            <td>${counter++}</td>
+                            <td>${item.DishName}</td>
+                            <td>${toNTD.format(item.DishPrice)}</td>
+                            <td>
+                                <div class="input-group input-group-sm" style="width: 130px;">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="changeQty(${item.DishID}, -1)">-</button>
+                                    <input type="text" class="form-control text-center cart-qty" value="${item.Qty}"
+                                           data-dish-id="${item.DishID}" readonly>
+                                    <button class="btn btn-outline-secondary" type="button" onclick="changeQty(${item.DishID}, 1)">+</button>
+                                </div>
+                            </td>
+                            <td><span class="text-danger fw-bold subtotal-price">${toNTD.format(subtotal)}</span></td>
+                            <td>
+                                <button class="btn btn-danger btn-sm" onclick="confirmRemove(${item.DishID})">
+                                    <i class="bi bi-trash3"></i> 移除
+                                </button>
+                            </td>
                           </tr>`;
             }
 
@@ -69,27 +78,50 @@
                       <tfoot>
                           <tr>
                               <td colspan="4" class="text-end fw-bold">總計：</td>
-                              <td colspan="2"><h4 class="text-danger fw-bold">${toNTD.format(sum)}</h4></td>
+                              <td colspan="2"><h4 class="text-danger fw-bold" id="total-sum">${toNTD.format(sum)}</h4></td>
                           </tr>
                       </tfoot>
                     </table>
-                </div>`;
+                  </div>`;
 
             document.getElementById('cart-container').innerHTML = items;
         }
 
-        // 移除商品的函數
-        function removeItem(dishId) {
-            if (confirm("確定要移除此商品嗎？")) {
-                let cart = JSON.parse(localStorage.getItem("cart")) || [];
-                let updatedCart = cart.filter(item => item.DishID !== dishId);
-                localStorage.setItem("cart", JSON.stringify(updatedCart));
+        // 透過 +/- 按鈕修改數量
+        function changeQty(dishID, change) {
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+            let item = cart.find(i => i.DishID === dishID);
 
-                // 重新載入購物車內容以更新畫面
-                showMyCart();
-                // 同時更新導覽列的購物車總數
-                CartStatusCheck();
+            if (item) {
+                // 如果數量為1且點擊-號，則呼叫刪除確認函式
+                if (item.Qty === 1 && change === -1) {
+                    confirmRemove(dishID);
+                } else {
+                    item.Qty = Math.max(1, item.Qty + change); // 數量至少為1
+                    localStorage.setItem("cart", JSON.stringify(cart));
+                    showMyCart(); // 重新渲染畫面，更新資訊
+                    CartStatusCheck(); // 更新導覽列的購物車總數
+                }
             }
+        }
+
+        // 統一的刪除確認函式
+        function confirmRemove(dishId) {
+            if (confirm("確定要移除此商品嗎？")) {
+                removeItem(dishId);
+            }
+        }
+
+        // 實際執行移除商品的函式 (不含任何確認視窗)
+        function removeItem(dishId) {
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+            let updatedCart = cart.filter(item => item.DishID !== dishId);
+            localStorage.setItem("cart", JSON.stringify(updatedCart));
+
+            // 重新載入購物車內容以更新畫面
+            showMyCart();
+            // 同時更新導覽列的購物車總數
+            CartStatusCheck();
         }
 
         // 頁面載入時執行顯示購物車的函數
