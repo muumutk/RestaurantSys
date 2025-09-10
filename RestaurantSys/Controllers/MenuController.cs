@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using RestaurantSys.Access.Data;
+using RestaurantSys.DTOs;
 using RestaurantSys.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace RestaurantSys.Controllers
 {
@@ -20,13 +21,32 @@ namespace RestaurantSys.Controllers
         }
 
         // GET: User/Menu
-        public async Task<IActionResult> Index()
+        // Controllers/MenuController.cs
+        // 在 MenuController.cs
+        public async Task<IActionResult> Index(int? id)
         {
-            var activeDishes = await _context.Dish
-                                 .Where(d => d.IsActive)
-                                 .OrderBy(d => d.DishID) // 依 ID 排序，讓順序固定
-                                 .ToListAsync();
-            return View(activeDishes);
+            var dishesQuery = _context.Dish.Where(d => d.IsActive).AsQueryable();
+
+            if (id.HasValue)
+            {
+                dishesQuery = dishesQuery.Where(d => d.DishCategoryID == id.Value);
+            }
+
+            // 將資料庫模型投影到 DishDTO
+            var dishes = await dishesQuery
+                .OrderBy(d => d.DishID)
+                .Select(d => new DishDTO
+                {
+                    DishID = d.DishID,
+                    DishName = d.DishName,
+                    Description = d.Description,
+                    PhotoPath = d.PhotoPath,
+                    DishPrice = d.DishPrice,
+                    Note = d.Note
+                })
+                .ToListAsync();
+
+            return View(dishes);
         }
 
         // GET: User/Menu/Details/5

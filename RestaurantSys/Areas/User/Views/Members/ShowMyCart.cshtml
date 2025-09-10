@@ -7,8 +7,6 @@
 <div id="cart-container" class="mt-4">
 </div>
 
-<a class="btn btn-outline-dark" asp-area="" asp-controller="Menu" asp-action="Index">再繼續逛逛</a>
-
 @section Scripts {
     <script>
         // 金額格式化工具
@@ -19,8 +17,14 @@
         });
 
         // 顯示購物車內容的主函數
-        function showMyCart() {
+                function showMyCart() {
             let cart = JSON.parse(localStorage.getItem("cart")) || [];
+            let comfirmOrderUrl = '@Url.Action("ComfirmOrder", "Orders", new { area = "User" })';
+            let continueShoppingUrl = '@Url.Action("Index", "Menu", new { area = "" })';
+
+            let items = '';
+            let sum = 0;
+            let counter = 1;
 
             if (cart.length === 0) {
                 document.getElementById('cart-container').innerHTML = `
@@ -28,63 +32,71 @@
                         目前沒有任何商品喔，快去新增餐點吧！
                     </div>
                 `;
-                return;
-            }
+            } else {
+                // 先建立表格的開頭部分
+                items += `
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="myCart">
+                            <thead>
+                                <tr>
+                                    <th>序號</th>
+                                    <th>菜色名稱</th>
+                                    <th>單價</th>
+                                    <th>數量</th>
+                                    <th>小計</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
 
-            let items = '';
-            let sum = 0;
-            let counter = 1;
+                // 這裡迴圈處理每一項商品
+                for (let item of cart) {
+                    let subtotal = item.DishPrice * item.Qty;
+                    sum += subtotal;
 
-            items += `<div class="table-responsive">
-                          <table class="table table-hover" id="myCart">
-                              <thead>
-                                  <tr>
-                                      <th>序號</th>
-                                      <th>菜色名稱</th>
-                                      <th>單價</th>
-                                      <th>數量</th>
-                                      <th>小計</th>
-                                      <th></th>
-                                  </tr>
-                              </thead>
-                              <tbody>`;
+                    items += `<tr>
+                        <td>${counter++}</td>
+                        <td>${item.DishName}</td>
+                        <td>${toNTD.format(item.DishPrice)}</td>
+                        <td>
+                            <div class="input-group input-group-sm" style="width: 130px;">
+                                <button class="btn btn-outline-secondary" type="button" onclick="changeQty(${item.DishID}, -1)">-</button>
+                                <input type="text" class="form-control text-center cart-qty" value="${item.Qty}"
+                                        data-dish-id="${item.DishID}" readonly>
+                                <button class="btn btn-outline-secondary" type="button" onclick="changeQty(${item.DishID}, 1)">+</button>
+                            </div>
+                        </td>
+                        <td><span class="text-danger fw-bold subtotal-price">${toNTD.format(subtotal)}</span></td>
+                        <td>
+                            <button class="btn btn-danger btn-sm" onclick="confirmRemove(${item.DishID})">
+                                <i class="bi bi-trash3"></i> 移除
+                            </button>
+                        </td>
+                    </tr>`;
+                }
 
-            for (let item of cart) {
-                let subtotal = item.DishPrice * item.Qty;
-                sum += subtotal;
-
-                items += `<tr>
-                            <td>${counter++}</td>
-                            <td>${item.DishName}</td>
-                            <td>${toNTD.format(item.DishPrice)}</td>
-                            <td>
-                                <div class="input-group input-group-sm" style="width: 130px;">
-                                    <button class="btn btn-outline-secondary" type="button" onclick="changeQty(${item.DishID}, -1)">-</button>
-                                    <input type="text" class="form-control text-center cart-qty" value="${item.Qty}"
-                                           data-dish-id="${item.DishID}" readonly>
-                                    <button class="btn btn-outline-secondary" type="button" onclick="changeQty(${item.DishID}, 1)">+</button>
-                                </div>
-                            </td>
-                            <td><span class="text-danger fw-bold subtotal-price">${toNTD.format(subtotal)}</span></td>
-                            <td>
-                                <button class="btn btn-danger btn-sm" onclick="confirmRemove(${item.DishID})">
-                                    <i class="bi bi-trash3"></i> 移除
-                                </button>
-                            </td>
-                          </tr>`;
-            }
-
-            items += `</tbody>
-                      <tfoot>
-                          <tr>
-                              <td colspan="4" class="text-end fw-bold">總計：</td>
-                              <td colspan="2"><h4 class="text-danger fw-bold" id="total-sum">${toNTD.format(sum)}</h4></td>
-                          </tr>
-                      </tfoot>
+                // 在表格的結尾部分，加入總計與結帳按鈕
+                items += `</tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="4" class="text-end fw-bold">總計：</td>
+                                <td colspan="2"><h4 class="text-danger fw-bold" id="total-sum">${toNTD.format(sum)}</h4></td>
+                            </tr>
+                        </tfoot>
                     </table>
-                  </div>`;
+                </div>
+                <div class="d-flex justify-content-end mt-3">
+                     <a href="${continueShoppingUrl}" class="btn btn-outline-dark">
+                        <i class="bi bi-shop"></i> 再繼續逛逛
+                    </a>
+                    <a href="${comfirmOrderUrl}" class="btn btn-outline-dark">
+                        <i class="bi bi-credit-card"></i> 前往結帳
+                    </a>
+                </div>
+                `;
 
-            document.getElementById('cart-container').innerHTML = items;
+                document.getElementById('cart-container').innerHTML = items;
+            }
         }
 
         // 透過 +/- 按鈕修改數量

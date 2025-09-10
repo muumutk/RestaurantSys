@@ -43,6 +43,37 @@ namespace RestaurantSys.Areas.User.Controllers
 
         }
 
+        //確認訂單
+        public IActionResult ConfirmOrder()
+        {
+            // 在這裡處理結帳邏輯，例如：
+            // 1. 從 Session 或其他地方取得購物車資料。
+            // 2. 建立一個新訂單，並將資料存入資料庫。
+            // 3. 成功建立訂單後，將使用者導向到顯示訂單詳情的頁面。
+            //    例如：return RedirectToAction("ConfirmOrder", new { id = newOrderId });
+
+            // 暫時先回傳一個 View 進行測試
+            return View("ConfirmOrder"); // 這裡可以回傳一個空白的結帳頁面
+        }
+
+        // 保留你原來的 Action，用來顯示特定訂單的詳情
+        public async Task<IActionResult> ConfirmOrder(string id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+            var order = await _context.Order
+                .Include(o => o.Member)
+                .FirstOrDefaultAsync(m => m.OrderID == id);
+            if (order == null)
+            {
+                return NotFound();
+            }
+            return View(order);
+        }
+
+
         // GET: User/Orders/Details/5
         public async Task<IActionResult> Details(string id)
         {

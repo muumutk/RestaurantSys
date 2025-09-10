@@ -1,0 +1,22 @@
+﻿@model IEnumerable<RestaurantSys.DTOs.CategoryMenuDTO>
+
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">
+        瀏覽菜單
+    </a>
+    <ul class="dropdown-menu">
+        <li>
+            <a class="dropdown-item" asp-area="" asp-controller="Menu" asp-action="Index" asp-route-id="">所有餐點</a>
+        </li>
+        <li><hr class="dropdown-divider"></li>
+
+        @foreach (var category in Model)
+        {
+            <li>
+                <a class="dropdown-item" asp-area="" asp-controller="Menu" asp-action="Index" asp-route-id="@category.DishCategoryID">
+                    @category.DishCategoryName
+                </a>
+            </li>
+        }
+    </ul>
+</li>

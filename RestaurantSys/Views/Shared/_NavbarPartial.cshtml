@@ -4,15 +4,7 @@
     </li>
     <li class="nav-item">
         <a class="nav-link text-dark" asp-area="" asp-controller="Menu" asp-action="Index">瀏覽菜單</a>
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">瀏覽菜單</a>
-        <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#">主食</a></li>
-            <li><a class="dropdown-item" href="#">甜點</a></li>
-            <li><a class="dropdown-item" href="#">飲品</a></li>
-            <li><a class="dropdown-item" href="#">咖啡</a></li>
-        </ul>
-    </li>
+        @await Component.InvokeAsync("VCDishCategoryMenu")
 </ul>
 <div class="text-center">
     @if (User.Identity.IsAuthenticated)
