@@ -12,8 +12,8 @@ using RestaurantSys.Access.Data;
 namespace RestaurantSys.Access.Migrations
 {
     [DbContext(typeof(RestaurantSysContext))]
-    [Migration("20250901074958_deleteWrongColumn")]
-    partial class deleteWrongColumn
+    [Migration("20250911063140_orderStatusModel")]
+    partial class orderStatusModel
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -38,6 +38,9 @@ namespace RestaurantSys.Access.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<int>("DishCategoryID")
+                        .HasColumnType("int");
+
                     b.Property<string>("DishName")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -46,18 +49,42 @@ namespace RestaurantSys.Access.Migrations
                     b.Property<decimal>("DishPrice")
                         .HasColumnType("decimal(18, 2)");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Note")
                         .HasMaxLength(40)
                         .HasColumnType("nvarchar(40)");
 
                     b.Property<string>("PhotoPath")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
 
                     b.HasKey("DishID")
                         .HasName("PK_DishID");
 
+                    b.HasIndex("DishCategoryID");
+
                     b.ToTable("Dish");
+                });
+
+            modelBuilder.Entity("RestaurantSys.Models.DishCategory", b =>
+                {
+                    b.Property<int>("DishCategoryID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DishCategoryID"));
+
+                    b.Property<string>("DishCategoryName")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("DishCategoryID")
+                        .HasName("PK_DishCategoryID");
+
+                    b.ToTable("DishCategory");
                 });
 
             modelBuilder.Entity("RestaurantSys.Models.DishIngredient", b =>
@@ -136,6 +163,10 @@ namespace RestaurantSys.Access.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("AvatarUrl")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
                     b.Property<DateTime?>("Birthday")
                         .HasColumnType("date");
 
@@ -181,7 +212,6 @@ namespace RestaurantSys.Access.Migrations
                         .HasColumnType("nvarchar(12)");
 
                     b.Property<string>("EmployeeID")
-                        .IsRequired()
                         .HasColumnType("nvarchar(8)");
 
                     b.Property<string>("MemberID")
@@ -195,6 +225,14 @@ namespace RestaurantSys.Access.Migrations
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime");
 
+                    b.Property<string>("OrderStatusID")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(2)");
+
+                    b.Property<string>("PayTypeID")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(2)");
+
                     b.Property<DateTime>("PickUpTime")
                         .HasColumnType("datetime");
 
@@ -204,6 +242,10 @@ namespace RestaurantSys.Access.Migrations
                     b.HasIndex("EmployeeID");
 
                     b.HasIndex("MemberID");
+
+                    b.HasIndex("OrderStatusID");
+
+                    b.HasIndex("PayTypeID");
 
                     b.ToTable("Order");
                 });
@@ -230,6 +272,40 @@ namespace RestaurantSys.Access.Migrations
                     b.HasIndex("DishID");
 
                     b.ToTable("OrderDetail");
+                });
+
+            modelBuilder.Entity("RestaurantSys.Models.OrderStatus", b =>
+                {
+                    b.Property<string>("OrderStatusID")
+                        .HasMaxLength(2)
+                        .HasColumnType("nvarchar(2)");
+
+                    b.Property<string>("OrderStatusName")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.HasKey("OrderStatusID")
+                        .HasName("PK_OrderStatusID");
+
+                    b.ToTable("OrderStatus");
+                });
+
+            modelBuilder.Entity("RestaurantSys.Models.PayType", b =>
+                {
+                    b.Property<string>("PayTypeID")
+                        .HasMaxLength(2)
+                        .HasColumnType("nvarchar(2)");
+
+                    b.Property<string>("PayTypeName")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.HasKey("PayTypeID")
+                        .HasName("PK_PayTypeID");
+
+                    b.ToTable("PayType");
                 });
 
             modelBuilder.Entity("RestaurantSys.Models.Stock", b =>
@@ -317,6 +393,33 @@ namespace RestaurantSys.Access.Migrations
                     b.ToTable("StockBatch");
                 });
 
+            modelBuilder.Entity("RestaurantSys.Models.StockBatchWarningLog", b =>
+                {
+                    b.Property<int>("StockBatchWarningLogID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StockBatchWarningLogID"));
+
+                    b.Property<int?>("BatchID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("EmployeeID")
+                        .HasColumnType("nvarchar(8)");
+
+                    b.Property<DateTime>("WarningSentDate")
+                        .HasColumnType("datetime");
+
+                    b.HasKey("StockBatchWarningLogID")
+                        .HasName("PK_StockBatchWarningLogID");
+
+                    b.HasIndex("BatchID");
+
+                    b.HasIndex("EmployeeID");
+
+                    b.ToTable("StockBatchWarningLog");
+                });
+
             modelBuilder.Entity("RestaurantSys.Models.Supplier", b =>
                 {
                     b.Property<int>("SupplierID")
@@ -351,6 +454,17 @@ namespace RestaurantSys.Access.Migrations
                     b.ToTable("Supplier");
                 });
 
+            modelBuilder.Entity("RestaurantSys.Models.Dish", b =>
+                {
+                    b.HasOne("RestaurantSys.Models.DishCategory", "DishCategory")
+                        .WithMany("Dishes")
+                        .HasForeignKey("DishCategoryID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DishCategory");
+                });
+
             modelBuilder.Entity("RestaurantSys.Models.DishIngredient", b =>
                 {
                     b.HasOne("RestaurantSys.Models.Dish", "Dish")
@@ -374,9 +488,7 @@ namespace RestaurantSys.Access.Migrations
                 {
                     b.HasOne("RestaurantSys.Models.Employee", "Employee")
                         .WithMany("Orders")
-                        .HasForeignKey("EmployeeID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("EmployeeID");
 
                     b.HasOne("RestaurantSys.Models.Member", "Member")
                         .WithMany("Orders")
@@ -384,9 +496,25 @@ namespace RestaurantSys.Access.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("RestaurantSys.Models.OrderStatus", "OrderStatus")
+                        .WithMany("Orders")
+                        .HasForeignKey("OrderStatusID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RestaurantSys.Models.PayType", "PayType")
+                        .WithMany("Orders")
+                        .HasForeignKey("PayTypeID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Employee");
 
                     b.Navigation("Member");
+
+                    b.Navigation("OrderStatus");
+
+                    b.Navigation("PayType");
                 });
 
             modelBuilder.Entity("RestaurantSys.Models.OrderDetail", b =>
@@ -438,11 +566,31 @@ namespace RestaurantSys.Access.Migrations
                     b.Navigation("Stock");
                 });
 
+            modelBuilder.Entity("RestaurantSys.Models.StockBatchWarningLog", b =>
+                {
+                    b.HasOne("RestaurantSys.Models.StockBatch", "StockBatch")
+                        .WithMany()
+                        .HasForeignKey("BatchID");
+
+                    b.HasOne("RestaurantSys.Models.Employee", "Employee")
+                        .WithMany()
+                        .HasForeignKey("EmployeeID");
+
+                    b.Navigation("Employee");
+
+                    b.Navigation("StockBatch");
+                });
+
             modelBuilder.Entity("RestaurantSys.Models.Dish", b =>
                 {
                     b.Navigation("DishIngredients");
 
                     b.Navigation("OrderDetails");
+                });
+
+            modelBuilder.Entity("RestaurantSys.Models.DishCategory", b =>
+                {
+                    b.Navigation("Dishes");
                 });
 
             modelBuilder.Entity("RestaurantSys.Models.Employee", b =>
@@ -460,6 +608,16 @@ namespace RestaurantSys.Access.Migrations
             modelBuilder.Entity("RestaurantSys.Models.Order", b =>
                 {
                     b.Navigation("OrderDetails");
+                });
+
+            modelBuilder.Entity("RestaurantSys.Models.OrderStatus", b =>
+                {
+                    b.Navigation("Orders");
+                });
+
+            modelBuilder.Entity("RestaurantSys.Models.PayType", b =>
+                {
+                    b.Navigation("Orders");
                 });
 
             modelBuilder.Entity("RestaurantSys.Models.Stock", b =>

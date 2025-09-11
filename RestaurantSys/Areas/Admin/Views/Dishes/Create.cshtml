@@ -1,4 +1,4 @@
-﻿@model RestaurantSys.Models.Dish
+﻿@model RestaurantSys.DTOs.DishDTO
 
 @{
     ViewData["Title"] = "Create";
@@ -26,10 +26,19 @@
                 <input asp-for="Description" class="form-control" />
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
+
             <div class="form-group">
                 <label for="DishPhoto" class="control-label">上傳照片</label>
                 <input type="file" id="DishPhoto" name="DishPhoto" class="form-control" />
             </div>
+
+            <div class="form-group mt-3">
+                <label class="control-label">照片預覽</label>
+                <div>
+                    <img id="photoPreview" src="#" alt="圖片預覽" style="max-width: 100%; max-height: 200px; display: none;" />
+                </div>
+            </div>
+
             <div class="form-group">
                 <label asp-for="DishPrice" class="control-label"></label>
                 <input asp-for="DishPrice" class="form-control" />
@@ -57,25 +66,28 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 
     <script>
-        $('#newPhoto').on( 'change' , function(){
-            let file= this.files[0];
+        // 監聽檔案輸入欄位的變動
+        $('#DishPhoto').on('change', function () {
+            let file = this.files[0];
+            const reader = new FileReader();
+            const preview = $('#photoPreview');
 
             if (file) {
-                let reader = new FileReader();
-
+                // 如果有選擇檔案，顯示預覽圖
                 reader.onload = function (e) {
-                    $('#photoPreview').attr('src', e.target.result);
+                    preview.attr('src', e.target.result).show();
                 }
                 reader.readAsDataURL(file);
-
             } else {
-                $('#photoPreview').attr('src', '');
+                // 如果沒有選擇檔案，隱藏預覽圖
+                preview.hide().attr('src', '#');
             }
-
-        } );
+        });
     </script>
 
 }

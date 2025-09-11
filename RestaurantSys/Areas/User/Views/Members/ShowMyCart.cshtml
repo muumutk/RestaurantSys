@@ -19,7 +19,7 @@
         // 顯示購物車內容的主函數
                 function showMyCart() {
             let cart = JSON.parse(localStorage.getItem("cart")) || [];
-            let comfirmOrderUrl = '@Url.Action("ComfirmOrder", "Orders", new { area = "User" })';
+            let comfirmOrderUrl = '@Url.Action("Create", "Orders", new { area = "User" })';
             let continueShoppingUrl = '@Url.Action("Index", "Menu", new { area = "" })';
 
             let items = '';

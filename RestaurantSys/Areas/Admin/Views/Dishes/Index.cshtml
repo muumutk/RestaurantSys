@@ -1,4 +1,4 @@
-﻿@model IEnumerable<RestaurantSys.Models.Dish>
+﻿@model IEnumerable<RestaurantSys.DTOs.DishDTO>
 
 @{
     ViewData["Title"] = "菜單餐點管理";
@@ -13,6 +13,8 @@
 
 <div class="container-fluid">
     <div class="row g-4 d-flex align-items-stretch">
+        @if (Model != null && Model.Any())
+        {
         @foreach (var item in Model)
         {
             <div class="col-12 col-md-6 col-lg-4 d-flex">
@@ -45,6 +47,13 @@
                     </div>
 
                 </div>
+            </div>
+        }
+        }
+        else
+        {
+            <div class="alert alert-info text-center w-100" role="alert">
+                目前沒有任何餐點資料。請點擊上方的「新增餐點」按鈕來添加新的餐點。
             </div>
         }
     </div>

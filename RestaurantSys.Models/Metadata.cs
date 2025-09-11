@@ -294,7 +294,35 @@ public class StockBatchWarningLogData
     public string? EmployeeID { get; set; } = null!;
 }
 
-    public class OrderData
+public class PayTypeData
+{
+    [Key]
+    [Display(Name ="付款代碼")]
+    [StringLength(2)]
+    public string PayTypeID { get; set; } = null!;
+
+    [Display(Name = "付款方式")]
+    [StringLength(10)]
+    public string PayTypeName { get; set; } = null!;
+
+}
+
+
+public class OrderStatusData
+{
+    [Display(Name = "訂單狀態編號")]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    [Key]
+    public int OrderStatusID { get; set; }
+
+    [Display(Name = "訂單狀態名稱")]
+    [StringLength(20, ErrorMessage = "類別名稱最多20個字")]
+    [Required(ErrorMessage = "類別名稱為必填欄位")]
+    public string OrderStatusName { get; set; } = null!;
+}
+
+
+public class OrderData
 {
     [Display(Name = "訂單編號")]
     [Required]
@@ -325,7 +353,16 @@ public class StockBatchWarningLogData
     [Display(Name = "員工編號")]
     [ForeignKey("Employee")]
     [HiddenInput]
-    public string EmployeeID { get; set; } = null!;
+    public string? EmployeeID { get; set; }
+
+    [Display(Name = "付款代碼")]
+    [StringLength(2)]
+    [ForeignKey("PayType")]
+    public string PayTypeID { get; set; } = null!;
+
+    [Display(Name = "訂單狀態編號")]
+    [ForeignKey("OrderStatus")]
+    public int OrderStatusID { get; set; }
 }
 
 public class OrderDetailData
@@ -406,6 +443,16 @@ public partial class Stock
 
 [ModelMetadataType(typeof(StockBatchData))]
 public partial class StockBatch
+{
+}
+
+[ModelMetadataType(typeof(PayTypeData))]
+public partial class PayType
+{
+}
+
+[ModelMetadataType(typeof(OrderStatusData))]
+public partial class OrderStatus
 {
 }
 

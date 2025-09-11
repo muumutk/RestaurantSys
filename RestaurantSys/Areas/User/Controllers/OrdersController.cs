@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using RestaurantSys.Access.Data;
@@ -13,7 +12,6 @@ using System.Threading.Tasks;
 namespace RestaurantSys.Areas.User.Controllers
 {
     [Area("User")]
-    [Authorize(Roles = "Member")]
     public class OrdersController : Controller
     {
         private readonly RestaurantSysContext _context;
@@ -30,7 +28,7 @@ namespace RestaurantSys.Areas.User.Controllers
             var currentMemberID = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             //確保使用者已登入
-            if(string.IsNullOrEmpty(currentMemberID))
+            if (string.IsNullOrEmpty(currentMemberID))
             {
                 //沒有會員ID，表示未登入，導向登入頁面
                 return RedirectToAction("MemberLogin", "Login");
@@ -41,52 +39,25 @@ namespace RestaurantSys.Areas.User.Controllers
 
             return View(orders);
 
+
+            //var restaurantSysContext = _context.Order.Include(o => o.Employee).Include(o => o.Member).Include(o => o.OrderStatus).Include(o => o.PayType);
+            //return View(await restaurantSysContext.ToListAsync());
         }
-
-        //確認訂單
-        public IActionResult ConfirmOrder()
-        {
-            // 在這裡處理結帳邏輯，例如：
-            // 1. 從 Session 或其他地方取得購物車資料。
-            // 2. 建立一個新訂單，並將資料存入資料庫。
-            // 3. 成功建立訂單後，將使用者導向到顯示訂單詳情的頁面。
-            //    例如：return RedirectToAction("ConfirmOrder", new { id = newOrderId });
-
-            // 暫時先回傳一個 View 進行測試
-            return View("ConfirmOrder"); // 這裡可以回傳一個空白的結帳頁面
-        }
-
-        // 保留你原來的 Action，用來顯示特定訂單的詳情
-        public async Task<IActionResult> ConfirmOrder(string id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-            var order = await _context.Order
-                .Include(o => o.Member)
-                .FirstOrDefaultAsync(m => m.OrderID == id);
-            if (order == null)
-            {
-                return NotFound();
-            }
-            return View(order);
-        }
-
 
         // GET: User/Orders/Details/5
         public async Task<IActionResult> Details(string id)
         {
-            var currentMemberID = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
             if (id == null)
             {
                 return NotFound();
             }
 
             var order = await _context.Order
+                .Include(o => o.Employee)
                 .Include(o => o.Member)
-                .FirstOrDefaultAsync(m => m.OrderID == id && m.MemberID == currentMemberID);
+                .Include(o => o.OrderStatus)
+                .Include(o => o.PayType)
+                .FirstOrDefaultAsync(m => m.OrderID == id);
             if (order == null)
             {
                 return NotFound();
@@ -98,8 +69,15 @@ namespace RestaurantSys.Areas.User.Controllers
         // GET: User/Orders/Create
         public IActionResult Create()
         {
-            ViewData["MemberID"] = new SelectList(_context.Member, "MemberID", "MemberID");
+            string OrderDate = DateTime.Now.ToString("yyyy-MM-dd");
+
+            ViewData["OrderDate"] = OrderDate;
+            ViewData["PayTypeID"] = new SelectList(_context.PayType, "PayTypeID", "PayTypeName");
+
+            ViewData["PickUpTimeOptions"] = GetPickUpTimeOptions();
+
             return View();
+
         }
 
         // POST: User/Orders/Create
@@ -107,7 +85,7 @@ namespace RestaurantSys.Areas.User.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("OrderID,OrderDate,PickUpTime,Note,MemberID,EmployeefID")] Order order)
+        public async Task<IActionResult> Create([Bind("OrderID,OrderDate,PickUpTime,PayTypeID,Note,MemberID,EmployeeID,OrderStatusID")] Order order)
         {
             if (ModelState.IsValid)
             {
@@ -115,15 +93,19 @@ namespace RestaurantSys.Areas.User.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["EmployeeID"] = new SelectList(_context.Employee, "EmployeeID", "EmployeeID", order.EmployeeID);
             ViewData["MemberID"] = new SelectList(_context.Member, "MemberID", "MemberID", order.MemberID);
+            ViewData["OrderStatusID"] = new SelectList(_context.OrderStatus, "OrderStatusID", "OrderStatusID", order.OrderStatusID);
+            ViewData["PayTypeID"] = new SelectList(_context.PayType, "PayTypeID", "PayTypeName", order.PayTypeID);
+
+            ViewData["PickUpTimeOptions"] = GetPickUpTimeOptions();
+
             return View(order);
         }
 
         // GET: User/Orders/Edit/5
         public async Task<IActionResult> Edit(string id)
         {
-            ModelState.Remove("Password");
-
             if (id == null)
             {
                 return NotFound();
@@ -134,7 +116,10 @@ namespace RestaurantSys.Areas.User.Controllers
             {
                 return NotFound();
             }
+            ViewData["EmployeeID"] = new SelectList(_context.Employee, "EmployeeID", "EmployeeID", order.EmployeeID);
             ViewData["MemberID"] = new SelectList(_context.Member, "MemberID", "MemberID", order.MemberID);
+            ViewData["OrderStatusID"] = new SelectList(_context.OrderStatus, "OrderStatusID", "OrderStatusID", order.OrderStatusID);
+            ViewData["PayTypeID"] = new SelectList(_context.PayType, "PayTypeID", "PayTypeName", order.PayTypeID);
             return View(order);
         }
 
@@ -143,7 +128,7 @@ namespace RestaurantSys.Areas.User.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("OrderID,OrderDate,PickUpTime,Note,MemberID,EmployeefID")] Order order)
+        public async Task<IActionResult> Edit(string id, [Bind("OrderID,OrderDate,PickUpTime,PayTypeID,Note,MemberID,EmployeeID,OrderStatusID")] Order order)
         {
             if (id != order.OrderID)
             {
@@ -170,7 +155,10 @@ namespace RestaurantSys.Areas.User.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["EmployeeID"] = new SelectList(_context.Employee, "EmployeeID", "EmployeeID", order.EmployeeID);
             ViewData["MemberID"] = new SelectList(_context.Member, "MemberID", "MemberID", order.MemberID);
+            ViewData["OrderStatusID"] = new SelectList(_context.OrderStatus, "OrderStatusID", "OrderStatusID", order.OrderStatusID);
+            ViewData["PayTypeID"] = new SelectList(_context.PayType, "PayTypeID", "PayTypeName", order.PayTypeID);
             return View(order);
         }
 
@@ -183,7 +171,10 @@ namespace RestaurantSys.Areas.User.Controllers
             }
 
             var order = await _context.Order
+                .Include(o => o.Employee)
                 .Include(o => o.Member)
+                .Include(o => o.OrderStatus)
+                .Include(o => o.PayType)
                 .FirstOrDefaultAsync(m => m.OrderID == id);
             if (order == null)
             {
@@ -207,6 +198,31 @@ namespace RestaurantSys.Areas.User.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+
+
+        //取餐選擇時間
+        private SelectList GetPickUpTimeOptions()
+        {
+            var pickUpTimes = new List<SelectListItem>();
+
+            // 從早上 10:00 開始
+            var startTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 10, 0, 0);
+            // 到晚上 10:00 結束
+            var endTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 22, 0, 0);
+
+            for (var time = startTime; time <= endTime; time = time.AddMinutes(30))
+            {
+                string timeString = time.ToString("HH:mm");
+                pickUpTimes.Add(new SelectListItem
+                {
+                    Value = timeString,
+                    Text = timeString
+                });
+            }
+
+            return new SelectList(pickUpTimes, "Value", "Text");
+        }
+
 
         private bool OrderExists(string id)
         {

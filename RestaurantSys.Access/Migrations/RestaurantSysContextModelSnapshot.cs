@@ -209,7 +209,6 @@ namespace RestaurantSys.Access.Migrations
                         .HasColumnType("nvarchar(12)");
 
                     b.Property<string>("EmployeeID")
-                        .IsRequired()
                         .HasColumnType("nvarchar(8)");
 
                     b.Property<string>("MemberID")
@@ -223,6 +222,14 @@ namespace RestaurantSys.Access.Migrations
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime");
 
+                    b.Property<string>("OrderStatusID")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(2)");
+
+                    b.Property<string>("PayTypeID")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(2)");
+
                     b.Property<DateTime>("PickUpTime")
                         .HasColumnType("datetime");
 
@@ -232,6 +239,10 @@ namespace RestaurantSys.Access.Migrations
                     b.HasIndex("EmployeeID");
 
                     b.HasIndex("MemberID");
+
+                    b.HasIndex("OrderStatusID");
+
+                    b.HasIndex("PayTypeID");
 
                     b.ToTable("Order");
                 });
@@ -258,6 +269,40 @@ namespace RestaurantSys.Access.Migrations
                     b.HasIndex("DishID");
 
                     b.ToTable("OrderDetail");
+                });
+
+            modelBuilder.Entity("RestaurantSys.Models.OrderStatus", b =>
+                {
+                    b.Property<string>("OrderStatusID")
+                        .HasMaxLength(2)
+                        .HasColumnType("nvarchar(2)");
+
+                    b.Property<string>("OrderStatusName")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.HasKey("OrderStatusID")
+                        .HasName("PK_OrderStatusID");
+
+                    b.ToTable("OrderStatus");
+                });
+
+            modelBuilder.Entity("RestaurantSys.Models.PayType", b =>
+                {
+                    b.Property<string>("PayTypeID")
+                        .HasMaxLength(2)
+                        .HasColumnType("nvarchar(2)");
+
+                    b.Property<string>("PayTypeName")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.HasKey("PayTypeID")
+                        .HasName("PK_PayTypeID");
+
+                    b.ToTable("PayType");
                 });
 
             modelBuilder.Entity("RestaurantSys.Models.Stock", b =>
@@ -440,9 +485,7 @@ namespace RestaurantSys.Access.Migrations
                 {
                     b.HasOne("RestaurantSys.Models.Employee", "Employee")
                         .WithMany("Orders")
-                        .HasForeignKey("EmployeeID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("EmployeeID");
 
                     b.HasOne("RestaurantSys.Models.Member", "Member")
                         .WithMany("Orders")
@@ -450,9 +493,25 @@ namespace RestaurantSys.Access.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("RestaurantSys.Models.OrderStatus", "OrderStatus")
+                        .WithMany("Orders")
+                        .HasForeignKey("OrderStatusID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RestaurantSys.Models.PayType", "PayType")
+                        .WithMany("Orders")
+                        .HasForeignKey("PayTypeID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Employee");
 
                     b.Navigation("Member");
+
+                    b.Navigation("OrderStatus");
+
+                    b.Navigation("PayType");
                 });
 
             modelBuilder.Entity("RestaurantSys.Models.OrderDetail", b =>
@@ -546,6 +605,16 @@ namespace RestaurantSys.Access.Migrations
             modelBuilder.Entity("RestaurantSys.Models.Order", b =>
                 {
                     b.Navigation("OrderDetails");
+                });
+
+            modelBuilder.Entity("RestaurantSys.Models.OrderStatus", b =>
+                {
+                    b.Navigation("Orders");
+                });
+
+            modelBuilder.Entity("RestaurantSys.Models.PayType", b =>
+                {
+                    b.Navigation("Orders");
                 });
 
             modelBuilder.Entity("RestaurantSys.Models.Stock", b =>

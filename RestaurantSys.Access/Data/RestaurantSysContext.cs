@@ -24,6 +24,10 @@ namespace RestaurantSys.Access.Data
 
         public virtual DbSet<StockBatch> StockBatch { get; set; }
 
+        public virtual DbSet<PayType> PayType { get; set; }
+
+        public virtual DbSet<OrderStatus> OrderStatus { get; set; }
+
         public virtual DbSet<Order> Order { get; set; }
 
         public virtual DbSet<OrderDetail> OrderDetail { get; set; }
@@ -113,6 +117,20 @@ namespace RestaurantSys.Access.Data
             {
                 entity.HasKey(e => e.StockBatchWarningLogID).HasName("PK_StockBatchWarningLogID");
                 entity.Property(e => e.WarningSentDate).HasColumnType("datetime");
+            });
+
+            modelBuilder.Entity<PayType>(entity =>
+            {
+                entity.HasKey(e => e.PayTypeID).HasName("PK_PayTypeID");
+                entity.Property(e => e.PayTypeID).HasMaxLength(2);
+                entity.Property(e => e.PayTypeName).HasMaxLength(10);
+            });
+
+            modelBuilder.Entity<OrderStatus>(entity =>
+            {
+                entity.HasKey(e => e.OrderStatusID).HasName("PK_OrderStatusID");
+                entity.Property(e => e.OrderStatusID).HasMaxLength(2);
+                entity.Property(e => e.OrderStatusName).HasMaxLength(10);
             });
 
             modelBuilder.Entity<Order>(entity =>

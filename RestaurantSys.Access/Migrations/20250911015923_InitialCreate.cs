@@ -12,20 +12,16 @@ namespace RestaurantSys.Access.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Dish",
+                name: "DishCategory",
                 columns: table => new
                 {
-                    DishID = table.Column<int>(type: "int", nullable: false)
+                    DishCategoryID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    DishName = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    PhotoPath = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    DishPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Note = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: true)
+                    DishCategoryName = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_DishID", x => x.DishID);
+                    table.PrimaryKey("PK_DishCategoryID", x => x.DishCategoryID);
                 });
 
             migrationBuilder.CreateTable(
@@ -59,11 +55,24 @@ namespace RestaurantSys.Access.Migrations
                     Birthday = table.Column<DateTime>(type: "date", nullable: true),
                     title = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
                     MEmail = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: true),
-                    Password = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false)
+                    Password = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    AvatarUrl = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_MemberID", x => x.MemberID);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PayType",
+                columns: table => new
+                {
+                    PayTypeID = table.Column<string>(type: "nvarchar(2)", maxLength: 2, nullable: false),
+                    PayTypeName = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PayTypeID", x => x.PayTypeID);
                 });
 
             migrationBuilder.CreateTable(
@@ -83,12 +92,38 @@ namespace RestaurantSys.Access.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Dish",
+                columns: table => new
+                {
+                    DishID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    DishCategoryID = table.Column<int>(type: "int", nullable: false),
+                    DishName = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    PhotoPath = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
+                    DishPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Note = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: true),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DishID", x => x.DishID);
+                    table.ForeignKey(
+                        name: "FK_Dish_DishCategory_DishCategoryID",
+                        column: x => x.DishCategoryID,
+                        principalTable: "DishCategory",
+                        principalColumn: "DishCategoryID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Order",
                 columns: table => new
                 {
                     OrderID = table.Column<string>(type: "nvarchar(12)", maxLength: 12, nullable: false),
                     OrderDate = table.Column<DateTime>(type: "datetime", nullable: false),
                     PickUpTime = table.Column<DateTime>(type: "datetime", nullable: false),
+                    PayTypeID = table.Column<string>(type: "nvarchar(2)", nullable: false),
                     Note = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     MemberID = table.Column<string>(type: "nvarchar(9)", nullable: false),
                     EmployeeID = table.Column<string>(type: "nvarchar(8)", nullable: false)
@@ -107,6 +142,12 @@ namespace RestaurantSys.Access.Migrations
                         column: x => x.MemberID,
                         principalTable: "Member",
                         principalColumn: "MemberID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Order_PayType_PayTypeID",
+                        column: x => x.PayTypeID,
+                        principalTable: "PayType",
+                        principalColumn: "PayTypeID",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -199,8 +240,7 @@ namespace RestaurantSys.Access.Migrations
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     ItemPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     ArrivalDate = table.Column<DateTime>(type: "date", nullable: false),
-                    ExpiryDate = table.Column<DateTime>(type: "date", nullable: false),
-                    StockItemID = table.Column<int>(type: "int", nullable: false)
+                    ExpiryDate = table.Column<DateTime>(type: "date", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -212,12 +252,42 @@ namespace RestaurantSys.Access.Migrations
                         principalColumn: "EmployeeID",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_StockBatch_Stock_StockItemID",
-                        column: x => x.StockItemID,
+                        name: "FK_StockBatch_Stock_ItemID",
+                        column: x => x.ItemID,
                         principalTable: "Stock",
                         principalColumn: "ItemID",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateTable(
+                name: "StockBatchWarningLog",
+                columns: table => new
+                {
+                    StockBatchWarningLogID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    WarningSentDate = table.Column<DateTime>(type: "datetime", nullable: false),
+                    BatchID = table.Column<int>(type: "int", nullable: true),
+                    EmployeeID = table.Column<string>(type: "nvarchar(8)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StockBatchWarningLogID", x => x.StockBatchWarningLogID);
+                    table.ForeignKey(
+                        name: "FK_StockBatchWarningLog_Employee_EmployeeID",
+                        column: x => x.EmployeeID,
+                        principalTable: "Employee",
+                        principalColumn: "EmployeeID");
+                    table.ForeignKey(
+                        name: "FK_StockBatchWarningLog_StockBatch_BatchID",
+                        column: x => x.BatchID,
+                        principalTable: "StockBatch",
+                        principalColumn: "BatchID");
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Dish_DishCategoryID",
+                table: "Dish",
+                column: "DishCategoryID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_DishIngredient_ItemID",
@@ -235,6 +305,11 @@ namespace RestaurantSys.Access.Migrations
                 column: "MemberID");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Order_PayTypeID",
+                table: "Order",
+                column: "PayTypeID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_OrderDetail_DishID",
                 table: "OrderDetail",
                 column: "DishID");
@@ -250,9 +325,19 @@ namespace RestaurantSys.Access.Migrations
                 column: "EmployeeID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_StockBatch_StockItemID",
+                name: "IX_StockBatch_ItemID",
                 table: "StockBatch",
-                column: "StockItemID");
+                column: "ItemID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StockBatchWarningLog_BatchID",
+                table: "StockBatchWarningLog",
+                column: "BatchID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StockBatchWarningLog_EmployeeID",
+                table: "StockBatchWarningLog",
+                column: "EmployeeID");
         }
 
         /// <inheritdoc />
@@ -265,7 +350,7 @@ namespace RestaurantSys.Access.Migrations
                 name: "OrderDetail");
 
             migrationBuilder.DropTable(
-                name: "StockBatch");
+                name: "StockBatchWarningLog");
 
             migrationBuilder.DropTable(
                 name: "Dish");
@@ -274,13 +359,22 @@ namespace RestaurantSys.Access.Migrations
                 name: "Order");
 
             migrationBuilder.DropTable(
-                name: "Stock");
+                name: "StockBatch");
+
+            migrationBuilder.DropTable(
+                name: "DishCategory");
+
+            migrationBuilder.DropTable(
+                name: "Member");
+
+            migrationBuilder.DropTable(
+                name: "PayType");
 
             migrationBuilder.DropTable(
                 name: "Employee");
 
             migrationBuilder.DropTable(
-                name: "Member");
+                name: "Stock");
 
             migrationBuilder.DropTable(
                 name: "Supplier");

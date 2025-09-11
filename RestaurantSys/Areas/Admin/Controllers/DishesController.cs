@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using RestaurantSys.Access.Data;
+using RestaurantSys.DTOs;
 using RestaurantSys.Models;
 using RestaurantSys.ViewComponents;
 using System;
@@ -29,14 +30,23 @@ namespace RestaurantSys.Areas.Admin.Controllers
         // GET: Backend/Dishes
         public async Task<IActionResult> Index()
         {
-            var activeDishes = await _context.Dish.Where(d => d.IsActive).ToListAsync();
-            return View(activeDishes);
+            // 從資料庫中獲取所有 Dish 實體
+            var dishes = await _context.Dish.Where(d => d.IsActive).ToListAsync();
+
+            // 使用擴充方法，配合 LINQ Select 進行轉換
+            var dishDTOs = dishes.Select(d => d.ToDto()).ToList();
+
+            return View(dishDTOs);
         }
 
         public async Task<IActionResult> InactiveDishes()
         {
             var inactiveDishes = await _context.Dish.Where(d => d.IsActive == false).ToListAsync();
-            return View(inactiveDishes);
+
+            // 再次使用擴充方法
+            var inactiveDishDTOs = inactiveDishes.Select(d => d.ToDto()).ToList();
+
+            return View(inactiveDishDTOs);
         }
 
 
@@ -61,8 +71,10 @@ namespace RestaurantSys.Areas.Admin.Controllers
         // GET: Backend/Dishes/Create
         public IActionResult Create()
         {
+            // 準備下拉式選單資料，傳遞給 View
             ViewData["DishCategoryID"] = new SelectList(_context.DishCategory, "DishCategoryID", "DishCategoryName");
-            return View();
+            // 回傳一個空的 DishDTO 物件給 View
+            return View(new DishDTO());
         }
 
         // POST: Backend/Dishes/Create
@@ -70,7 +82,7 @@ namespace RestaurantSys.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("DishID,DishName,DishCategoryID,Description,PhotoPath,DishPrice,Note,IsActive")] Dish dish, IFormFile DishPhoto)
+        public async Task<IActionResult> Create(DishDTO dishDTO, IFormFile? DishPhoto)
         {
             if (ModelState.IsValid)
             {
@@ -81,6 +93,7 @@ namespace RestaurantSys.Areas.Admin.Controllers
                     {
                         Directory.CreateDirectory(uploadsFolder);
                     }
+
                     var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(DishPhoto.FileName);
                     var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
@@ -89,16 +102,19 @@ namespace RestaurantSys.Areas.Admin.Controllers
                         await DishPhoto.CopyToAsync(fileStream);
                     }
 
-                    dish.PhotoPath = "/DishPhotos/" + uniqueFileName;
+                    dishDTO.PhotoPath = "/DishPhotos/" + uniqueFileName;
                 }
 
+                var dish = dishDTO.ToModel();
                 _context.Add(dish);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["DishCategoryID"] = new SelectList(_context.DishCategory, "DishCategoryID", "DishCategoryName", dish.DishCategoryID);
-            return View(dish);
+
+            ViewData["DishCategoryID"] = new SelectList(_context.DishCategory, "DishCategoryID", "DishCategoryName", dishDTO.DishCategoryID);
+            return View(dishDTO);
         }
+
 
         // GET: Admin/Dishes/Edit/5
         public async Task<IActionResult> Edit(int? id , string source)
