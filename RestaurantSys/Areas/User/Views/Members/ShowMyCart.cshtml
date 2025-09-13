@@ -16,8 +16,8 @@
             minimumFractionDigits: 0
         });
 
-        // 顯示購物車內容的主函數
-                function showMyCart() {
+                // 顯示購物車內容的主函數
+        function showMyCart() {
             let cart = JSON.parse(localStorage.getItem("cart")) || [];
             let comfirmOrderUrl = '@Url.Action("Create", "Orders", new { area = "User" })';
             let continueShoppingUrl = '@Url.Action("Index", "Menu", new { area = "" })';
@@ -33,7 +33,6 @@
                     </div>
                 `;
             } else {
-                // 先建立表格的開頭部分
                 items += `
                     <div class="table-responsive">
                         <table class="table table-hover" id="myCart">
@@ -49,7 +48,6 @@
                             </thead>
                             <tbody>`;
 
-                // 這裡迴圈處理每一項商品
                 for (let item of cart) {
                     let subtotal = item.DishPrice * item.Qty;
                     sum += subtotal;
@@ -75,7 +73,6 @@
                     </tr>`;
                 }
 
-                // 在表格的結尾部分，加入總計與結帳按鈕
                 items += `</tbody>
                         <tfoot>
                             <tr>
@@ -86,16 +83,27 @@
                     </table>
                 </div>
                 <div class="d-flex justify-content-end mt-3">
-                     <a href="${continueShoppingUrl}" class="btn btn-outline-dark">
+                    <a href="${continueShoppingUrl}" class="btn btn-outline-dark">
                         <i class="bi bi-shop"></i> 再繼續逛逛
                     </a>
                     <a href="${comfirmOrderUrl}" class="btn btn-outline-dark">
                         <i class="bi bi-credit-card"></i> 前往結帳
                     </a>
-                </div>
-                `;
+                </div>`;
 
                 document.getElementById('cart-container').innerHTML = items;
+            }
+
+            // 同步更新頁面上購物車總數顯示（假設你有 <span id="cart-count">）
+            updateCartCount(cart);
+        }
+
+        // 更新導覽列購物車數量
+        function updateCartCount(cart) {
+            let totalQty = cart.reduce((acc, item) => acc + item.Qty, 0);
+            let countEl = document.getElementById("cart-count");
+            if (countEl) {
+                countEl.innerText = totalQty;
             }
         }
 
@@ -105,14 +113,12 @@
             let item = cart.find(i => i.DishID === dishID);
 
             if (item) {
-                // 如果數量為1且點擊-號，則呼叫刪除確認函式
                 if (item.Qty === 1 && change === -1) {
                     confirmRemove(dishID);
                 } else {
-                    item.Qty = Math.max(1, item.Qty + change); // 數量至少為1
+                    item.Qty = Math.max(1, item.Qty + change);
                     localStorage.setItem("cart", JSON.stringify(cart));
-                    showMyCart(); // 重新渲染畫面，更新資訊
-                    CartStatusCheck(); // 更新導覽列的購物車總數
+                    showMyCart(); // 重新渲染
                 }
             }
         }
@@ -124,19 +130,21 @@
             }
         }
 
-        // 實際執行移除商品的函式 (不含任何確認視窗)
+        // 實際執行移除商品
         function removeItem(dishId) {
             let cart = JSON.parse(localStorage.getItem("cart")) || [];
             let updatedCart = cart.filter(item => item.DishID !== dishId);
             localStorage.setItem("cart", JSON.stringify(updatedCart));
-
-            // 重新載入購物車內容以更新畫面
-            showMyCart();
-            // 同時更新導覽列的購物車總數
-            CartStatusCheck();
+            showMyCart(); // 重新渲染
         }
 
-        // 頁面載入時執行顯示購物車的函數
+        // 清空購物車（下單成功時呼叫）
+        function clearCart() {
+            localStorage.removeItem("cart");
+            showMyCart(); // 更新畫面數量
+        }
+
+        // 頁面載入時顯示購物車
         showMyCart();
 
     </script>

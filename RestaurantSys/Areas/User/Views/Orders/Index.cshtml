@@ -69,3 +69,28 @@
 }
     </tbody>
 </table>
+
+@if (TempData["SuccessMessage"] != null && TempData["SuccessMessage"].ToString() == "Order_Created")
+{
+    @section Scripts {
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // 清空購物車
+                localStorage.removeItem('cart');
+
+                // 更新導覽列購物車數量
+                updateCartCount();
+            });
+
+            // 更新導覽列購物車數量
+            function updateCartCount() {
+                let cart = JSON.parse(localStorage.getItem("cart")) || [];
+                let totalQty = cart.reduce((acc, item) => acc + item.Qty, 0); // 注意大小寫要跟 cart 資料一致
+                let countEl = document.getElementById("cart-count");
+                if (countEl) {
+                    countEl.innerText = totalQty;
+                }
+            }
+        </script>
+    }
+}

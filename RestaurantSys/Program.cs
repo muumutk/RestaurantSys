@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using RestaurantSys.Access.Data;
 using RestaurantSys.Areas.Admin.Services;
+using RestaurantSys.Areas.User.Services;
 using RestaurantSys.Services;
 using System.Text.Json.Serialization;
 
@@ -49,6 +50,7 @@ builder.Services.AddScoped<InventoryWarningService>();
 
 builder.Services.AddScoped<HashService>();
 
+builder.Services.AddScoped<IOrderService, OrderService>();
 
 /////////////////////////////////////////////////////////////////
 var app = builder.Build();
