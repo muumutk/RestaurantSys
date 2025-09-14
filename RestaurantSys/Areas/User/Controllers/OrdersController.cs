@@ -110,6 +110,9 @@ namespace RestaurantSys.Areas.User.Controllers
                     await _orderService.AddNewOrderAsync(combinedPickUpTime, payTypeID, memberID, orderStatusID, cart);
 
                     TempData["SuccessMessage"] = "Order_Created";
+                    // 在 TempData 中設定旗標
+                    TempData["ClearCart"] = true;
+
                     // 成功後重新導向到訂單列表頁面
                     return RedirectToAction(nameof(Index));
                 }

@@ -42,5 +42,32 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/cart.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
+    <script>
+        // 定義一個全域函式來更新購物車數量
+        function updateCartCount() {
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+            let totalQty = cart.reduce((acc, item) => acc + item.Qty, 0);
+            let countEl = document.getElementById("cart-item-count");
+            if (countEl) {
+                countEl.innerText = totalQty;
+            }
+        }
+
+        // 頁面載入時立即更新一次數量
+        document.addEventListener('DOMContentLoaded', updateCartCount);
+
+        // 這段 Razor 語法會判斷伺服器是否傳來清空購物車的訊號
+        @if (TempData["ClearCart"] != null && (bool)TempData["ClearCart"])
+        {
+                // 如果有，就執行清空 localStorage 的動作
+                <text>
+                    localStorage.removeItem("cart");
+                    updateCartCount();
+                </text>
+        }
+    </script>
+
+
 </body>
 </html>

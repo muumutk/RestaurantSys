@@ -44,7 +44,31 @@
 
 <div class="container py-5">
     <div class="row g-4 mb-5">
-        
+
+        <div class="card shadow-sm p-4">
+            <h3 class="fs-5 fw-semibold text-dark mb-4">快速操作</h3>
+            <div class="row g-3">
+                <div class="col-12 col-md-4">
+                    <a asp-controller="StockBatches" asp-action="Create" class="text-decoration-none d-flex align-items-center p-3 w-100 border-0 rounded-3 bg-warm-orange-light quick-action-btn">
+                        <i class="fas fa-plus warm-orange fs-5 me-3"></i>
+                        <span class="fw-medium warm-brown">新增庫存項目</span>
+                    </a>
+                </div>
+                <div class="col-12 col-md-4">
+                    <a asp-controller="Employees" asp-action="Create" class="text-decoration-none d-flex align-items-center p-3 w-100 border-0 rounded-3 bg-sage-green-light quick-action-btn">
+                        <i class="fas fa-user-plus sage-green fs-5 me-3"></i>
+                        <span class="fw-medium warm-brown">新增員工帳號</span>
+                    </a>
+                </div>
+                <div class="col-12 col-md-4">
+                    <button class="d-flex align-items-center p-3 w-100 border-0 rounded-3 bg-soft-coral-light quick-action-btn" data-bs-toggle="modal" data-bs-target="#inventoryWarningModal">
+                        <i class="fas fa-bell soft-coral fs-5 me-3"></i>
+                        <span class="fw-medium warm-brown">查看庫存警示</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <div class="col-12 col-md-4">
             <div class="card shadow-sm p-4 h-100">
                 <div class="d-flex align-items-center">
@@ -171,30 +195,6 @@
                         <p class="text-secondary mb-4">營收分析與經營數據統計</p>
                     </div>
                 </a>
-            </div>
-        </div>
-    </div>
-
-    <div class="card shadow-sm p-4">
-        <h3 class="fs-5 fw-semibold text-dark mb-4">快速操作</h3>
-        <div class="row g-3">
-            <div class="col-12 col-md-4">
-                <button class="d-flex align-items-center p-3 w-100 border-0 rounded-3 bg-warm-orange-light quick-action-btn">
-                    <i class="fas fa-plus warm-orange fs-5 me-3"></i>
-                    <span class="fw-medium warm-brown">新增庫存項目</span>
-                </button>
-            </div>
-            <div class="col-12 col-md-4">
-                <button class="d-flex align-items-center p-3 w-100 border-0 rounded-3 bg-sage-green-light quick-action-btn">
-                    <i class="fas fa-user-plus sage-green fs-5 me-3"></i>
-                    <span class="fw-medium warm-brown">新增員工帳號</span>
-                </button>
-            </div>
-            <div class="col-12 col-md-4">
-                <button class="d-flex align-items-center p-3 w-100 border-0 rounded-3 bg-soft-coral-light quick-action-btn" data-bs-toggle="modal" data-bs-target="#inventoryWarningModal">
-                    <i class="fas fa-bell soft-coral fs-5 me-3"></i>
-                    <span class="fw-medium warm-brown">查看庫存警示</span>
-                </button>
             </div>
         </div>
     </div>
