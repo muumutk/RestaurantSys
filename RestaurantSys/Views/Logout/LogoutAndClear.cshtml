@@ -1,0 +1,12 @@
+﻿
+@{
+    Layout = null;
+}
+
+<script>
+    // 確保網頁載入後，立即清除 localStorage 的 cart 資料
+    localStorage.removeItem('cart');
+
+    // 清除完畢後，導回首頁或菜單頁
+    window.location.href = '@Url.Action("Index", "Menu")';
+</script>
