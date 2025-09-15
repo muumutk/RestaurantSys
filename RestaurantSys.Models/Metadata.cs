@@ -315,7 +315,7 @@ public class OrderStatusData
     [Key]
     public int OrderStatusID { get; set; }
 
-    [Display(Name = "訂單狀態名稱")]
+    [Display(Name = "訂單狀態")]
     [StringLength(20, ErrorMessage = "類別名稱最多20個字")]
     [Required(ErrorMessage = "類別名稱為必填欄位")]
     public string OrderStatusName { get; set; } = null!;

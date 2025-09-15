@@ -1,0 +1,61 @@
+﻿@model IEnumerable<RestaurantSys.Models.OrderDetail>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Order.OrderID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Quantity)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UnitPrice)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.GetTime)
+            </th>
+
+            <th>
+                @Html.DisplayNameFor(model => model.Dish.DishID)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Order.OrderID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Quantity)
+            </td>
+            <td>
+                    @item.UnitPrice.ToString("0")
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.GetTime)
+            </td>
+
+            <td>
+                @Html.DisplayFor(modelItem => item.Dish.DishID)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

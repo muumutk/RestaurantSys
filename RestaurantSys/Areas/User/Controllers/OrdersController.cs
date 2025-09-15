@@ -38,7 +38,14 @@ namespace RestaurantSys.Areas.User.Controllers
             }
 
             //篩選屬於當前會員的訂單
-            var orders = await _context.Order.Where(o => o.MemberID == currentMemberID).ToListAsync();
+            var orders = await _context.Order
+                .Where(o => o.MemberID == currentMemberID)
+                .Include(o => o.Employee)
+                .Include(o => o.Member)
+                .Include(o => o.OrderStatus)
+                .Include(o => o.PayType)
+                .ToListAsync();
+
 
             return View(orders);
         }
@@ -107,7 +114,7 @@ namespace RestaurantSys.Areas.User.Controllers
                 try
                 {
                     // 呼叫服務層方法，傳入所有必要的參數
-                    await _orderService.AddNewOrderAsync(combinedPickUpTime, payTypeID, memberID, orderStatusID, cart);
+                    await _orderService.AddNewOrderAsync(combinedPickUpTime, payTypeID, note, memberID, orderStatusID, cart);
 
                     TempData["SuccessMessage"] = "Order_Created";
                     // 在 TempData 中設定旗標

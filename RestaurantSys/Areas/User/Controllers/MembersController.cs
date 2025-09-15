@@ -37,6 +37,22 @@ namespace RestaurantSys.Areas.User.Controllers
                 return RedirectToAction("MemberLogin", "Login");
             }
 
+            //計算總訂單數
+            var totalOrders = await _context.Order.CountAsync(o => o.MemberID == currentMemberID);
+            ViewData["TotalOrders"] = totalOrders;
+
+            // 計算累積消費
+            var totalSpent = await _context.Order
+                // 1. 先用 Include 載入 OrderDetails
+                .Include(o => o.OrderDetails)
+                // 2. 篩選出該會員的訂單
+                .Where(o => o.MemberID == currentMemberID)
+                // 3. 展開所有訂單的明細，並計算總和
+                .SelectMany(o => o.OrderDetails)
+                .SumAsync(od => od.UnitPrice * od.Quantity);
+
+            ViewData["TotalSpent"] = totalSpent;
+
             //根據當前會員ID，從資料庫查詢對應的會員資料
             var member = await _context.Member
                 .FirstOrDefaultAsync(m => m.MemberID == currentMemberID);
@@ -210,6 +226,8 @@ namespace RestaurantSys.Areas.User.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit([Bind("MemberID,Name,MemberTel,City,Address,Birthday,title,MEmail")] Member member)
         {
+            ModelState.Remove("Password");
+
             // 驗證提交的 MemberID 是否與當前登入者一致，防止使用者竄改資料
             var currentMemberID = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (member.MemberID != currentMemberID)

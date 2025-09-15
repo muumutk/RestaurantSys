@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.Data.SqlClient;
@@ -11,6 +12,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Runtime.Intrinsics.Arm;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -83,7 +85,25 @@ namespace RestaurantSys.Controllers
                 _context.Member.Add(member);
                 await _context.SaveChangesAsync();
 
-                return RedirectToAction("Index", "Orders", new { area = "User" });
+                // 手動登入會員
+                var claims = new List<Claim>
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, member.MemberID),
+                        new Claim(ClaimTypes.Name,member.Name),
+                        new Claim(ClaimTypes.Role, "Member")
+                    };
+                var claimsIdentity = new ClaimsIdentity(claims, "MemberLogin"); // 使用你設定的 Scheme Name
+                var authProperties = new AuthenticationProperties
+                {
+                    IsPersistent = true // 記住登入狀態
+                };
+                await HttpContext.SignInAsync("MemberLogin", new ClaimsPrincipal(claimsIdentity), authProperties);
+
+                //將狀態存入TempData
+                TempData["ShowProfileModal"] = true;
+
+                // 導向會員訂單頁面，此時會員已登入，不會被重新導向
+                return RedirectToAction("Index", "Members", new { area = "User" });
             }
 
             return View(member);

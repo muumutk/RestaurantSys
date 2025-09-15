@@ -5,6 +5,7 @@
         Task<int> AddNewOrderAsync(
             DateTime pickUpTime,
             string payTypeID,
+            string note,
             string memberID,
             string orderStatusID,
             string cart);

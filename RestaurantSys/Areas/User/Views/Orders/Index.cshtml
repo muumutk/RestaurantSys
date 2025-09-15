@@ -1,74 +1,160 @@
 ﻿@model IEnumerable<RestaurantSys.Models.Order>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "會員訂單管理";
 }
 
-<h1>Index</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.OrderDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PickUpTime)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Note)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Member)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Employee)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PayType)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.OrderStatus)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.OrderDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PickUpTime)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Note)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Member.MemberID)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Employee.EmployeeID)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PayType.PayTypeID)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.OrderStatus.OrderStatusID)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.OrderID">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.OrderID">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.OrderID">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div class="page-header gradient-bg py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="text-white mb-0">
+                    <i class="bi bi-receipt me-3"></i>會員訂單
+                </h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container my-5">
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show custom-alert" role="alert">
+            <i class="bi bi-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="order-card card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th><i class="bi bi-calendar-event me-2"></i>@Html.DisplayNameFor(model => model.OrderDate)</th>
+                            <th><i class="bi bi-clock me-2"></i>@Html.DisplayNameFor(model => model.PickUpTime)</th>
+                            <th><i class="bi bi-chat-text me-2"></i>@Html.DisplayNameFor(model => model.Note)</th>
+                            <th><i class="bi bi-credit-card me-2"></i>@Html.DisplayNameFor(model => model.PayType.PayTypeName)</th>
+                            <th><i class="bi bi-flag me-2"></i>@Html.DisplayNameFor(model => model.OrderStatus.OrderStatusName)</th>
+                            <th><i class="bi bi-gear me-2"></i>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td data-label="訂單日期">
+                                        <span class="warm-brown fw-bold">@item.OrderDate.ToString("yyyy-MM-dd")</span><br>
+                                        <small class="text-muted">@item.OrderDate.ToString("HH:mm")</small>
+                                    </td>
+                                    <td data-label="取餐時間">
+                                        <span class="sage-green fw-bold">@item.PickUpTime.ToString("HH:mm")</span>
+                                    </td>
+                                    <td data-label="備註">
+                                        <span class="text-muted fst-italic">
+                                            @(string.IsNullOrEmpty(item.Note) ? "-" : item.Note)
+                                        </span>
+                                    </td>
+                                    <td data-label="付款方式">
+                                        <span>@(item.PayType?.PayTypeName ?? "無付款方式")</span>
+                                    </td>
+                                    <td data-label="訂單狀態">
+                                        @{
+                                            var statusClass = "bg-sage-green";
+                                            var statusText = item.OrderStatus?.OrderStatusName ?? "未知";
+
+                                            switch (statusText)
+                                            {
+                                                case "已完成":
+                                                case "Completed":
+                                                    statusClass = "bg-sage-green";
+                                                    break;
+                                                case "準備中":
+                                                case "Preparing":
+                                                    statusClass = "bg-warm-peach";
+                                                    break;
+                                                case "已取消":
+                                                case "Cancelled":
+                                                    statusClass = "bg-warm-orange";
+                                                    break;
+                                            }
+                                        }
+                                        <span class="badge @statusClass status-badge">
+                                            @statusText
+                                        </span>
+                                    </td>
+                                    <td data-label="操作">
+                                            <a asp-action="Details" asp-route-id="@item.OrderID" class="btn btn-outline-dark btn-sm"><i class="bi bi-eye"></i> 詳情</a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="8" class="text-center py-5">
+                                    <div class="text-muted">
+                                        <i class="bi bi-inbox fs-1 d-block mb-3 warm-orange"></i>
+                                        <h5>目前沒有訂單資料</h5>
+                                        <a asp-area="" asp-controller="Menu" asp-action="Index" class="btn btn-outline-secondary warm-orange">快去選購餐點吧</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    @if (ViewBag.TotalPages != null && ViewBag.TotalPages > 1)
+    {
+        <nav aria-label="訂單分頁" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
+                    <a class="page-link" asp-route-page="@(ViewBag.CurrentPage - 1)">上一頁</a>
+                </li>
+
+                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                {
+                    <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                        <a class="page-link" asp-route-page="@i">@i</a>
+                    </li>
+                }
+
+                <li class="page-item @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
+                    <a class="page-link" asp-route-page="@(ViewBag.CurrentPage + 1)">下一頁</a>
+                </li>
+            </ul>
+        </nav>
+    }
+</div>
+
+    @if (ViewBag.TotalPages != null && ViewBag.TotalPages > 1)
+    {
+        <nav aria-label="訂單分頁" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
+                    <a class="page-link" asp-route-page="@(ViewBag.CurrentPage - 1)">上一頁</a>
+                </li>
+
+                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                {
+                    <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                        <a class="page-link" asp-route-page="@i">@i</a>
+                    </li>
+                }
+
+                <li class="page-item @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
+                    <a class="page-link" asp-route-page="@(ViewBag.CurrentPage + 1)">下一頁</a>
+                </li>
+            </ul>
+        </nav>
+    }
+</div>
 
 @if (TempData["SuccessMessage"] != null && TempData["SuccessMessage"].ToString() == "Order_Created")
 {

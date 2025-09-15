@@ -1,4 +1,5 @@
-﻿@model RestaurantSys.Models.Member
+﻿@using System.Security.Claims
+@model RestaurantSys.Models.Member
 
 @{
     ViewData["Title"] = "會員中心";
@@ -7,6 +8,26 @@
 <title>@ViewData["Title"]</title>
 
 <link rel="stylesheet" href="~/css/member-center.css" />
+
+
+<div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="profileModalLabel">個人資料提醒</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>歡迎您加入我們的會員！</p>
+                <p>為了提供更完整的服務，請盡快前往 **「編輯個人資料」** 頁面，填寫您的生日資訊。</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">稍後再說</button>
+                <a asp-action="Edit" asp-route-id="@User.FindFirst(ClaimTypes.NameIdentifier)?.Value" class="btn btn-primary">前往編輯</a>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="gradient-bg text-white">
     <div class="container py-5">
@@ -36,10 +57,6 @@
             <div>
                 <h1 class="h3 fw-bold">您好，@Model.Name</h1>
                 <p class="text-white-50 mt-1">會員編號：@Html.DisplayFor(model => model.MemberID)</p>
-                @* <div class="d-flex align-items-center mt-2">
-                    <span class="badge text-white-50 border border-white me-2">@Html.DisplayFor(model => model.title)</span>
-                    <span class="small">上次登入：@ViewData["LastLoginTime"]</span>
-                </div> *@
             </div>
         </div>
     </div>
@@ -69,7 +86,9 @@
                     </div>
                     <div class="ms-3">
                         <p class="text-secondary mb-0">累計消費</p>
-                        <p class="fs-4 fw-bold text-dark mb-0">$@ViewData["TotalSpending"]</p>
+                        <p class="fs-4 fw-bold text-dark mb-0">
+                            $@(Convert.ToInt32(ViewData["TotalSpent"]))
+                        </p>
                     </div>
                 </div>
             </div>
@@ -104,130 +123,108 @@
         </div>
     </div>
 
-    <div class="row g-4">
-        <div class="col-lg-8">
-            <div class="bg-white rounded-3 shadow-sm mb-4">
-                <div class="p-4 border-bottom border-gray-200">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <h2 class="h5 fw-bold mb-0">最近訂單</h2>
-                        <a asp-controller="Orders" asp-action="Index" class="text-decoration-none text-warm-orange fw-bold small">查看全部</a>
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="bg-white rounded-3 shadow-sm mb-4">
+                    <div class="p-4 border-bottom border-gray-200">
+                        <div class="card p-3">
+                            @await Component.InvokeAsync("VCRecentOrders", new { memberId = Model.MemberID })
+                        </div>
                     </div>
                 </div>
-                <div class="p-4">
-                    @if (ViewData["RecentOrders"] != null && ((IEnumerable<dynamic>)ViewData["RecentOrders"]).Any())
-                    {
-                        <div class="list-group list-group-flush">
-                            @foreach (var order in (IEnumerable<dynamic>)ViewData["RecentOrders"])
-                            {
-                                <div class="list-group-item d-flex align-items-center justify-content-between bg-light rounded mb-2">
-                                    <div class="d-flex align-items-center">
-                                        <div class="d-flex justify-content-center align-items-center p-3 bg-warm-orange-light rounded me-3">
-                                            <i class="fas fa-utensils warm-orange"></i>
-                                        </div>
-                                        <div>
-                                            <p class="fw-bold mb-0">訂單 #@order.OrderID</p>
-                                            <small class="text-muted">@order.OrderDate.ToString("yyyy-MM-dd HH:mm")</small>
-                                        </div>
-                                    </div>
-                                    <div class="text-end">
-                                        <p class="fw-bold mb-0">$@order.TotalPrice</p>
-                                        <span class="badge status-badge
-                                                    @(order.Status == "已完成" ? "bg-sage-green-light text-sage-green" :
-                                                                                              order.Status == "配送中" ? "bg-warm-peach-light text-warm-peach" :
-                                                                                              "bg-soft-coral-light text-soft-coral")">
-                                    @order.Status
-                                </span>
+
+                <div class="bg-white rounded-3 shadow-sm">
+                    <div class="p-4 border-bottom border-gray-200">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <h2 class="h5 fw-bold mb-0">個人資料</h2>
+                            <a asp-action="Edit" asp-route-id="@Model.MemberID" class="text-decoration-none btn btn-outline-dark btn-sm fw-bold">編輯</a>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label class="form-label text-secondary mb-1">電子郵件</label>
+                                <p class="text-dark">@Html.DisplayFor(model => model.MEmail)</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-secondary mb-1">聯絡電話</label>
+                                <p class="text-dark">@Html.DisplayFor(model => model.MemberTel)</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-secondary mb-1">生日</label>
+                                <p class="text-dark">@Html.DisplayFor(model => model.Birthday)</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-secondary mb-1">地址</label>
+                                <p class="text-dark">@Html.DisplayFor(model => model.City) @Html.DisplayFor(model => model.Address)</p>
                             </div>
                         </div>
-                                                }
-                        </div>
-                    }
-                    else
-                    {
-                        <p class="text-center text-muted">尚無最近的訂單紀錄。</p>
-                    }
-                </div>
-            </div>
-
-            <div class="bg-white rounded-3 shadow-sm">
-                <div class="p-4 border-bottom border-gray-200">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <h2 class="h5 fw-bold mb-0">個人資料</h2>
-                        <a asp-action="Edit" asp-route-id="@Model.MemberID" class="text-decoration-none text-warm-orange fw-bold small">編輯</a>
-                    </div>
-                </div>
-                <div class="p-4">
-                    <div class="row g-4">
-                        <div class="col-md-6">
-                            <label class="form-label text-secondary mb-1">電子郵件</label>
-                            <p class="text-dark">@Html.DisplayFor(model => model.MEmail)</p>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label text-secondary mb-1">聯絡電話</label>
-                            <p class="text-dark">@Html.DisplayFor(model => model.MemberTel)</p>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label text-secondary mb-1">生日</label>
-                            <p class="text-dark">@Html.DisplayFor(model => model.Birthday)</p>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label text-secondary mb-1">地址</label>
-                            <p class="text-dark">@Html.DisplayFor(model => model.City) @Html.DisplayFor(model => model.Address)</p>
-                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="col-lg-4">
-            <div class="bg-white rounded-3 shadow-sm">
-                <div class="p-4 border-bottom border-gray-200">
-                    <h2 class="h5 fw-bold mb-0">快速功能</h2>
-                </div>
-                <div class="p-4 quick-links">
-                    <a asp-controller="Orders" asp-action="Index" class="d-flex align-items-center p-3 rounded text-decoration-none text-dark hover-bg-light">
-                        <div class="d-flex justify-content-center align-items-center p-3 bg-warm-orange-light rounded me-3">
-                            <i class="fas fa-receipt warm-orange"></i>
-                        </div>
-                        <span class="fw-bold">我的訂單</span>
-                        <i class="fas fa-chevron-right text-secondary ms-auto"></i>
-                    </a>
-                    <a href="#" class="d-flex align-items-center p-3 rounded text-decoration-none text-dark hover-bg-light">
-                        <div class="d-flex justify-content-center align-items-center p-3 bg-sage-green-light rounded me-3">
-                            <i class="fas fa-gift sage-green"></i>
-                        </div>
-                        <span class="fw-bold">我的優惠券</span>
-                        <i class="fas fa-chevron-right text-secondary ms-auto"></i>
-                    </a>
-                    <a href="#" class="d-flex align-items-center p-3 rounded text-decoration-none text-dark hover-bg-light">
-                        <div class="d-flex justify-content-center align-items-center p-3 bg-soft-coral-light rounded me-3">
-                            <i class="fas fa-star soft-coral"></i>
-                        </div>
-                        <span class="fw-bold">積分兌換</span>
-                        <i class="fas fa-chevron-right text-secondary ms-auto"></i>
-                    </a>
-                    <a href="#" class="d-flex align-items-center p-3 rounded text-decoration-none text-dark hover-bg-light">
-                        <div class="d-flex justify-content-center align-items-center p-3 bg-warm-peach-light rounded me-3">
-                            <i class="fas fa-map-marker-alt warm-peach"></i>
-                        </div>
-                        <span class="fw-bold">收件地址</span>
-                        <i class="fas fa-chevron-right text-secondary ms-auto"></i>
-                    </a>
-                    <a href="#" class="d-flex align-items-center p-3 rounded text-decoration-none text-dark hover-bg-light">
-                        <div class="d-flex justify-content-center align-items-center p-3 bg-warm-brown-light rounded me-3">
-                            <i class="fas fa-lock warm-brown"></i>
-                        </div>
-                        <span class="fw-bold">變更密碼</span>
-                        <i class="fas fa-chevron-right text-secondary ms-auto"></i>
-                    </a>
+            <div class="col-lg-4">
+                <div class="bg-white rounded-3 shadow-sm">
+                    <div class="p-4 border-bottom border-gray-200">
+                        <h2 class="h5 fw-bold mb-0">快速功能</h2>
+                    </div>
+                    <div class="p-4 quick-links">
+                        <a asp-controller="Orders" asp-action="Index" class="d-flex align-items-center p-3 rounded text-decoration-none text-dark hover-bg-light">
+                            <div class="d-flex justify-content-center align-items-center p-3 bg-warm-orange-light rounded me-3">
+                                <i class="fas fa-receipt warm-orange"></i>
+                            </div>
+                            <span class="fw-bold">我的訂單</span>
+                            <i class="fas fa-chevron-right text-secondary ms-auto"></i>
+                        </a>
+                        <a href="#" class="d-flex align-items-center p-3 rounded text-decoration-none text-dark hover-bg-light">
+                            <div class="d-flex justify-content-center align-items-center p-3 bg-sage-green-light rounded me-3">
+                                <i class="fas fa-gift sage-green"></i>
+                            </div>
+                            <span class="fw-bold">我的優惠券</span>
+                            <i class="fas fa-chevron-right text-secondary ms-auto"></i>
+                        </a>
+                        <a href="#" class="d-flex align-items-center p-3 rounded text-decoration-none text-dark hover-bg-light">
+                            <div class="d-flex justify-content-center align-items-center p-3 bg-soft-coral-light rounded me-3">
+                                <i class="fas fa-star soft-coral"></i>
+                            </div>
+                            <span class="fw-bold">積分兌換</span>
+                            <i class="fas fa-chevron-right text-secondary ms-auto"></i>
+                        </a>
+                        <a href="#" class="d-flex align-items-center p-3 rounded text-decoration-none text-dark hover-bg-light">
+                            <div class="d-flex justify-content-center align-items-center p-3 bg-warm-peach-light rounded me-3">
+                                <i class="fas fa-map-marker-alt warm-peach"></i>
+                            </div>
+                            <span class="fw-bold">收件地址</span>
+                            <i class="fas fa-chevron-right text-secondary ms-auto"></i>
+                        </a>
+                        <a href="#" class="d-flex align-items-center p-3 rounded text-decoration-none text-dark hover-bg-light">
+                            <div class="d-flex justify-content-center align-items-center p-3 bg-warm-brown-light rounded me-3">
+                                <i class="fas fa-lock warm-brown"></i>
+                            </div>
+                            <span class="fw-bold">變更密碼</span>
+                            <i class="fas fa-chevron-right text-secondary ms-auto"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
 @section Scripts {
     <script>
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // 這段 JavaScript 程式碼將由 Razor 根據 TempData 狀態來渲染
+            @if (TempData["ShowProfileModal"] != null && (bool)TempData["ShowProfileModal"])
+            {
+                    <text>
+                        const profileModal = new bootstrap.Modal(document.getElementById('profileModal'));
+                        profileModal.show();
+                    </text>
+            }
+        });
+
+
         const uploadUrl = '@Url.Action("UploadAvatar", "Members")';
 
         // 監聽檔案選擇事件
