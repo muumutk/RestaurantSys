@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using RestaurantSys.Access.Data;
 using RestaurantSys.Models;
+using RestaurantSys.Areas.Admin.ViewModels;
 
 namespace RestaurantSys.Areas.Admin.Controllers
 {
@@ -50,7 +51,7 @@ namespace RestaurantSys.Areas.Admin.Controllers
         // GET: Backend/DishIngredients/Create
         public IActionResult Create()
         {
-            ViewData["DishID"] = new SelectList(_context.Dish, "DishID", "Description");
+            ViewData["DishID"] = new SelectList(_context.Dish, "DishID", "DishName");
             ViewData["ItemID"] = new SelectList(_context.Stock, "ItemID", "ItemName");
             return View();
         }
@@ -60,17 +61,38 @@ namespace RestaurantSys.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("DishID,ItemID,IsActive")] DishIngredient dishIngredient)
+        public async Task<IActionResult> Create([Bind("DishID,ItemIDs,IsActive")] VMDishIngredient vmDishIngredient)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(dishIngredient);
+                foreach(var itemID in vmDishIngredient.ItemIDs)
+                {
+                    // 檢查是否已存在相同的 DishID 和 ItemID 組合
+                    var exists = _context.DishIngredient.Any(di => di.DishID == vmDishIngredient.DishID && di.ItemID == itemID);
+                    if (exists)
+                    {
+                        // 如果存在，跳過這個成分
+                        continue;
+                    }
+                    // 為每個選定的成分建立一個 DishIngredient 物件
+                    var dishIngredient = new DishIngredient
+                    {
+                        DishID = vmDishIngredient.DishID,
+                        ItemID = itemID,
+                        IsActive = true
+                    };
+                    _context.DishIngredient.Add(dishIngredient);
+                }
+
+                // 一次性將所有紀錄儲存到資料庫
                 await _context.SaveChangesAsync();
+
                 return RedirectToAction(nameof(Index));
+
             }
-            ViewData["DishID"] = new SelectList(_context.Dish, "DishID", "Description", dishIngredient.DishID);
-            ViewData["ItemID"] = new SelectList(_context.Stock, "ItemID", "ItemName", dishIngredient.ItemID);
-            return View(dishIngredient);
+            ViewData["DishID"] = new SelectList(_context.Dish, "DishID", "Description", vmDishIngredient.DishID);
+            ViewData["ItemID"] = new SelectList(_context.Stock, "ItemID", "ItemName", vmDishIngredient.ItemIDs);
+            return View(vmDishIngredient);
         }
 
         // GET: Backend/DishIngredients/Edit/5

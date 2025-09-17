@@ -9,6 +9,11 @@
 <p>
     <a class="btn btn-outline-dark" asp-action="Create">新增庫存</a>
 </p>
+
+<h4>
+    <span class="badge bg-danger text-dark">低庫存警示</span>
+</h4>
+
 <table class="table">
     <thead>
         <tr>
@@ -41,7 +46,15 @@
     </thead>
     <tbody>
 @foreach (var item in Model) {
-        <tr>
+
+            var rowClass = "";
+            var isLowStock = item.CurrentStock < item.SafeStock;
+            if (isLowStock)
+            {
+                rowClass = "table-danger"; // 3天內到期，標記為紅色
+            }
+
+        <tr class="@rowClass">
             <td>
                 @Html.DisplayFor(modelItem => item.ItemID)
             </td>

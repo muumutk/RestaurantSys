@@ -1,4 +1,4 @@
-﻿@model RestaurantSys.Models.DishIngredient
+﻿@model RestaurantSys.Areas.Admin.ViewModels.VMDishIngredient
 
 @{
     ViewData["Title"] = "Create";
@@ -17,8 +17,8 @@
                 <select asp-for="DishID" class ="form-control" asp-items="ViewBag.DishID"></select>
             </div>
             <div class="form-group">
-                <label asp-for="ItemID" class="control-label"></label>
-                <select asp-for="ItemID" class ="form-control" asp-items="ViewBag.ItemID"></select>
+                <label asp-for="ItemIDs" class="control-label"></label>
+                <select asp-for="ItemIDs" class="form-control" asp-items="ViewBag.ItemID" multiple></select>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />

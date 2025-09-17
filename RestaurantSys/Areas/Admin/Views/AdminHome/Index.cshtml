@@ -45,7 +45,7 @@
 <div class="container py-5">
     <div class="row g-4 mb-5">
 
-        <div class="card shadow-sm p-4">
+        @* <div class="card shadow-sm p-4">
             <h3 class="fs-5 fw-semibold text-dark mb-4">快速操作</h3>
             <div class="row g-3">
                 <div class="col-12 col-md-4">
@@ -67,7 +67,7 @@
                     </button>
                 </div>
             </div>
-        </div>
+        </div> *@
 
         <div class="col-12 col-md-4">
             <div class="card shadow-sm p-4 h-100">
@@ -83,6 +83,7 @@
             </div>
         </div>
         <div class="col-12 col-md-4">
+            <a asp-controller="Employees" asp-action="Index" class="text-decoration-none">
             <div class="card shadow-sm p-4 h-100">
                 <div class="d-flex align-items-center">
                     <div class="p-3 bg-sage-green-light rounded-3">
@@ -94,8 +95,11 @@
                     </div>
                 </div>
             </div>
+            </a>
         </div>
+       
         <div class="col-12 col-md-4">
+            <a asp-controller="Dishes" asp-action="Index" class="text-decoration-none">
             <div class="card shadow-sm p-4 h-100">
                 <div class="d-flex align-items-center">
                     <div class="p-3 bg-sky-blue-light rounded-3">
@@ -107,6 +111,7 @@
                     </div>
                 </div>
             </div>
+            </a>
         </div>
     </div>
 
@@ -196,6 +201,19 @@
                     </div>
                 </a>
             </div>
+
+            <div class="col-12 col-md-6 col-lg-4">
+                <a asp-controller="DishIngredients" asp-action="Index" class="text-decoration-none card-hover d-block h-100">
+                    <div class="feature-card">
+                        <div class="p-3 bg-sage-green-light rounded-circle d-flex align-items-center justify-content-center mx-auto mb-4" style="width: 4rem; height: 4rem;">
+                            <i class="fas fa-chart-bar sage-green fs-4"></i>
+                        </div>
+                        <h3 class="fs-5 fw-bold text-dark mb-2">餐點用量</h3>
+                        <p class="text-secondary mb-4">各餐點的詳細食材組合</p>
+                    </div>
+                </a>
+            </div>
+
         </div>
     </div>
 </div>
