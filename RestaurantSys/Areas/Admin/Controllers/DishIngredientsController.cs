@@ -28,6 +28,19 @@ namespace RestaurantSys.Areas.Admin.Controllers
             return View(await restaurantSysContext.ToListAsync());
         }
 
+        //取得庫存單位
+        [HttpGet]
+        public async Task<IActionResult> GetItemUnit(int itemID)
+        {
+            var stock = await _context.Stock.FirstOrDefaultAsync(s => s.ItemID == itemID);
+            if (stock == null)
+            {
+                return NotFound();
+            }
+            return Json(new { unit = stock.Unit }); // 假設 Stock 表中有 Unit 欄位
+        }
+
+
         // GET: Backend/DishIngredients/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -61,39 +74,52 @@ namespace RestaurantSys.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("DishID,ItemIDs,IsActive")] VMDishIngredient vmDishIngredient)
+        public async Task<IActionResult> Create(VMDishIngredient vmDishIngredient)
         {
-            if (ModelState.IsValid)
+            // 檢查 DishID 和 Items 列表
+            if (ModelState.IsValid && vmDishIngredient.Items != null && vmDishIngredient.Items.Any())
             {
-                foreach(var itemID in vmDishIngredient.ItemIDs)
+                var newIngredients = new List<DishIngredient>();
+                var existingRecords = new HashSet<int>(_context.DishIngredient
+                    .Where(di => di.DishID == vmDishIngredient.DishID)
+                    .Select(di => di.ItemID));
+
+                // 遍歷所有提交的食材
+                foreach (var itemDetail in vmDishIngredient.Items)
                 {
-                    // 檢查是否已存在相同的 DishID 和 ItemID 組合
-                    var exists = _context.DishIngredient.Any(di => di.DishID == vmDishIngredient.DishID && di.ItemID == itemID);
-                    if (exists)
+                    // 檢查是否已存在
+                    if (existingRecords.Contains(itemDetail.ItemID))
                     {
-                        // 如果存在，跳過這個成分
+                        ModelState.AddModelError("", $"食材 '{itemDetail.ItemName}' 已存在於此餐點中，已自動跳過。");
                         continue;
                     }
-                    // 為每個選定的成分建立一個 DishIngredient 物件
+
+                    // 建立新的 DishIngredient 物件
                     var dishIngredient = new DishIngredient
                     {
                         DishID = vmDishIngredient.DishID,
-                        ItemID = itemID,
+                        ItemID = itemDetail.ItemID,
+                        Quantity = itemDetail.Quantity,
+                        Unit = itemDetail.Unit,
                         IsActive = true
                     };
-                    _context.DishIngredient.Add(dishIngredient);
+                    newIngredients.Add(dishIngredient);
                 }
 
-                // 一次性將所有紀錄儲存到資料庫
-                await _context.SaveChangesAsync();
-
-                return RedirectToAction(nameof(Index));
-
+                if (newIngredients.Any())
+                {
+                    _context.DishIngredient.AddRange(newIngredients);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
             }
-            ViewData["DishID"] = new SelectList(_context.Dish, "DishID", "Description", vmDishIngredient.DishID);
-            ViewData["ItemID"] = new SelectList(_context.Stock, "ItemID", "ItemName", vmDishIngredient.ItemIDs);
+
+            // 如果模型驗證失敗或沒有新增任何食材
+            ViewData["DishID"] = new SelectList(_context.Dish, "DishID", "DishName", vmDishIngredient.DishID);
+            ViewData["ItemID"] = new SelectList(_context.Stock, "ItemID", "ItemName");
             return View(vmDishIngredient);
         }
+
 
         // GET: Backend/DishIngredients/Edit/5
         public async Task<IActionResult> Edit(int? id)
