@@ -153,6 +153,8 @@ namespace RestaurantSys.Access.Data
             {
                 entity.HasKey(e => new { e.DishID, e.ItemID });
                 entity.Property(e => e.IsActive).HasDefaultValue(true);
+                entity.Property(e => e.Quantity).HasMaxLength(5);
+                entity.Property(e => e.Unit).HasMaxLength(10);
             });
 
         }

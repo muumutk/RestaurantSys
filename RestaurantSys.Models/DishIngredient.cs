@@ -6,6 +6,10 @@
 
         public int ItemID { get; set; }
 
+        public int Quantity { get; set; }
+
+        public string? Unit { get; set; }
+
         public bool IsActive { get; set; } = true;
 
         public virtual Dish? Dish { get; set; }
