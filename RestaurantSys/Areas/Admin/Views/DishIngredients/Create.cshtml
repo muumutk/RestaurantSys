@@ -1,20 +1,23 @@
 ﻿@model RestaurantSys.Areas.Admin.ViewModels.VMDishIngredient
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "建立餐點食材";
 }
 
-<h1>Create</h1>
+<h1>建立餐點食材</h1>
 
-<h4>DishIngredient</h4>
+<h4>新增餐點與食材關聯</h4>
 <hr />
 <div class="row">
     <div class="col-md-8">
-        <form asp-action="Create" id="mainForm">
+        <form asp-action="Create" id="mainForm" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
             <div class="form-group">
                 <label asp-for="DishID" class="control-label"></label>
-                <select asp-for="DishID" class="form-control" asp-items="ViewBag.DishID"></select>
+                <select asp-for="DishID" class="form-control" asp-items="ViewBag.DishID">
+                    <option value="">-- 請選擇餐點 --</option>
+                </select>
                 <span asp-validation-for="DishID" class="text-danger"></span>
             </div>
 
@@ -63,7 +66,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
                 <button type="button" class="btn btn-primary" id="confirmAddItemBtn">確認</button>
             </div>
         </div>
@@ -92,6 +95,12 @@
             let currentItemID = null;
             let currentItemName = '';
 
+            // 使用 jQuery 顯示/隱藏 Modal
+            $(itemModal).on('hidden.bs.modal', function () {
+                modalQuantity.value = '';
+                modalUnit.value = '';
+            });
+
             // 步驟1：點擊「選擇」按鈕，打開 Modal
             openModalBtn.addEventListener('click', function () {
                 const selectedOption = addItemSelect.options[addItemSelect.selectedIndex];
@@ -103,7 +112,6 @@
                     return;
                 }
 
-                // 檢查是否已存在
                 if (document.querySelector(`[data-item-id="${itemID}"]`)) {
                     alert('此食材已存在於清單中');
                     return;
@@ -112,15 +120,13 @@
                 currentItemID = itemID;
                 currentItemName = itemName;
                 modalItemName.textContent = itemName;
-                modalQuantity.value = ''; // 清空數量欄位
-                modalUnit.value = ''; // 清空單位欄位
+                modalQuantity.value = '';
+                modalUnit.value = '';
 
-                // 使用 AJAX 抓取單位
                 fetch(`/Admin/DishIngredients/GetItemUnit?itemID=${currentItemID}`)
                     .then(response => response.json())
                     .then(data => {
                         modalUnit.value = data.unit || '';
-                        // 使用 jQuery 語法顯示 Modal
                         $(itemModal).modal('show');
                     })
                     .catch(error => {
@@ -135,14 +141,12 @@
                 const quantity = modalQuantity.value;
                 const unit = modalUnit.value;
 
-                if (!quantity || quantity <= 0) {
+                if (!quantity || parseFloat(quantity) <= 0) {
                     alert('數量必須大於0');
                     return;
                 }
 
-                // 動態新增項目到清單
                 addItemToContainer(currentItemID, currentItemName, quantity, unit);
-                // 使用 jQuery 語法隱藏 Modal
                 $(itemModal).modal('hide');
             });
 
@@ -168,6 +172,7 @@
                         <input type="hidden" name="Items[${itemCounter}].ItemID" value="${itemID}" />
                         <input type="hidden" name="Items[${itemCounter}].Quantity" value="${quantity}" />
                         <input type="hidden" name="Items[${itemCounter}].Unit" value="${unit}" />
+                        <input type="hidden" name="Items[${itemCounter}].ItemName" value="${itemName}" />
                     </div>
                 `;
                 selectedItemsContainer.insertAdjacentHTML('beforeend', itemHtml);
@@ -187,6 +192,5 @@
                 });
             }
         });
-
     </script>
 }

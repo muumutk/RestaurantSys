@@ -23,7 +23,7 @@ namespace RestaurantSys.Areas.Admin.Controllers
         // GET: Admin/Orders
         public async Task<IActionResult> Index()
         {
-            var restaurantSysContext = _context.Order.Include(o => o.Employee).Include(o => o.Member).Include(o => o.OrderStatus).Include(o => o.PayTypeID);
+            var restaurantSysContext = _context.Order.Include(o => o.Employee).Include(o => o.Member).Include(o => o.OrderStatus).Include(o => o.PayType);
             return View(await restaurantSysContext.ToListAsync());
         }
 

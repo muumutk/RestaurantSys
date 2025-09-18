@@ -1,47 +1,43 @@
-﻿@model IEnumerable<RestaurantSys.Models.DishIngredient>
+﻿@model IEnumerable<RestaurantSys.Areas.Admin.ViewModels.VMDishIngredient>
 
-@{
-    ViewData["Title"] = "Index";
-}
-
-<h1>Index</h1>
+<h1>餐點食材列表</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create">新增餐點食材</a>
 </p>
+
 <table class="table">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Dish)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Item)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IsActive)
-            </th>
+            <th>餐點名稱</th>
+            <th>食材名稱</th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Dish.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Item.ItemName)
-            </td>
+        @foreach (var dish in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => dish.DishName)</td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.IsActive)
+                    @{
+                        // 建立一個字串列表來儲存每個食材的顯示資訊
+                        var ingredientList = new List<string>();
+                        foreach (var item in dish.Items)
+                        {
+                            // 格式化食材名稱、數量和單位，例如 "鹽 (10g)"
+                            var ingredientInfo = $"{item.ItemName} ({item.Quantity}{item.Unit})";
+                            ingredientList.Add(ingredientInfo);
+                        }
+                        // 使用 <br /> 換行，將每個食材顯示在獨立行
+                        @Html.Raw(string.Join("<br />", ingredientList))
+                    }
                 </td>
-            <td>
-                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
-            </td>
-        </tr>
-}
+                <td>
+                    <a asp-action="Edit" asp-route-id="@dish.DishID">編輯</a> | 
+                    <a asp-action="Delete" asp-route-id="@dish.DishID">刪除</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
