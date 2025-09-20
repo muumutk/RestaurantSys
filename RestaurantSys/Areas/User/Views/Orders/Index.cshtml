@@ -25,6 +25,13 @@
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
         </div>
     }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show custom-alert" role="alert">
+            <i class="bi bi-x-circle me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+        </div>
+    }
 
     <div class="order-card card">
         <div class="card-body p-0">
@@ -51,7 +58,7 @@
                                         <small class="text-muted">@item.OrderDate.ToString("HH:mm")</small>
                                     </td>
                                     <td data-label="取餐時間">
-                                        <span class="sage-green fw-bold">@item.PickUpTime.ToString("HH:mm")</span>
+                                        <span class="sage-green fw-bold">@item.PickUpTime.ToString("yyyy/MM/dd HH:mm")</span>
                                     </td>
                                     <td data-label="備註">
                                         <span class="text-muted fst-italic">
@@ -63,22 +70,25 @@
                                     </td>
                                     <td data-label="訂單狀態">
                                         @{
-                                            var statusClass = "bg-sage-green";
+                                            var statusClass = "bg-secondary"; // 預設樣式
                                             var statusText = item.OrderStatus?.OrderStatusName ?? "未知";
 
-                                            switch (statusText)
+                                            switch (item.OrderStatusID)
                                             {
-                                                case "已完成":
-                                                case "Completed":
-                                                    statusClass = "bg-sage-green";
+                                                case "01": // 已送出訂單
+                                                    statusClass = "bg-primary";
                                                     break;
-                                                case "準備中":
-                                                case "Preparing":
-                                                    statusClass = "bg-warm-peach";
+                                                case "02": // 訂單準備中
+                                                    statusClass = "bg-warning text-dark";
                                                     break;
-                                                case "已取消":
-                                                case "Cancelled":
-                                                    statusClass = "bg-warm-orange";
+                                                case "03": // 未取餐
+                                                    statusClass = "bg-danger";
+                                                    break;
+                                                case "04": // 已取餐
+                                                    statusClass = "bg-success";
+                                                    break;
+                                                case "05": // 訂單已取消
+                                                    statusClass = "bg-danger";
                                                     break;
                                             }
                                         }
@@ -87,7 +97,14 @@
                                         </span>
                                     </td>
                                     <td data-label="操作">
-                                            <a asp-action="Details" asp-route-id="@item.OrderID" class="btn btn-outline-dark btn-sm"><i class="bi bi-eye"></i> 詳情</a>
+                                        <a asp-action="Details" asp-route-id="@item.OrderID" class="btn btn-outline-dark btn-sm"><i class="bi bi-eye"></i> 詳情</a>
+                                        @if (item.OrderStatusID == "01")
+                                        {
+                                            <form asp-action="CancelOrder" method="post" style="display:inline;" onsubmit="return confirm('您確定要取消此訂單嗎？');">
+                                                <input type="hidden" name="id" value="@item.OrderID" />
+                                                <button type="submit" class="btn btn-outline-danger btn-sm">取消訂單</button>
+                                            </form>
+                                        }
                                     </td>
                                 </tr>
                             }
@@ -109,29 +126,6 @@
             </div>
         </div>
     </div>
-
-    @if (ViewBag.TotalPages != null && ViewBag.TotalPages > 1)
-    {
-        <nav aria-label="訂單分頁" class="mt-4">
-            <ul class="pagination justify-content-center">
-                <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
-                    <a class="page-link" asp-route-page="@(ViewBag.CurrentPage - 1)">上一頁</a>
-                </li>
-
-                @for (int i = 1; i <= ViewBag.TotalPages; i++)
-                {
-                    <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
-                        <a class="page-link" asp-route-page="@i">@i</a>
-                    </li>
-                }
-
-                <li class="page-item @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
-                    <a class="page-link" asp-route-page="@(ViewBag.CurrentPage + 1)">下一頁</a>
-                </li>
-            </ul>
-        </nav>
-    }
-</div>
 
     @if (ViewBag.TotalPages != null && ViewBag.TotalPages > 1)
     {

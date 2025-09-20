@@ -1,57 +1,179 @@
 ﻿@model RestaurantSys.Models.Order
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "建立訂單";
 }
 
-<h1>Create</h1>
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-8 offset-lg-2">
+            <h2 class="text-center fw-bold mb-4">建立訂單</h2>
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <form asp-action="Create" id="order-form">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-<h4>Order</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label class="control-label">訂單日期</label>
-                <input name="OrderDate" class="form-control" readonly value="@ViewBag.OrderDate" />
-            </div>
-            <div class="form-group">
-                <label asp-for="PickUpTime" class="control-label"></label>
-                <select asp-for="PickUpTime"
-                        class="form-control"
-                        asp-items="ViewBag.PickUpTimeOptions">
-                    <option value="">請選擇預計取餐時間</option>
-                </select>
-                <span asp-validation-for="PickUpTime" class="text-danger"></span>
-            </div>
+                        <div class="mb-4">
+                            <h5 class="fw-bold mb-3"><i class="bi bi-info-circle me-2"></i>訂單資訊</h5>
+                            <div class="form-group mb-3">
+                                <label class="control-label fw-bold">取餐日期</label>
+                                <input type="date" name="OrderDate" id="order-date-input" class="form-control" value="@ViewBag.OrderDate" />
+                            </div>
+                            <div class="form-group mb-3">
+                                <label asp-for="PickUpTime" class="control-label fw-bold">預計取餐時間</label>
+                                <select asp-for="PickUpTime"
+                                        id="pickup-time-select"
+                                        class="form-control"
+                                        asp-items="ViewBag.PickUpTimeOptions">
+                                    <option value="">請選擇預計取餐時間</option>
+                                </select>
+                                <span asp-validation-for="PickUpTime" class="text-danger"></span>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label asp-for="PayTypeID" class="control-label fw-bold">付款方式</label>
+                                <select asp-for="PayTypeID" class="form-control" asp-items="ViewBag.PayTypeID">
+                                    <option value="">請選擇付款方式</option>
+                                </select>
+                                <span asp-validation-for="PayTypeID" class="text-danger"></span>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label asp-for="Note" class="control-label fw-bold">備註</label>
+                                <textarea asp-for="Note" class="form-control" placeholder="例如：少冰、無糖、內用..."></textarea>
+                                <span asp-validation-for="Note" class="text-danger"></span>
+                            </div>
+                        </div>
 
-            <div class="form-group">
-                <label asp-for="PayTypeID" class="control-label"></label>
-                <select asp-for="PayTypeID" class ="form-control" asp-items="ViewBag.PayTypeID"></select>
+                        <div class="mb-4">
+                            <h5 class="fw-bold mb-3"><i class="bi bi-bag-check me-2"></i>您的餐點</h5>
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>餐點名稱</th>
+                                            <th>數量</th>
+                                            <th class="text-end">單價</th>
+                                            <th class="text-end">小計</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="cart-items">
+                                    </tbody>
+                                    <tfoot>
+                                        <tr class="fw-bold">
+                                            <td colspan="3" class="text-end">總金額：</td>
+                                            <td id="cart-total" class="text-end text-danger">NT$ 0</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">確認送出訂單</button>
+                            <a asp-action="Index" class="btn btn-outline-secondary">返回訂單列表</a>
+                        </div>
+
+                        <input type="hidden" name="Cart" id="Cart" />
+                    </form>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="Note" class="control-label"></label>
-                <textarea asp-for="Note" class="form-control" ></textarea>
-                <span asp-validation-for="Note" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-            <input type="hidden" name="Cart" id="Cart" />
-        </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        $('#Cart').val(localStorage.getItem('cart'));
-    </script>
+        $(document).ready(function() {
+            // 處理購物車顯示邏輯
+            let cart = [];
+            try {
+                const cartString = localStorage.getItem('cart');
+                if (cartString) {
+                    cart = JSON.parse(cartString);
+                }
+            } catch (error) {
+                console.error("解析購物車資料時發生錯誤：", error);
+                localStorage.removeItem('cart');
+                const cartItemsTable = document.getElementById('cart-items');
+                cartItemsTable.innerHTML = '<tr><td colspan="4" class="text-center text-danger py-3">讀取購物車資料時發生錯誤，購物車已清空。請重新選購。</td></tr>';
+            }
 
+            const cartItemsTable = document.getElementById('cart-items');
+            const cartTotalElement = document.getElementById('cart-total');
+            let totalAmount = 0;
+
+            if (cart.length === 0) {
+                cartItemsTable.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-3">購物車是空的，請先<a href="/Menu">選購餐點</a>。</td></tr>';
+            } else {
+                cart.forEach(item => {
+                    const subtotal = item.Qty * item.DishPrice;
+                    totalAmount += subtotal;
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.DishName}</td>
+                        <td>${item.Qty}</td>
+                        <td class="text-end">NT$ ${item.DishPrice.toLocaleString()}</td>
+                        <td class="text-end">NT$ ${subtotal.toLocaleString()}</td>
+                    `;
+                    cartItemsTable.appendChild(row);
+                });
+            }
+
+            cartTotalElement.innerText = `NT$ ${totalAmount.toLocaleString()}`;
+
+            document.getElementById('order-form').addEventListener('submit', function() {
+                const cartString = localStorage.getItem('cart');
+                document.getElementById('Cart').value = cartString;
+            });
+
+            // AJAX 處理日期和時間選擇邏輯
+            const orderDateInput = $('#order-date-input');
+            const pickupTimeSelect = $('#pickup-time-select');
+
+            // 確保日期欄位可以選擇
+            orderDateInput.attr('type', 'date');
+
+            // 監聽日期欄位變化事件
+            orderDateInput.on('change', function() {
+                const selectedDate = $(this).val();
+                if (selectedDate) {
+                    // 發送 AJAX 請求到新的 Action
+                    $.ajax({
+                        url: '@Url.Action("GetAvailableTimeSlots", "Orders")',
+                        type: 'GET',
+                        data: { date: selectedDate }, // 注意這裡的參數名與 Controller 的 Action 保持一致
+                        success: function(data) {
+                            pickupTimeSelect.empty(); // 清空舊的選項
+                            // 添加預設選項
+                            pickupTimeSelect.append($('<option>', {
+                                value: '',
+                                text: '請選擇預計取餐時間'
+                            }));
+                            if (data && data.length > 0) {
+                                $.each(data, function(index, item) {
+                                    pickupTimeSelect.append($('<option>', {
+                                        value: item.value,
+                                        text: item.text
+                                    }));
+                                });
+                            } else {
+                                // 如果沒有選項，顯示一個提示
+                                pickupTimeSelect.append($('<option>', {
+                                    value: '',
+                                    text: '當日無可選時間'
+                                }));
+                            }
+                        },
+                        error: function(error) {
+                            console.error("Error loading time slots:", error);
+                        }
+                    });
+                }
+            });
+        });
+    </script>
 }

@@ -206,11 +206,11 @@ public class StockData
 
     [Display(Name ="現有庫存量")]
     [Required(ErrorMessage ="請填寫現有庫存數量")]
-    public int? CurrentStock { get; set; }
+    public decimal? CurrentStock { get; set; }
 
     [Display(Name ="安全庫存量")]
     [Required(ErrorMessage ="請填寫安全庫存數量")]
-    public int? SafeStock { get; set; }
+    public decimal? SafeStock { get; set; }
 
     [Display(Name ="單位")]
     [StringLength(10,ErrorMessage ="請填寫單位")]
@@ -349,11 +349,6 @@ public class OrderData
     [ForeignKey("Member")]
     [HiddenInput]
     public string MemberID { get; set; } = null!;
-
-    [Display(Name = "員工編號")]
-    [ForeignKey("Employee")]
-    [HiddenInput]
-    public string? EmployeeID { get; set; }
 
     [Display(Name = "付款代碼")]
     [StringLength(2)]

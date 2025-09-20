@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using RestaurantSys.Access.Data;
 using RestaurantSys.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims; // 由於不再需要 User.FindFirstValue，此行可選擇性移除
+using System.Threading.Tasks;
 
 namespace RestaurantSys.Areas.Admin.Controllers
 {
@@ -20,12 +21,32 @@ namespace RestaurantSys.Areas.Admin.Controllers
             _context = context;
         }
 
-        // GET: Admin/Orders
         public async Task<IActionResult> Index()
         {
-            var restaurantSysContext = _context.Order.Include(o => o.Employee).Include(o => o.Member).Include(o => o.OrderStatus).Include(o => o.PayType).Include(o => o.OrderDetails);
+            var restaurantSysContext = _context.Order
+                .Include(o => o.Member)
+                .Include(o => o.OrderStatus)
+                .Include(o => o.PayType)
+                .Include(o => o.OrderDetails)
+                .OrderByDescending(o => o.OrderDate); // 依日期由新到舊排序
+
             return View(await restaurantSysContext.ToListAsync());
         }
+
+        // 新增：處理前端輪詢請求的 Action
+        // 這個方法會檢查是否有任何狀態為「已送出訂單」（OrderStatusID == "01"）且尚未被管理的訂單。
+        [HttpGet]
+        public async Task<IActionResult> CheckForNewOrders()
+        {
+            // 在這裡篩選你想要通知的訂單狀態
+            var newOrdersCount = await _context.Order
+                .CountAsync(o => o.OrderStatusID == "01");
+
+            // 返回 JSON 格式的結果
+            // 如果數量大於 0，表示有新訂單
+            return Json(new { hasNewOrders = newOrdersCount > 0 });
+        }
+
 
         // GET: Admin/Orders/Details/5
         public async Task<IActionResult> Details(string id)
@@ -36,10 +57,11 @@ namespace RestaurantSys.Areas.Admin.Controllers
             }
 
             var order = await _context.Order
-                .Include(o => o.Employee)
                 .Include(o => o.Member)
                 .Include(o => o.OrderStatus)
                 .Include(o => o.PayType)
+                .Include(o => o.OrderDetails) // 載入訂單明細
+                .ThenInclude(od => od.Dish) // 載入餐點資訊
                 .FirstOrDefaultAsync(m => m.OrderID == id);
             if (order == null)
             {
@@ -49,10 +71,43 @@ namespace RestaurantSys.Areas.Admin.Controllers
             return View(order);
         }
 
+
+        // 新增：處理訂單狀態變更的 Action
+        [HttpPost]
+        public async Task<IActionResult> ChangeStatus([FromForm] string id, [FromForm] string statusId)
+        {
+            if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(statusId))
+            {
+                return Json(new { success = false, message = "傳入的資料無效。" });
+            }
+
+            var order = await _context.Order.FirstOrDefaultAsync(o => o.OrderID == id);
+            if (order == null)
+            {
+                return Json(new { success = false, message = "找不到此訂單。" });
+            }
+
+            // 更新訂單狀態
+            order.OrderStatusID = statusId;
+
+            // 已移除所有關於 EmployeeID 的邏輯，現在只專注於更新狀態
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                // 將錯誤訊息包含在內，以便於除錯
+                return Json(new { success = false, message = "狀態更新失敗: " + ex.Message + " (Inner Exception: " + ex.InnerException?.Message + ")" });
+            }
+        }
+
+
         // GET: Admin/Orders/Create
         public IActionResult Create()
         {
-            ViewData["EmployeeID"] = new SelectList(_context.Employee, "EmployeeID", "EmployeeID");
             ViewData["MemberID"] = new SelectList(_context.Member, "MemberID", "MemberID");
             ViewData["OrderStatusID"] = new SelectList(_context.OrderStatus, "OrderStatusID", "OrderStatusID");
             ViewData["PayTypeID"] = new SelectList(_context.PayType, "PayTypeID", "PayTypeID");
@@ -64,7 +119,7 @@ namespace RestaurantSys.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("OrderID,OrderDate,PickUpTime,PayTypeID,Note,MemberID,EmployeeID,OrderStatusID")] Order order)
+        public async Task<IActionResult> Create([Bind("OrderID,OrderDate,PickUpTime,PayTypeID,Note,MemberID,OrderStatusID")] Order order)
         {
             if (ModelState.IsValid)
             {
@@ -72,7 +127,6 @@ namespace RestaurantSys.Areas.Admin.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["EmployeeID"] = new SelectList(_context.Employee, "EmployeeID", "EmployeeID", order.EmployeeID);
             ViewData["MemberID"] = new SelectList(_context.Member, "MemberID", "MemberID", order.MemberID);
             ViewData["OrderStatusID"] = new SelectList(_context.OrderStatus, "OrderStatusID", "OrderStatusID", order.OrderStatusID);
             ViewData["PayTypeID"] = new SelectList(_context.PayType, "PayTypeID", "PayTypeID", order.PayTypeID);
@@ -92,7 +146,6 @@ namespace RestaurantSys.Areas.Admin.Controllers
             {
                 return NotFound();
             }
-            ViewData["EmployeeID"] = new SelectList(_context.Employee, "EmployeeID", "EmployeeID", order.EmployeeID);
             ViewData["MemberID"] = new SelectList(_context.Member, "MemberID", "MemberID", order.MemberID);
             ViewData["OrderStatusID"] = new SelectList(_context.OrderStatus, "OrderStatusID", "OrderStatusID", order.OrderStatusID);
             ViewData["PayTypeID"] = new SelectList(_context.PayType, "PayTypeID", "PayTypeID", order.PayTypeID);
@@ -104,7 +157,7 @@ namespace RestaurantSys.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("OrderID,OrderDate,PickUpTime,PayTypeID,Note,MemberID,EmployeeID,OrderStatusID")] Order order)
+        public async Task<IActionResult> Edit(string id, [Bind("OrderID,OrderDate,PickUpTime,PayTypeID,Note,MemberID,OrderStatusID")] Order order)
         {
             if (id != order.OrderID)
             {
@@ -131,7 +184,6 @@ namespace RestaurantSys.Areas.Admin.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["EmployeeID"] = new SelectList(_context.Employee, "EmployeeID", "EmployeeID", order.EmployeeID);
             ViewData["MemberID"] = new SelectList(_context.Member, "MemberID", "MemberID", order.MemberID);
             ViewData["OrderStatusID"] = new SelectList(_context.OrderStatus, "OrderStatusID", "OrderStatusID", order.OrderStatusID);
             ViewData["PayTypeID"] = new SelectList(_context.PayType, "PayTypeID", "PayTypeID", order.PayTypeID);

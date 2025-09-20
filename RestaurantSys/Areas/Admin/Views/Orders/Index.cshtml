@@ -9,48 +9,167 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+
 <table class="table">
     <thead>
         <tr>
-            <th>
-                訂單編號
-            </th>
-            <th>
-                訂單總金額
-            </th>
-            <th>
-                預計取餐時間
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.OrderStatus.OrderStatusName)
-            </th>
-            <th></th>
+            <th>訂單編號</th>
+            <th>訂單日期</th>
+            <th>訂單總金額</th>
+            <th>預計取餐時間</th>
+            <th>備註</th>
+            <th>@Html.DisplayNameFor(model => model.OrderStatus.OrderStatusName)</th>
+            <th>操作</th>
         </tr>
     </thead>
     <tbody>
         @foreach (var item in Model)
         {
             <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.OrderID)
-                </td>
+                <td>@Html.DisplayFor(modelItem => item.OrderID)</td>
+                <td>@item.OrderDate.ToString("yyyy/MM/dd HH:mm:ss")</td>
                 <td>
                     @{
-                        // 計算訂單總金額
-                        var totalAmount = item.OrderDetails.Sum(od => od.Quantity * od.UnitPrice);
+                        var totalAmount = item.OrderDetails?.Sum(od => od.Quantity * od.UnitPrice) ?? 0;
                     }
                     NT$ @totalAmount.ToString("N0")
                 </td>
+                <td>@item.PickUpTime.ToString("yyyy/MM/dd HH:mm")</td>
+                <td>@Html.DisplayFor(modelItem => item.Note)</td>
+                <td id="status-column-@item.OrderID">@Html.DisplayFor(modelItem => item.OrderStatus.OrderStatusName)</td>
                 <td>
-                    @item.PickUpTime.ToString("HH:mm")
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.OrderStatus.OrderStatusName)
-                </td>
-                <td>
-                    <a asp-area="Admin" asp-controller="OrderDetails" asp-action="Details" asp-route-id="@item.OrderID">訂單詳情</a>
+                    <a asp-area="Admin" asp-controller="Orders" asp-action="Details" asp-route-id="@item.OrderID">訂單詳情</a>
+                    @if (item.OrderStatusID == "01") // 訂單待處理狀態
+                    {
+                        <button class="btn btn-success btn-sm accept-order-btn" data-order-id="@item.OrderID">接受</button>
+                        <button class="btn btn-danger btn-sm reject-order-btn" data-order-id="@item.OrderID">拒絕</button>
+                    }
+                    else if (item.OrderStatusID == "02" || item.OrderStatusID == "03") // 訂單準備中或未取餐狀態
+                    {
+                        @if (item.OrderStatusID == "02")
+                        {
+                            <button class="btn btn-primary btn-sm status-change-btn" data-order-id="@item.OrderID" data-new-status="04">已取餐</button>
+                            <button class="btn btn-warning btn-sm status-change-btn" data-order-id="@item.OrderID" data-new-status="03">未取餐</button>
+                        }
+                        else if (item.OrderStatusID == "03") // 未取餐狀態
+                        {
+                            <button class="btn btn-primary btn-sm status-change-btn" data-order-id="@item.OrderID" data-new-status="04">已取餐</button>
+                            <button class="btn btn-danger btn-sm cancel-order-btn" data-order-id="@item.OrderID">取消訂單</button>
+                        }
+                    }
+                    else if (item.OrderStatusID == "04") // 已取餐狀態，隱藏所有按鈕
+                    {
+                        <!-- 不顯示任何按鈕 -->
+                    }
+                    else if (item.OrderStatusID != "05") // 當狀態不是已取消時，顯示取消訂單按鈕
+                    {
+                        <button class="btn btn-danger btn-sm cancel-order-btn" data-order-id="@item.OrderID">取消訂單</button>
+                    }
                 </td>
             </tr>
         }
+
     </tbody>
 </table>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 處理「接受」、「拒絕」、「變更狀態」和「取消訂單」按鈕的點擊事件
+            document.querySelectorAll('.accept-order-btn, .reject-order-btn, .status-change-btn, .cancel-order-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const orderId = this.dataset.orderId;
+                    let newStatus = '';
+
+                    if (this.classList.contains('accept-order-btn')) {
+                        newStatus = '02'; // 接受 -> 準備中
+                    } else if (this.classList.contains('reject-order-btn')) {
+                        newStatus = '05'; // 拒絕 -> 已取消
+                    } else if (this.classList.contains('status-change-btn')) {
+                        newStatus = this.dataset.newStatus; // 已取餐/未取餐
+                    } else if (this.classList.contains('cancel-order-btn')) {
+                        newStatus = '05'; // 取消訂單 -> 已取消
+                    }
+
+                    if (newStatus) {
+                        updateOrderStatus(orderId, newStatus);
+                    }
+                });
+            });
+
+            // 負責發送 AJAX 請求的非同步函式
+            async function updateOrderStatus(orderId, newStatus) {
+                try {
+                    const response = await fetch('@Url.Action("ChangeStatus", "Orders", new { area = "Admin" })', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' // 使用 form-urlencoded
+                        },
+                        body: `id=${encodeURIComponent(orderId)}&statusId=${encodeURIComponent(newStatus)}`
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        // 成功後，更新頁面上的狀態文字和按鈕
+                        const statusColumn = document.getElementById(`status-column-${orderId}`);
+                        if (statusColumn) {
+                            let newStatusText = "";
+                            if (newStatus === "02") newStatusText = "訂單準備中";
+                            if (newStatus === "03") newStatusText = "未取餐";
+                            if (newStatus === "04") newStatusText = "已取餐";
+                            if (newStatus === "05") newStatusText = "訂單已取消";
+                            statusColumn.innerText = newStatusText;
+                        }
+
+                        // 更新按鈕狀態
+                        const buttonContainer = document.querySelector(`button[data-order-id="${orderId}"]`).parentElement;
+                        if (buttonContainer) {
+                            buttonContainer.innerHTML = ''; // 清除按鈕
+
+                            if (newStatus === "02") {
+                                buttonContainer.innerHTML = `
+                                    <a asp-area="Admin" asp-controller="Orders" asp-action="Details" asp-route-id="${orderId}">訂單詳情</a>
+                                    <button class="btn btn-primary btn-sm status-change-btn" data-order-id="${orderId}" data-new-status="04">已取餐</button>
+                                    <button class="btn btn-warning btn-sm status-change-btn" data-order-id="${orderId}" data-new-status="03">未取餐</button>
+                                    <button class="btn btn-danger btn-sm cancel-order-btn" data-order-id="${orderId}">取消訂單</button>
+                                `;
+                            } else if (newStatus === "03") {
+                                // 未取餐狀態，顯示兩個按鈕
+                                buttonContainer.innerHTML = `
+                                    <a asp-area="Admin" asp-controller="Orders" asp-action="Details" asp-route-id="${orderId}">訂單詳情</a>
+                                    <button class="btn btn-primary btn-sm status-change-btn" data-order-id="${orderId}" data-new-status="04">已取餐</button>
+                                    <button class="btn btn-danger btn-sm cancel-order-btn" data-order-id="${orderId}">取消訂單</button>
+                                `;
+                            } else if (newStatus === "04") {
+                                // 已取餐後，只顯示訂單詳情與取消訂單按鈕
+                                buttonContainer.innerHTML = `
+                                    <a asp-area="Admin" asp-controller="Orders" asp-action="Details" asp-route-id="${orderId}">訂單詳情</a>
+                                    <button class="btn btn-danger btn-sm cancel-order-btn" data-order-id="${orderId}">取消訂單</button>
+                                `;
+                            } else if (newStatus === "05") {
+                                // 已取消訂單，隱藏所有按鈕
+                                buttonContainer.innerHTML = `
+                                    <a asp-area="Admin" asp-controller="Orders" asp-action="Details" asp-route-id="${orderId}">訂單詳情</a>
+                                `;
+                            }
+                        }
+
+                    } else {
+                        // 顯示後端傳回的錯誤訊息
+                        alert("狀態更新失敗: " + result.message);
+                    }
+                } catch (error) {
+                    console.error("狀態更新時發生錯誤:", error);
+                    alert("狀態更新時發生錯誤。");
+                }
+            }
+
+            // 假設有一個方法來通知會員
+            function notifyMemberOfStatusChange(orderId, newStatus) {
+                // 這裡可以使用WebSocket或其他推送技術來通知會員端
+                console.log(`通知會員: 訂單 ${orderId} 狀態已更改為 ${newStatus}`);
+            }
+        });
+    </script>
+}

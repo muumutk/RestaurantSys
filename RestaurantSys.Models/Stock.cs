@@ -6,9 +6,9 @@
 
         public string ItemName { get; set; } = null!;
 
-        public int? CurrentStock { get; set; }
+        public decimal? CurrentStock { get; set; }
 
-        public int? SafeStock { get; set; }
+        public decimal? SafeStock { get; set; }
 
         public string Unit { get; set; } = null!;
 

@@ -37,17 +37,16 @@ namespace RestaurantSys.Areas.User.Controllers
                 return RedirectToAction("MemberLogin", "Login");
             }
 
-            //計算總訂單數
-            var totalOrders = await _context.Order.CountAsync(o => o.MemberID == currentMemberID);
+            // 只計算 OrderStatusID 不等於 "05" 的訂單數
+            var totalOrders = await _context.Order
+                .Where(o => o.MemberID == currentMemberID && o.OrderStatusID != "05")
+                .CountAsync();
             ViewData["TotalOrders"] = totalOrders;
 
-            // 計算累積消費
+            // 計算累積消費（只計算 OrderStatusID 不等於 "05" 的訂單）
             var totalSpent = await _context.Order
-                // 1. 先用 Include 載入 OrderDetails
                 .Include(o => o.OrderDetails)
-                // 2. 篩選出該會員的訂單
-                .Where(o => o.MemberID == currentMemberID)
-                // 3. 展開所有訂單的明細，並計算總和
+                .Where(o => o.MemberID == currentMemberID && o.OrderStatusID != "05")
                 .SelectMany(o => o.OrderDetails)
                 .SumAsync(od => od.UnitPrice * od.Quantity);
 

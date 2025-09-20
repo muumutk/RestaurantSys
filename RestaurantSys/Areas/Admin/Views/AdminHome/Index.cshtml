@@ -33,6 +33,26 @@
     </div>
 }
 
+@* 新增訂單通知 Modal *@
+<div class="modal fade" id="newOrderModal" tabindex="-1" aria-labelledby="newOrderModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="newOrderModalLabel">🎉 新訂單通知！</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <i class="fas fa-bell fa-4x text-success mb-3"></i>
+                <h4>您有新的訂單囉！</h4>
+                <p class="text-muted mb-0">請至訂單管理頁面處理。</p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <a href="@Url.Action("Index", "Orders")" class="btn btn-success">前往查看</a>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="gradient-bg text-white">
     <div class="container py-5">
         <div class="text-center">
@@ -43,31 +63,6 @@
 
 <div class="container py-5">
     <div class="row g-4 mb-5">
-
-        @* <div class="card shadow-sm p-4">
-            <h3 class="fs-5 fw-semibold text-dark mb-4">快速操作</h3>
-            <div class="row g-3">
-                <div class="col-12 col-md-4">
-                    <a asp-controller="StockBatches" asp-action="Create" class="text-decoration-none d-flex align-items-center p-3 w-100 border-0 rounded-3 bg-warm-orange-light quick-action-btn">
-                        <i class="fas fa-plus warm-orange fs-5 me-3"></i>
-                        <span class="fw-medium warm-brown">新增庫存項目</span>
-                    </a>
-                </div>
-                <div class="col-12 col-md-4">
-                    <a asp-controller="Employees" asp-action="Create" class="text-decoration-none d-flex align-items-center p-3 w-100 border-0 rounded-3 bg-sage-green-light quick-action-btn">
-                        <i class="fas fa-user-plus sage-green fs-5 me-3"></i>
-                        <span class="fw-medium warm-brown">新增員工帳號</span>
-                    </a>
-                </div>
-                <div class="col-12 col-md-4">
-                    <button class="d-flex align-items-center p-3 w-100 border-0 rounded-3 bg-soft-coral-light quick-action-btn" data-bs-toggle="modal" data-bs-target="#inventoryWarningModal">
-                        <i class="fas fa-bell soft-coral fs-5 me-3"></i>
-                        <span class="fw-medium warm-brown">查看庫存警示</span>
-                    </button>
-                </div>
-            </div>
-        </div> *@
-
         <div class="col-12 col-md-4">
             <div class="card shadow-sm p-4 h-100">
                 <div class="d-flex align-items-center">
@@ -83,33 +78,33 @@
         </div>
         <div class="col-12 col-md-4">
             <a asp-controller="Employees" asp-action="Index" class="text-decoration-none">
-            <div class="card shadow-sm p-4 h-100">
-                <div class="d-flex align-items-center">
-                    <div class="p-3 bg-sage-green-light rounded-3">
-                        <i class="fas fa-users sage-green fs-5"></i>
-                    </div>
-                    <div class="ms-3">
-                        <p class="text-secondary mb-0">員工總數</p>
-                        <p class="fs-4 fw-bold text-dark mb-0">@ViewBag.EmployeeCount</p>
+                <div class="card shadow-sm p-4 h-100">
+                    <div class="d-flex align-items-center">
+                        <div class="p-3 bg-sage-green-light rounded-3">
+                            <i class="fas fa-users sage-green fs-5"></i>
+                        </div>
+                        <div class="ms-3">
+                            <p class="text-secondary mb-0">員工總數</p>
+                            <p class="fs-4 fw-bold text-dark mb-0">@ViewBag.EmployeeCount</p>
+                        </div>
                     </div>
                 </div>
-            </div>
             </a>
         </div>
-       
+
         <div class="col-12 col-md-4">
             <a asp-controller="Dishes" asp-action="Index" class="text-decoration-none">
-            <div class="card shadow-sm p-4 h-100">
-                <div class="d-flex align-items-center">
-                    <div class="p-3 bg-sky-blue-light rounded-3">
-                        <i class="fas fa-utensils sky-blue fs-5"></i>
-                    </div>
-                    <div class="ms-3">
-                        <p class="text-secondary mb-0">菜單項目</p>
-                        <p class="fs-4 fw-bold text-dark mb-0">@ViewBag.MenuCount</p>
+                <div class="card shadow-sm p-4 h-100">
+                    <div class="d-flex align-items-center">
+                        <div class="p-3 bg-sky-blue-light rounded-3">
+                            <i class="fas fa-utensils sky-blue fs-5"></i>
+                        </div>
+                        <div class="ms-3">
+                            <p class="text-secondary mb-0">菜單項目</p>
+                            <p class="fs-4 fw-bold text-dark mb-0">@ViewBag.MenuCount</p>
+                        </div>
                     </div>
                 </div>
-            </div>
             </a>
         </div>
     </div>
@@ -212,21 +207,53 @@
                     </div>
                 </a>
             </div>
-
         </div>
     </div>
 </div>
 
 @section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     @if (warnings != null && warnings.Any())
     {
         <script>
             document.addEventListener('DOMContentLoaded', function () {
-                var myModal = new bootstrap.Modal(document.getElementById('inventoryWarningModal'), {
+                var inventoryModal = new bootstrap.Modal(document.getElementById('inventoryWarningModal'), {
                     keyboard: false
                 });
-                myModal.show();
+                inventoryModal.show();
             });
         </script>
     }
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 使用定時器每 5 秒鐘發送一次請求，檢查新訂單
+            const pollingInterval = 5000; // 5000 毫秒 = 5 秒
+
+            function checkForNewOrders() {
+                // 使用 AJAX 請求後端 API
+                $.ajax({
+                    url: '@Url.Action("CheckForNewOrders", "Orders", new { Area = "Admin" })',
+                    type: 'GET',
+                    success: function (response) {
+                        // 檢查後端回傳的結果
+                        if (response.hasNewOrders) {
+                            console.log("發現新訂單！顯示通知。");
+                            // 顯示新訂單 Modal
+                            var newOrderModal = new bootstrap.Modal(document.getElementById('newOrderModal'), {
+                                keyboard: false
+                            });
+                            newOrderModal.show();
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("檢查新訂單時發生錯誤: " + error);
+                    }
+                });
+            }
+
+            // 啟動定時器
+            setInterval(checkForNewOrders, pollingInterval);
+        });
+    </script>
 }

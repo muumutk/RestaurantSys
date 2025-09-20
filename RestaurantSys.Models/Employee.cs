@@ -20,8 +20,6 @@
 
         public string Password { get; set; } = null!;
 
-        public virtual List<Order>? Orders { get; set; }
-
         public virtual List<StockBatch>? StockBatches { get; set; }
     }
 }

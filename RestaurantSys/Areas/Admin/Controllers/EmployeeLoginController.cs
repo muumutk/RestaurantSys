@@ -48,15 +48,19 @@ namespace RestaurantSys.Areas.Admin.Controllers
 
             if (employee != null)
             {
-                //// 判斷角色，不是Admin就導向Employee
+                // **關鍵修正點：登入前先登出所有可能的舊身分**
+                // 這樣可以確保工作階段中只剩下新的員工身分
+                await HttpContext.SignOutAsync("MemberLogin");
+                await HttpContext.SignOutAsync("EmployeeLogin");
+
                 string role = employee.EmployeeID.StartsWith("Admin") ? "Admin" : "Employee";
 
                 var claims = new List<Claim>
-                    {
-                        new Claim(ClaimTypes.NameIdentifier, employee.EmployeeID),
-                        new Claim(ClaimTypes.Role, role),
-                        new Claim(ClaimTypes.Name, employee.EName)
-                    };
+                {
+                    new Claim(ClaimTypes.NameIdentifier, employee.EmployeeID),
+                    new Claim(ClaimTypes.Role, role),
+                    new Claim(ClaimTypes.Name, employee.EName)
+                };
 
                 var claimsIdentity = new ClaimsIdentity(claims, "EmployeeLogin");
                 await HttpContext.SignInAsync("EmployeeLogin", new ClaimsPrincipal(claimsIdentity));

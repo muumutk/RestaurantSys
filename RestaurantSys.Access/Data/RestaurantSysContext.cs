@@ -98,6 +98,8 @@ namespace RestaurantSys.Access.Data
                 entity.HasKey(e => e.ItemID).HasName("PK_StockID");
                 entity.Property(e => e.ItemName).HasMaxLength(20);
                 entity.Property(e => e.Unit).HasMaxLength(10);
+                entity.Property(e => e.CurrentStock).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.SafeStock).HasColumnType("decimal(18,2)");
                 entity.Property(e => e.ItemPrice).HasColumnType("decimal(18,2)");
                 entity.Property(e => e.IsActive).HasDefaultValue(true);
             });

@@ -36,7 +36,6 @@ namespace RestaurantSys.Areas.Admin.Controllers
             }
 
             var order = await _context.Order
-                .Include(o => o.Employee)
                 .Include(o => o.Member)
                 .Include(o => o.OrderStatus)
                 .Include(o => o.PayType)

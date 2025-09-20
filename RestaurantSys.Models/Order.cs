@@ -16,12 +16,9 @@ namespace RestaurantSys.Models
 
         public string MemberID { get; set; } = null!;
 
-        public string? EmployeeID { get; set; }
-
         public string OrderStatusID { get; set; } = null!;
 
         public virtual Member? Member { get; set; }
-        public virtual Employee? Employee { get; set; }
         public virtual PayType? PayType { get; set; }
         public virtual OrderStatus? OrderStatus { get; set; }
 
