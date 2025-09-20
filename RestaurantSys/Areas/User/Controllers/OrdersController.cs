@@ -44,6 +44,7 @@ namespace RestaurantSys.Areas.User.Controllers
                 .Include(o => o.Member)
                 .Include(o => o.OrderStatus)
                 .Include(o => o.PayType)
+                .OrderByDescending(o => o.OrderDate)
                 .ToListAsync();
 
 
@@ -203,42 +204,6 @@ namespace RestaurantSys.Areas.User.Controllers
             return View(order);
         }
 
-        // GET: User/Orders/Delete/5
-        public async Task<IActionResult> Delete(string id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var order = await _context.Order
-                .Include(o => o.Employee)
-                .Include(o => o.Member)
-                .Include(o => o.OrderStatus)
-                .Include(o => o.PayType)
-                .FirstOrDefaultAsync(m => m.OrderID == id);
-            if (order == null)
-            {
-                return NotFound();
-            }
-
-            return View(order);
-        }
-
-        // POST: User/Orders/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(string id)
-        {
-            var order = await _context.Order.FindAsync(id);
-            if (order != null)
-            {
-                _context.Order.Remove(order);
-            }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
 
 
         //取餐選擇時間

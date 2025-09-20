@@ -35,16 +35,21 @@ namespace RestaurantSys.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var orderDetail = await _context.OrderDetail
-                .Include(o => o.Dish)
-                .Include(o => o.Order)
-                .FirstOrDefaultAsync(m => m.OrderID == id);
-            if (orderDetail == null)
+            var order = await _context.Order
+                .Include(o => o.Employee)
+                .Include(o => o.Member)
+                .Include(o => o.OrderStatus)
+                .Include(o => o.PayType)
+                .Include(o => o.OrderDetails) // 確保載入訂單明細
+                    .ThenInclude(od => od.Dish) // 確保載入餐點資訊
+                .FirstOrDefaultAsync(m => m.OrderID == id); // 使用 OrderID 查詢 Order
+
+            if (order == null)
             {
                 return NotFound();
             }
 
-            return View(orderDetail);
+            return View(order);
         }
 
         // GET: Admin/OrderDetails/Create
