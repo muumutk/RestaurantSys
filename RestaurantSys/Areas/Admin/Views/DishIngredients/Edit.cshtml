@@ -4,64 +4,73 @@
     ViewData["Title"] = "編輯餐點食材";
 }
 
-<h1>編輯餐點食材：@Model.DishID</h1>
+<h1>編輯餐點食材：@Model.DishName</h1>
 <hr />
 
 <div class="row">
     <div class="col-md-6">
-        <form asp-action="Edit" method="post">
+        <form asp-action="Edit" method="post" id="editForm">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="DishID" />
 
             <h3>現有食材</h3>
-            @if (Model.Items.Count > 0)
-            {
-                @for (int i = 0; i < Model.Items.Count; i++)
+            <div id="existingIngredientsList">
+                @if (Model.Items != null && Model.Items.Count > 0)
                 {
-                    <div class="form-group mb-3">
-                        <h4>@Html.DisplayFor(m => m.Items[i].ItemName)</h4>
-                        <input type="hidden" asp-for="Items[i].ItemID" />
-
-                        <label asp-for="Items[i].Quantity" class="control-label"></label>
-                        <input asp-for="Items[i].Quantity" class="form-control" />
-                        <span asp-validation-for="Items[i].Quantity" class="text-danger"></span>
-
-                        <label asp-for="Items[i].Unit" class="control-label"></label>
-                        <input asp-for="Items[i].Unit" class="form-control" />
-                        <span asp-validation-for="Items[i].Unit" class="text-danger"></span>
-                    </div>
+                    @for (int i = 0; i < Model.Items.Count; i++)
+                    {
+                        <div class="card mb-3 p-3 ingredient-card">
+                            <input type="hidden" asp-for="Items[i].ItemID" />
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h4 class="mb-0">@Html.DisplayFor(m => m.Items[i].ItemName)</h4>
+                                <button type="button" class="btn btn-danger btn-sm remove-ingredient-btn" data-item-id="@Model.Items[i].ItemID">移除</button>
+                            </div>
+                            <div class="form-group mb-2">
+                                <label asp-for="Items[i].Quantity" class="control-label"></label>
+                                <input asp-for="Items[i].Quantity" class="form-control" />
+                                <span asp-validation-for="Items[i].Quantity" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Items[i].Unit" class="control-label"></label>
+                                <input asp-for="Items[i].Unit" class="form-control" />
+                                <span asp-validation-for="Items[i].Unit" class="text-danger"></span>
+                            </div>
+                        </div>
+                    }
                 }
-            }
-            else
-            {
-                <p>此餐點目前沒有任何食材。</p>
-            }
-
-            <hr />
-            <h3>新增食材</h3>
-
-            <div class="form-group mb-3">
-                <label asp-for="NewItemID" class="control-label"></label>
-                <select asp-for="NewItemID" asp-items="Model.AllItems" class="form-control">
-                    <option value="">-- 請選擇 --</option>
-                </select>
-                <span asp-validation-for="NewItemID" class="text-danger"></span>
-            </div>
-            <div class="form-group mb-3">
-                <label asp-for="NewQuantity" class="control-label"></label>
-                <input asp-for="NewQuantity" class="form-control" />
-                <span asp-validation-for="NewQuantity" class="text-danger"></span>
-            </div>
-            <div class="form-group mb-3">
-                <label asp-for="NewUnit" class="control-label"></label>
-                <input asp-for="NewUnit" id="modalUnit" class="form-control" />
-                <span asp-validation-for="NewUnit" class="text-danger"></span>
+                else
+                {
+                    <p id="noIngredientsMessage">此餐點目前沒有任何食材。</p>
+                }
             </div>
 
             <div class="form-group mt-3">
-                <input type="submit" value="儲存" class="btn btn-primary" />
+                <input type="submit" value="儲存修改" class="btn btn-primary" />
             </div>
         </form>
+
+        <hr class="my-4" />
+
+        <h3>新增食材</h3>
+        <div class="form-group mb-3">
+            <label class="control-label">選擇食材</label>
+            <select id="newItemSelect" asp-items="Model.AllItems" class="form-control">
+                <option value="">-- 請選擇 --</option>
+            </select>
+        </div>
+        <div class="form-group mb-3">
+            <label class="control-label">數量</label>
+            <input type="number" step="0.01" id="newQuantityInput" class="form-control" />
+            <span id="newQuantityValidation" class="text-danger"></span>
+        </div>
+        <div class="form-group mb-3">
+            <label class="control-label">單位</label>
+            <input type="text" id="newUnitInput" class="form-control" readonly />
+        </div>
+        <div class="form-group mt-3">
+            <button type="button" id="addIngredientBtn" class="btn btn-success">新增食材</button>
+        </div>
+        <div id="addResult" class="mt-3"></div>
     </div>
 </div>
 
@@ -76,27 +85,175 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const newItemSelect = document.getElementById('NewItemID');
-            const newUnitInput = document.getElementById('NewUnit');
+            const dishId = @Model.DishID;
+            const newItemSelect = document.getElementById('newItemSelect');
+            const newQuantityInput = document.getElementById('newQuantityInput');
+            const newUnitInput = document.getElementById('newUnitInput');
+            const addIngredientBtn = document.getElementById('addIngredientBtn');
+            const existingIngredientsList = document.getElementById('existingIngredientsList');
+            const noIngredientsMessage = document.getElementById('noIngredientsMessage');
+            const newQuantityValidation = document.getElementById('newQuantityValidation');
+            const addResult = document.getElementById('addResult');
 
-            newItemSelect.addEventListener('change', function() {
-                // Get the selected option element
-                const selectedOption = newItemSelect.options[newItemSelect.selectedIndex];
-
-                // Check if a valid option is selected (not the "請選擇" option)
-                if (selectedOption.value !== "") {
-                    // Get the unit from a data attribute on the selected option
-                    // Example: <option value="1" data-unit="g">番茄</option>
-                    const unit = selectedOption.getAttribute('data-unit');
-
-                    // Set the value of the unit input field
-                    newUnitInput.value = unit || ''; // Use empty string if no data-unit is found
+            // 1. 處理自動帶入單位的功能
+            newItemSelect.addEventListener('change', async function() {
+                const itemId = this.value;
+                if (itemId) {
+                    try {
+                        const response = await fetch(`/Admin/DishIngredients/GetItemUnit?itemID=${itemId}`);
+                        if (response.ok) {
+                            const data = await response.json();
+                            newUnitInput.value = data.unit || '';
+                        } else {
+                            newUnitInput.value = '';
+                            console.error('Failed to fetch item unit.');
+                        }
+                    } catch (error) {
+                        newUnitInput.value = '';
+                        console.error('Error:', error);
+                    }
                 } else {
-                    // Clear the unit field if the user selects the "請選擇" option
                     newUnitInput.value = '';
+                }
+            });
+
+            // 2. 處理新增食材功能
+            addIngredientBtn.addEventListener('click', async function() {
+                const itemId = newItemSelect.value;
+                const quantity = newQuantityInput.value;
+                const unit = newUnitInput.value;
+
+                // 清除之前的驗證訊息和結果
+                newQuantityValidation.innerText = '';
+                addResult.innerHTML = '';
+
+                // 簡易前端驗證
+                if (!itemId) {
+                    alert('請選擇要新增的食材。');
+                    return;
+                }
+                if (!quantity || isNaN(quantity) || quantity <= 0) {
+                    newQuantityValidation.innerText = '數量必須大於 0。';
+                    return;
+                }
+                if (!unit) {
+                    alert('單位不能為空。');
+                    return;
+                }
+
+                // 檢查是否已存在
+                const existingItems = Array.from(existingIngredientsList.querySelectorAll('.ingredient-card input[type="hidden"]'))
+                                         .map(input => parseInt(input.value));
+                if (existingItems.includes(parseInt(itemId))) {
+                    alert('此食材已存在於餐點中，請勿重複新增。');
+                    return;
+                }
+
+                // 準備 AJAX 請求
+                const formData = new FormData();
+                formData.append('dishId', dishId);
+                formData.append('itemId', itemId);
+                formData.append('quantity', quantity);
+                formData.append('unit', unit);
+
+                try {
+                    const response = await fetch('/Admin/DishIngredients/AddIngredient', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        const newItem = data.newItem;
+                        const itemIndex = existingIngredientsList.querySelectorAll('.ingredient-card').length;
+
+                        // 建立新的食材 HTML 元素
+                        const newCard = document.createElement('div');
+                        newCard.className = 'card mb-3 p-3 ingredient-card';
+                        newCard.innerHTML = `
+                            <input type="hidden" name="Items[${itemIndex}].ItemID" value="${newItem.itemID}" />
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h4 class="mb-0">${newItem.itemName}</h4>
+                                <button type="button" class="btn btn-danger btn-sm remove-ingredient-btn" data-item-id="${newItem.itemID}">移除</button>
+                            </div>
+                            <div class="form-group mb-2">
+                                <label class="control-label">數量</label>
+                                <input name="Items[${itemIndex}].Quantity" value="${newItem.quantity}" class="form-control" />
+                                <span class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label">單位</label>
+                                <input name="Items[${itemIndex}].Unit" value="${newItem.unit}" class="form-control" />
+                                <span class="text-danger"></span>
+                            </div>
+                        `;
+
+                        existingIngredientsList.appendChild(newCard);
+
+                        // 移除「沒有任何食材」的訊息
+                        if (noIngredientsMessage) {
+                             noIngredientsMessage.remove();
+                        }
+
+                        addResult.innerHTML = `<div class="alert alert-success">新增成功！</div>`;
+
+                        // 重設新增食材表單
+                        newItemSelect.value = '';
+                        newQuantityInput.value = '';
+                        newUnitInput.value = '';
+
+                    } else {
+                        addResult.innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+                    }
+                } catch (error) {
+                    addResult.innerHTML = `<div class="alert alert-danger">新增失敗，請稍後再試。</div>`;
+                    console.error('Error:', error);
+                }
+            });
+
+            // 3. 處理移除食材功能
+            // 使用事件委派，因為按鈕是動態生成的
+            existingIngredientsList.addEventListener('click', async function(event) {
+                if (event.target.classList.contains('remove-ingredient-btn')) {
+                    if (!confirm('確定要移除此食材嗎？')) {
+                        return;
+                    }
+
+                    const button = event.target;
+                    const itemId = button.getAttribute('data-item-id');
+
+                    try {
+                        const response = await fetch('/Admin/DishIngredients/RemoveIngredient', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ dishId: dishId, itemId: itemId })
+                        });
+                        const data = await response.json();
+
+                        if (data.success) {
+                            // 移除前端的食材卡片
+                            const card = button.closest('.ingredient-card');
+                            if (card) {
+                                card.remove();
+
+                                // 如果所有食材都移除了，顯示提示訊息
+                                if (existingIngredientsList.children.length === 0) {
+                                     existingIngredientsList.innerHTML = `<p id="noIngredientsMessage">此餐點目前沒有任何食材。</p>`;
+                                }
+                            }
+                            addResult.innerHTML = `<div class="alert alert-success">移除成功！</div>`;
+
+                        } else {
+                            addResult.innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+                        }
+                    } catch (error) {
+                        addResult.innerHTML = `<div class="alert alert-danger">移除失敗，請稍後再試。</div>`;
+                        console.error('Error:', error);
+                    }
                 }
             });
         });
     </script>
-
 }

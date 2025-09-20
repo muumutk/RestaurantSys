@@ -1,43 +1,151 @@
 ﻿@model IEnumerable<RestaurantSys.Areas.Admin.ViewModels.VMDishIngredient>
 
-<h1>餐點食材列表</h1>
+@{
+    ViewData["Title"] = "餐點食譜";
+}
 
-<p>
-    <a asp-action="Create">新增餐點食材</a>
+<h2 class="fw-bold">@ViewData["Title"]</h2>
+
+
+@* <p class="mb-4">
+    <a asp-action="Create" class="btn btn-primary">新增餐點食材</a>
+</p> *@
+
+<p class="mb-4">
+    <a asp-controller="AdminHome" asp-action="Index" class="btn btn-outline-dark">返回首頁</a>
 </p>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>餐點名稱</th>
-            <th>食材名稱</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var dish in Model)
+<div class="form-group mb-4">
+    <input type="text" id="searchInput" class="form-control" placeholder="輸入餐點或食材名稱以查詢..." />
+</div>
+
+<div class="container-fluid">
+    <div class="row row-cols-1 row-cols-md-3 g-4" id="dishListContainer">
+        @if (Model.Any())
         {
-            <tr>
-                <td>@Html.DisplayFor(modelItem => dish.DishName)</td>
-                <td>
+            @foreach (var dish in Model)
+            {
+                // 使用 data-* 屬性儲存搜尋資訊，供 JavaScript 使用
+                <div class="col dish-card"
+                     data-dish-name="@dish.DishName"
+                     data-item-names="@string.Join(",", dish.Items.Select(i => i.ItemName))"
+                     data-has-ingredients="@(dish.Items.Any() ? "true" : "false")">
+
                     @{
-                        // 建立一個字串列表來儲存每個食材的顯示資訊
-                        var ingredientList = new List<string>();
-                        foreach (var item in dish.Items)
-                        {
-                            // 格式化食材名稱、數量和單位，例如 "鹽 (10g)"
-                            var ingredientInfo = $"{item.ItemName} ({item.Quantity}{item.Unit})";
-                            ingredientList.Add(ingredientInfo);
-                        }
-                        // 使用 <br /> 換行，將每個食材顯示在獨立行
-                        @Html.Raw(string.Join("<br />", ingredientList))
+                        // 直接設定卡片背景顏色，無食材的為紅色
+                        var cardStyle = dish.Items.Any() ? "" : "background-color: #f8d7da;"; // 使用淡紅色以避免過於刺眼
                     }
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@dish.DishID">編輯</a> | 
-                    <a asp-action="Delete" asp-route-id="@dish.DishID">刪除</a>
-                </td>
-            </tr>
+
+                    <div class="card h-100 card-hover" style="@cardStyle">
+                        <div class="card-body">
+                            <h5 class="card-title">@Html.DisplayFor(modelItem => dish.DishName)</h5>
+                            <hr />
+                            <h6 class="card-subtitle mb-2 text-muted">食材列表</h6>
+                            <ul class="list-unstyled">
+                                @if (dish.Items != null && dish.Items.Any())
+                                {
+                                    @foreach (var item in dish.Items)
+                                    {
+                                        <li>@Html.Raw($"{item.ItemName} ({item.Quantity}{item.Unit})")</li>
+                                    }
+                                }
+                                else
+                                {
+                                    <li class="text-muted">無任何食材</li>
+                                }
+                            </ul>
+                        </div>
+                        <div class="card-footer bg-white border-top-0 d-flex justify-content-end">
+                            <a asp-action="Edit" asp-route-id="@dish.DishID" class="btn btn-sm btn-outline-secondary me-2">編輯</a>
+                            <a asp-action="Delete" asp-route-id="@dish.DishID" class="btn btn-sm btn-outline-danger">刪除</a>
+                        </div>
+                    </div>
+                </div>
+            }
         }
-    </tbody>
-</table>
+        else
+        {
+            <div class="alert alert-info text-center mt-5" role="alert">
+                目前沒有任何餐點食材資料。
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('searchInput');
+            const dishListContainer = document.getElementById('dishListContainer');
+            const dishCards = Array.from(document.querySelectorAll('.dish-card'));
+            let debounceTimeout;
+
+            // 處理排序邏輯 (無食材的排在前面)
+            function sortDishes() {
+                dishCards.sort((a, b) => {
+                    const hasIngredientsA = a.dataset.hasIngredients === 'true';
+                    const hasIngredientsB = b.dataset.hasIngredients === 'true';
+
+                    // 如果 A 有食材，且 B 沒有，則 B 排在前面
+                    if (hasIngredientsA && !hasIngredientsB) {
+                        return 1;
+                    }
+                    // 如果 B 有食材，且 A 沒有，則 A 排在前面
+                    if (!hasIngredientsA && hasIngredientsB) {
+                        return -1;
+                    }
+
+                    // 如果兩者都有或都沒有，則按餐點名稱排序
+                    const nameA = a.dataset.dishName;
+                    const nameB = b.dataset.dishName;
+                    return nameA.localeCompare(nameB);
+                });
+
+                // 將排序後的卡片重新加入 DOM
+                dishCards.forEach(card => dishListContainer.appendChild(card));
+            }
+
+            // 處理篩選邏輯
+            function filterDishes(query) {
+                const lowerCaseQuery = query.toLowerCase();
+
+                dishCards.forEach(card => {
+                    const dishName = card.dataset.dishName.toLowerCase();
+                    const itemNames = card.dataset.itemNames.toLowerCase();
+
+                    // 檢查餐點名稱或食材名稱是否包含查詢關鍵字
+                    const matches = dishName.includes(lowerCaseQuery) || itemNames.includes(lowerCaseQuery);
+
+                    // 根據匹配結果顯示或隱藏卡片
+                    if (matches) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            }
+
+            // 監聽輸入框的 keyup 事件
+            searchInput.addEventListener('keyup', function () {
+                const query = this.value.trim();
+
+                // 清除之前的計時器
+                clearTimeout(debounceTimeout);
+
+                // 設定新的計時器，延遲 300 毫秒後執行
+                debounceTimeout = setTimeout(() => {
+                    if (query === '') {
+                        // 刪除關鍵字時，顯示所有卡片並重新排序
+                        dishCards.forEach(card => card.style.display = 'block');
+                        sortDishes(); // 重新排序
+                    } else {
+                        filterDishes(query);
+                    }
+                }, 300);
+            });
+
+            // 頁面載入時先執行一次排序，確保初始顯示正確
+            sortDishes();
+        });
+    </script>
+}

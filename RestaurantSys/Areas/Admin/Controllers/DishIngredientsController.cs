@@ -153,8 +153,8 @@ namespace RestaurantSys.Areas.Admin.Controllers
             }
 
             var dishToEdit = await _context.Dish
-                .Include(d => d.DishIngredients)       // 載入 DishIngredient 列表
-                .ThenInclude(di => di.Item)            // 繼續載入每個 DishIngredient 關聯的 Item (食材)
+                .Include(d => d.DishIngredients)
+                .ThenInclude(di => di.Item)
                 .FirstOrDefaultAsync(d => d.DishID == id);
 
             if (dishToEdit == null)
@@ -162,13 +162,12 @@ namespace RestaurantSys.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            // 載入所有可供選擇的食材，用於新增功能
             var allItems = await _context.Stock.ToListAsync();
 
-            // 將資料整理成 ViewModel
             var vm = new VMDishIngredient
             {
                 DishID = dishToEdit.DishID,
+                DishName = dishToEdit.DishName,
                 Items = dishToEdit.DishIngredients.Select(di => new VMItemDetail
                 {
                     ItemID = di.ItemID,
@@ -189,6 +188,19 @@ namespace RestaurantSys.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(VMDishIngredient model)
         {
+            // 驗證現有食材清單的合法性
+            if (model.Items != null)
+            {
+                foreach (var item in model.Items)
+                {
+                    // 這裡可以加入更多驗證，例如檢查數量是否為正數
+                    if (item.Quantity <= 0)
+                    {
+                        ModelState.AddModelError("", $"{item.ItemName} 的數量必須大於0。");
+                    }
+                }
+            }
+
             if (!ModelState.IsValid)
             {
                 // 如果驗證失敗，需要重新載入 AllItems 讓下拉選單不為空
@@ -196,49 +208,32 @@ namespace RestaurantSys.Areas.Admin.Controllers
                 return View(model);
             }
 
-            // 檢查是否有同名的新增食材，以避免重複
-            if (model.NewItemID.HasValue)
-            {
-                var existingItem = model.Items.FirstOrDefault(i => i.ItemID == model.NewItemID.Value);
-                if (existingItem != null)
-                {
-                    ModelState.AddModelError("NewItemID", "此食材已存在於餐點中，請直接編輯其數量。");
-                    model.AllItems = new SelectList(await _context.Stock.ToListAsync(), "ItemID", "ItemName");
-                    return View(model);
-                }
-            }
-
             try
             {
-                // 1. 更新現有食材
+                // 1. 取得資料庫中該餐點的所有食材
                 var existingIngredients = await _context.DishIngredient
-                    .AsNoTracking()
                     .Where(di => di.DishID == model.DishID)
                     .ToListAsync();
 
-                foreach (var item in model.Items)
-                {
-                    var originalItem = existingIngredients.FirstOrDefault(ei => ei.ItemID == item.ItemID);
-                    if (originalItem != null)
-                    {
-                        originalItem.Quantity = item.Quantity;
-                        originalItem.Unit = item.Unit;
-                        _context.Entry(originalItem).State = EntityState.Modified;
-                    }
-                }
+                // 2. 準備要更新、新增或刪除的清單
+                var itemsToUpdate = model.Items ?? new List<VMItemDetail>();
+                var itemsFromDb = new HashSet<int>(existingIngredients.Select(i => i.ItemID));
+                var itemsFromForm = new HashSet<int>(itemsToUpdate.Select(i => i.ItemID));
 
-                // 2. 新增新的食材
-                if (model.NewItemID.HasValue && model.NewQuantity.HasValue && !string.IsNullOrEmpty(model.NewUnit))
+                // 3. 處理需要刪除的食材 (在資料庫中存在，但在表單中不存在)
+                var itemsToRemove = existingIngredients.Where(di => !itemsFromForm.Contains(di.ItemID)).ToList();
+                _context.DishIngredient.RemoveRange(itemsToRemove);
+
+                // 4. 處理需要更新的食材 (兩者都存在)
+                foreach (var itemDetail in itemsToUpdate)
                 {
-                    var newIngredient = new DishIngredient
+                    var ingredientToUpdate = existingIngredients.FirstOrDefault(di => di.ItemID == itemDetail.ItemID);
+                    if (ingredientToUpdate != null)
                     {
-                        DishID = model.DishID,
-                        ItemID = model.NewItemID.Value,
-                        Quantity = model.NewQuantity.Value,
-                        Unit = model.NewUnit,
-                        IsActive = true // 假設新增的食材預設為啟用
-                    };
-                    _context.DishIngredient.Add(newIngredient);
+                        ingredientToUpdate.Quantity = itemDetail.Quantity;
+                        ingredientToUpdate.Unit = itemDetail.Unit;
+                        _context.Entry(ingredientToUpdate).State = EntityState.Modified;
+                    }
                 }
 
                 await _context.SaveChangesAsync();
@@ -255,6 +250,74 @@ namespace RestaurantSys.Areas.Admin.Controllers
                 ModelState.AddModelError(string.Empty, $"發生錯誤：{ex.Message}");
                 model.AllItems = new SelectList(await _context.Stock.ToListAsync(), "ItemID", "ItemName");
                 return View(model);
+            }
+        }
+
+        // POST: 用於新增單一食材，透過 AJAX 呼叫
+        [HttpPost]
+        public async Task<IActionResult> AddIngredient(int dishId, int itemId, decimal quantity, string unit)
+        {
+            // 檢查食材是否已存在
+            var existingIngredient = await _context.DishIngredient
+                .AnyAsync(di => di.DishID == dishId && di.ItemID == itemId);
+
+            if (existingIngredient)
+            {
+                return Json(new { success = false, message = "此食材已存在於餐點中。" });
+            }
+
+            var newIngredient = new DishIngredient
+            {
+                DishID = dishId,
+                ItemID = itemId,
+                Quantity = quantity,
+                Unit = unit,
+                IsActive = true
+            };
+
+            try
+            {
+                _context.DishIngredient.Add(newIngredient);
+                await _context.SaveChangesAsync();
+
+                var addedItem = await _context.Stock.FindAsync(itemId);
+                var newItemDetail = new VMItemDetail
+                {
+                    ItemID = newIngredient.ItemID,
+                    ItemName = addedItem?.ItemName,
+                    Quantity = newIngredient.Quantity,
+                    Unit = newIngredient.Unit
+                };
+
+                return Json(new { success = true, newItem = newItemDetail });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"新增失敗: {ex.Message}" });
+            }
+        }
+
+        // POST: 用於移除單一食材，透過 AJAX 呼叫
+        [HttpPost]
+        public async Task<IActionResult> RemoveIngredient(int dishId, int itemId)
+        {
+            var ingredientToRemove = await _context.DishIngredient
+                .FirstOrDefaultAsync(di => di.DishID == dishId && di.ItemID == itemId);
+
+            if (ingredientToRemove == null)
+            {
+                return Json(new { success = false, message = "找不到要移除的食材。" });
+            }
+
+            try
+            {
+                _context.DishIngredient.Remove(ingredientToRemove);
+                await _context.SaveChangesAsync();
+                return Json(new { success = true, message = "食材已成功移除。" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"移除失敗: {ex.Message}" });
             }
         }
 
