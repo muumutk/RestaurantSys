@@ -25,7 +25,23 @@ namespace RestaurantSys.Areas.Admin.Controllers
         // GET: Backend/Stocks
         public async Task<IActionResult> Index()
         {
+            // 1. 查詢所有庫存資料，並包含供應商資訊
             var restaurantSysContext = _context.Stock.Include(s => s.Supplier);
+
+            // 2. 查詢今日用量總計，並將結果轉換成字典，以便快速查詢
+            var today = DateTime.Today;
+            var dailyUsage = await _context.DailyStockUsage
+                .Where(dsu => dsu.UsageDate == today)
+                .GroupBy(dsu => dsu.ItemID)
+                .ToDictionaryAsync(
+                    g => g.Key,
+                    g => g.Sum(d => d.QuantityUsed)
+                );
+
+            // 3. 將今日用量資料存入 ViewBag
+            ViewBag.DailyUsage = dailyUsage;
+
+            // 4. 將原有的庫存資料傳遞給 View
             return View(await restaurantSysContext.ToListAsync());
         }
 

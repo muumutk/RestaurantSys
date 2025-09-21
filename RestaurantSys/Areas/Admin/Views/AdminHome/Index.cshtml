@@ -185,7 +185,7 @@
             </div>
 
             <div class="col-12 col-md-6 col-lg-4">
-                <a asp-controller="Stocks" asp-action="Index" class="text-decoration-none card-hover d-block h-100">
+                <a href="#" class="text-decoration-none card-hover d-block h-100">
                     <div class="feature-card">
                         <div class="p-3 bg-sage-green-light rounded-circle d-flex align-items-center justify-content-center mx-auto mb-4" style="width: 4rem; height: 4rem;">
                             <i class="fas fa-chart-bar sage-green fs-4"></i>
@@ -200,7 +200,7 @@
                 <a asp-controller="DishIngredients" asp-action="Index" class="text-decoration-none card-hover d-block h-100">
                     <div class="feature-card">
                         <div class="p-3 bg-sage-green-light rounded-circle d-flex align-items-center justify-content-center mx-auto mb-4" style="width: 4rem; height: 4rem;">
-                            <i class="fas fa-chart-bar sage-green fs-4"></i>
+                            <i class="fas fa-utensils sage-green fs-4"></i>
                         </div>
                         <h3 class="fs-5 fw-bold text-dark mb-2">餐點用量</h3>
                         <p class="text-secondary mb-4">各餐點的詳細食材組合</p>
@@ -212,9 +212,10 @@
                 <a asp-controller="DailyStockUsages" asp-action="Index" class="text-decoration-none card-hover d-block h-100">
                     <div class="feature-card">
                         <div class="p-3 bg-sage-green-light rounded-circle d-flex align-items-center justify-content-center mx-auto mb-4" style="width: 4rem; height: 4rem;">
-                            <i class="fas fa-chart-bar sage-green fs-4"></i>
+                            <i class="fas fa-tasks sage-green fs-4"></i>
                         </div>
                         <h3 class="fs-5 fw-bold text-dark mb-2">當日用量登記</h3>
+                        <p class="text-secondary mb-4">盤點、修改與結算本日庫存</p>
                     </div>
                 </a>
             </div>
@@ -239,7 +240,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             // 使用定時器每 5 秒鐘發送一次請求，檢查新訂單
-            const pollingInterval = 5000; // 5000 毫秒 = 5 秒
+            const pollingInterval = 3000; // 1000 毫秒 = 1 秒
 
             function checkForNewOrders() {
                 // 使用 AJAX 請求後端 API

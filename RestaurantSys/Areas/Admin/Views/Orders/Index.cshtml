@@ -68,6 +68,7 @@
                         {
                             <button class="btn btn-primary btn-sm status-change-btn" data-order-id="@item.OrderID" data-new-status="04">已取餐</button>
                             <button class="btn btn-warning btn-sm status-change-btn" data-order-id="@item.OrderID" data-new-status="03">未取餐</button>
+                            <button class="btn btn-danger btn-sm cancel-order-btn" data-order-id="@item.OrderID">取消訂單</button>
                         }
                         else if (item.OrderStatusID == "03") // 未取餐狀態
                         {
@@ -132,14 +133,11 @@
                 modal.hide();
             });
 
-
             async function updateOrderStatus(orderId, newStatus, getTime = null) {
-                // 創建 FormData 物件來處理多個參數
                 const formData = new URLSearchParams();
                 formData.append('id', orderId);
                 formData.append('statusId', newStatus);
 
-                // 如果是「已取餐」狀態，則加入取餐時間
                 if (getTime) {
                     formData.append('getTime', getTime);
                 }
@@ -150,53 +148,14 @@
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
                         },
-                        body: formData.toString() // 使用 toString() 將 FormData 轉換為字串
+                        body: formData.toString()
                     });
 
                     const result = await response.json();
 
                     if (result.success) {
-                        const statusColumn = document.getElementById(`status-column-${orderId}`);
-                        const buttonContainer = statusColumn.nextElementSibling;
-                        if (statusColumn) {
-                            let newStatusText = "";
-                            let newButtonsHtml = "";
-
-                            if (newStatus === "02") {
-                                newStatusText = "訂單準備中";
-                                newButtonsHtml = `
-                                    <button class="btn btn-primary btn-sm status-change-btn" data-order-id="${orderId}" data-new-status="04">已取餐</button>
-                                    <button class="btn btn-warning btn-sm status-change-btn" data-order-id="${orderId}" data-new-status="03">未取餐</button>
-                                    <button class="btn btn-danger btn-sm cancel-order-btn" data-order-id="${orderId}">取消訂單</button>
-                                `;
-                            } else if (newStatus === "03") {
-                                newStatusText = "未取餐";
-                                newButtonsHtml = `
-                                    <button class="btn btn-primary btn-sm status-change-btn" data-order-id="${orderId}" data-new-status="04">已取餐</button>
-                                    <button class="btn btn-danger btn-sm cancel-order-btn" data-order-id="${orderId}">取消訂單</button>
-                                `;
-                            } else if (newStatus === "04") {
-                                newStatusText = "已取餐";
-                                newButtonsHtml = "";
-                                // 新增：成功後刷新頁面
-                                window.location.reload();
-                            } else if (newStatus === "05") {
-                                newStatusText = "訂單已取消";
-                                newButtonsHtml = "";
-                            }
-                            // 如果是「已取餐」或「已取消」，不需動態替換按鈕
-                            if (newStatus !== "04" && newStatus !== "05") {
-                                statusColumn.innerText = newStatusText;
-                                const linkTag = buttonContainer.querySelector('a');
-                                buttonContainer.innerHTML = '';
-                                if (linkTag) {
-                                    buttonContainer.appendChild(linkTag);
-                                }
-                                if (newButtonsHtml) {
-                                    buttonContainer.insertAdjacentHTML('beforeend', newButtonsHtml);
-                                }
-                            }
-                        }
+                        // 當任何狀態更新成功後，都重新載入頁面
+                        window.location.reload();
                     } else {
                         alert("狀態更新失敗: " + result.message);
                     }

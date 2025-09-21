@@ -8,13 +8,19 @@
 
 <p>
     <a class="btn btn-outline-dark" asp-action="Create">新增庫存</a>
+    @* <a class="btn btn-outline-dark" asp-area="Admin" asp-controller="StockBatches" asp-action="Index">進貨紀錄</a> *@
+    <a class="btn btn-outline-dark" asp-area="Admin" asp-controller="AdminHome" asp-action="Index">回到後台首頁</a>
 </p>
 
 <h4>
     <span class="badge bg-danger text-dark">低庫存警示</span>
 </h4>
 
-<table class="table">
+<div class="mb-3">
+    <input type="text" id="searchInput" class="form-control" placeholder="請輸入商品名稱進行搜尋..." />
+</div>
+
+<table class="table table-hover" id="inventoryTable">
     <thead>
         <tr>
             <th>
@@ -41,41 +47,51 @@
             <th>
                 @Html.DisplayNameFor(model => model.Supplier.SupplierName)
             </th>
+            <th>
+                本日用量
+            </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-
+        @foreach (var item in Model)
+        {
             var rowClass = "";
             var isLowStock = item.CurrentStock < item.SafeStock;
             if (isLowStock)
             {
-                rowClass = "table-danger"; // 3天內到期，標記為紅色
+                rowClass = "table-danger";
             }
 
-        <tr class="@rowClass">
-            <td>
-                @Html.DisplayFor(modelItem => item.ItemID)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ItemName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CurrentStock)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.SafeStock)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Unit)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ItemPrice)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IsActive)
-            </td>
+            // 取得今日用量，如果沒有紀錄則顯示 0
+            decimal todayUsage = 0;
+            if (ViewBag.DailyUsage != null && ViewBag.DailyUsage.ContainsKey(item.ItemID))
+            {
+                todayUsage = ViewBag.DailyUsage[item.ItemID];
+            }
+
+            <tr class="@rowClass">
+                <td>
+                    @Html.DisplayFor(modelItem => item.ItemID)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ItemName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CurrentStock)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SafeStock)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Unit)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ItemPrice)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IsActive)
+                </td>
                 <td>
                     @if (item.Supplier != null)
                     {
@@ -89,15 +105,42 @@
                         <a asp-asp-controller="Suppliers" asp-action="Create">立即建立？</a>
                     }
                 </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.ItemID">Edit</a>
-            </td>
-        </tr>
-}
+                <td>
+                    @todayUsage
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.ItemID">Edit</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
 
-<div>
-    <a class="btn btn-outline-dark" asp-area="Admin" asp-controller="StockBatches" asp-action="Index">進貨紀錄</a>
-    <a class="btn btn-outline-dark" asp-area="Admin" asp-controller="AdminHome" asp-action="Index">回到後台首頁</a>
-</div>
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('searchInput');
+            const tableBody = document.querySelector('#inventoryTable tbody');
+            const tableRows = tableBody.querySelectorAll('tr');
+
+            searchInput.addEventListener('input', function () {
+                const filter = searchInput.value.toLowerCase();
+
+                tableRows.forEach(row => {
+                    // 獲取商品名稱的文字內容
+                    const itemNameCell = row.querySelector('td:nth-child(2)'); // 這裡假設商品名稱在第二個 td
+                    if (itemNameCell) {
+                        const itemName = itemNameCell.textContent.toLowerCase();
+
+                        // 檢查商品名稱是否包含關鍵字
+                        if (itemName.includes(filter)) {
+                            row.style.display = ''; // 顯示符合的列
+                        } else {
+                            row.style.display = 'none'; // 隱藏不符合的列
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+}
