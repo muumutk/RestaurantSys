@@ -36,6 +36,8 @@ namespace RestaurantSys.Access.Data
 
         public virtual DbSet<StockBatchWarningLog> StockBatchWarningLog { get; set; }
 
+        public virtual DbSet<DailyStockUsage> DailyStockUsage { get; set; }
+
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -157,6 +159,13 @@ namespace RestaurantSys.Access.Data
                 entity.Property(e => e.IsActive).HasDefaultValue(true);
                 entity.Property(e => e.Quantity).HasMaxLength(5);
                 entity.Property(e => e.Unit).HasMaxLength(10);
+            });
+
+            modelBuilder.Entity<DailyStockUsage>(entity =>
+            {
+                entity.HasKey(e => e.UsageID).HasName("PK_UsageID");
+                entity.Property(e => e.QuantityUsed).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.UsageDate).HasColumnType("date");
             });
 
         }

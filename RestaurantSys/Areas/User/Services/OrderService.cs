@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Data.SqlClient; // 一定要加這個
+using Microsoft.Data.SqlClient;
 using RestaurantSys.Access.Data;
 
 namespace RestaurantSys.Areas.User.Services
@@ -25,7 +25,7 @@ namespace RestaurantSys.Areas.User.Services
                 "EXEC AddNewOrder @PickUpTime, @PayTypeID, @Note, @MemberID, @OrderStatusID, @Cart",
                 new SqlParameter("@PickUpTime", pickUpTime),
                 new SqlParameter("@PayTypeID", payTypeID),
-                new SqlParameter("@Note",note),
+                new SqlParameter("@Note", note),
                 new SqlParameter("@MemberID", memberID),
                 new SqlParameter("@OrderStatusID", orderStatusID),
                 new SqlParameter("@Cart", cart)

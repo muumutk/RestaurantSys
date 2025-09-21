@@ -114,9 +114,11 @@ namespace RestaurantSys.Areas.Admin.Controllers
                 return Json(new { success = false, message = "傳入的資料無效。" });
             }
 
-            // 使用 Include 方法確保同時載入 OrderDetails
+            // 使用 Include 方法確保同時載入 OrderDetails 和相關的 DishIngredients
             var order = await _context.Order
                 .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Dish)
+                        .ThenInclude(d => d.DishIngredients) // 關鍵：載入餐點食材用量
                 .FirstOrDefaultAsync(o => o.OrderID == id);
 
             if (order == null)
@@ -124,17 +126,51 @@ namespace RestaurantSys.Areas.Admin.Controllers
                 return Json(new { success = false, message = "找不到此訂單。" });
             }
 
-            // 更新訂單狀態
-            order.OrderStatusID = statusId;
-
-            // 判斷是否為「已取餐」狀態，並寫入取餐時間
-            if (statusId == "04" && getTime.HasValue)
+            // 判斷是否為「已取餐」狀態，並進行用量登記
+            if (statusId == "04")
             {
+                // 如果是「已取餐」，則執行用量暫存邏輯
                 foreach (var detail in order.OrderDetails)
                 {
-                    detail.GetTime = getTime.Value;
+                    foreach (var ingredient in detail.Dish.DishIngredients)
+                    {
+                        var totalQuantityUsed = ingredient.Quantity * detail.Quantity;
+
+                        var dailyUsage = await _context.DailyStockUsage
+                            .FirstOrDefaultAsync(dsu =>
+                                dsu.ItemID == ingredient.ItemID &&
+                                dsu.UsageDate.Date == DateTime.Today.Date);
+
+                        if (dailyUsage == null)
+                        {
+                            dailyUsage = new DailyStockUsage
+                            {
+                                DishID = ingredient.DishID,
+                                ItemID = ingredient.ItemID,
+                                QuantityUsed = totalQuantityUsed,
+                                UsageDate = DateTime.Today.Date
+                            };
+                            _context.DailyStockUsage.Add(dailyUsage);
+                        }
+                        else
+                        {
+                            dailyUsage.QuantityUsed += totalQuantityUsed;
+                        }
+                    }
+                }
+
+                // 寫入取餐時間
+                if (getTime.HasValue)
+                {
+                    foreach (var detail in order.OrderDetails)
+                    {
+                        detail.GetTime = getTime.Value;
+                    }
                 }
             }
+
+            // 更新訂單狀態
+            order.OrderStatusID = statusId;
 
             try
             {
@@ -149,8 +185,8 @@ namespace RestaurantSys.Areas.Admin.Controllers
 
 
 
-        // GET: Admin/Orders/Edit/5
-        public async Task<IActionResult> Edit(string id)
+// GET: Admin/Orders/Edit/5
+public async Task<IActionResult> Edit(string id)
         {
             if (id == null)
             {

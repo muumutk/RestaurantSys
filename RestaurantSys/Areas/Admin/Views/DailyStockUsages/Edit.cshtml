@@ -1,0 +1,96 @@
+﻿@model IEnumerable<RestaurantSys.Models.DailyStockUsage>
+
+@{
+    ViewData["Title"] = "修改與新增用量";
+}
+
+<h1>修改與新增用量</h1>
+<p class="text-info">此頁面顯示本日所有用量細節，您可在此進行修改或新增。請務必確保資料正確無誤。</p>
+
+<div class="mb-3">
+    <a asp-action="Index" class="btn btn-outline-secondary">返回總覽</a>
+</div>
+
+<hr />
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <h3>新增其他用量項目</h3>
+        <form asp-action="Add" method="post">
+            <div class="form-group">
+                <label>選擇食材</label>
+                <select name="stockId" class="form-control" asp-items="ViewBag.StockID"></select>
+            </div>
+            <div class="form-group">
+                <label>使用數量</label>
+                <input type="number" name="quantity" class="form-control" step="0.01" required />
+            </div>
+            <button type="submit" class="btn btn-success">新增用量</button>
+        </form>
+    </div>
+</div>
+
+<hr />
+
+<h3>本日用量明細</h3>
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>餐點名稱</th>
+            <th>食材名稱</th>
+            <th>用量</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @if (item.Dish != null)
+                        {
+                            @Html.DisplayFor(modelItem => item.Dish.DishName)
+                        }
+                        else
+                        {
+                            <span>手動新增</span>
+                        }
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Item.ItemName)
+                    </td>
+                    <td>
+                        <form asp-action="Update" method="post" class="d-flex">
+                            <input type="hidden" name="usageId" value="@item.UsageID" />
+                            <input type="number" name="newQuantity" value="@item.QuantityUsed" class="form-control" style="width: 120px;" step="0.01" />
+                            <button type="submit" class="btn btn-sm btn-info ml-2">更新</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form asp-action="Delete" asp-route-id="@item.UsageID" method="post" onsubmit="return confirm('確定要刪除這筆用量嗎？');">
+                            <button type="submit" class="btn btn-sm btn-danger">刪除</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="4" class="text-center">本日尚無用量細節。</td>
+            </tr>
+        }
+    </tbody>
+</table>

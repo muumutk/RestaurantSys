@@ -414,6 +414,32 @@ public class OrderDetailData
     public bool IsActive { get; set; }
 }
 
+public class DailyStockUsageData
+{
+    [Display(Name = "用量編號")]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    [Key]
+    public int UsageID { get; set; }
+
+    [Display(Name = "餐點編號")]
+    [ForeignKey("Dish")]
+    public int DishID { get; set; }
+
+    [Display(Name = "物品編號")]
+    [ForeignKey("Stock")]
+    public int ItemID { get; set; }
+
+    [Display(Name = "當日累計用量")]
+    [Required(ErrorMessage = "請填寫用量")]
+    public decimal QuantityUsed { get; set; }
+
+    [Display(Name = "用量登記日期")]
+    [DataType(DataType.Date)]
+    [DisplayFormat(DataFormatString = "{0:yyyy/MM/dd}", ApplyFormatInEditMode = true)]
+    [Required(ErrorMessage = "請選擇用量登記日期")]
+    public DateTime UsageDate { get; set; }
+}
+
 [ModelMetadataType(typeof(DishData))]
 public partial class Dish
 { 
@@ -472,5 +498,10 @@ public partial class OrderDetail
 
 [ModelMetadataType(typeof(DishIngredientData))]
 public partial class DishIngredient
+{
+}
+
+[ModelMetadataType(typeof(DailyStockUsageData))]
+public partial class DailyStockUsage
 {
 }

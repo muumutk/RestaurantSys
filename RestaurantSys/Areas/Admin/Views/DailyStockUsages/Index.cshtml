@@ -1,0 +1,61 @@
+﻿@model IEnumerable<RestaurantSys.Areas.Admin.Controllers.DailyUsageSummaryViewModel>
+
+@{
+    ViewData["Title"] = "當日庫存用量總覽";
+}
+
+<h1>當日庫存用量總覽</h1>
+<p class="text-info">此為本日各品項的累計總用量。如需修改或結算，請點擊下方的按鈕。</p>
+
+<div class="row mb-3">
+    <div class="col">
+        <a asp-action="Edit" class="btn btn-warning">修改與新增用量</a>
+        <form asp-action="Finalize" method="post" class="d-inline ml-2" onsubmit="return confirm('確定要結算本日所有用量並扣除庫存嗎？此操作不可逆！');">
+            <button type="submit" class="btn btn-primary">結算用量</button>
+        </form>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>
+                食材名稱
+            </th>
+            <th>
+                本日總用量
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ItemName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.QuantityUsed)
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="2" class="text-center">@ViewData["Message"]</td>
+            </tr>
+        }
+    </tbody>
+</table>

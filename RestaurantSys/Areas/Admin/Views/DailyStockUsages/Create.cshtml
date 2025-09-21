@@ -1,0 +1,52 @@
+﻿@model RestaurantSys.Models.DailyStockUsage
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Create</title>
+</head>
+<body>
+
+<h4>DailyStockUsage</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="DishID" class="control-label"></label>
+                <select asp-for="DishID" class ="form-control" asp-items="ViewBag.DishID"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="ItemID" class="control-label"></label>
+                <select asp-for="ItemID" class ="form-control" asp-items="ViewBag.ItemID"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="QuantityUsed" class="control-label"></label>
+                <input asp-for="QuantityUsed" class="form-control" />
+                <span asp-validation-for="QuantityUsed" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UsageDate" class="control-label"></label>
+                <input asp-for="UsageDate" class="form-control" />
+                <span asp-validation-for="UsageDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+</body>
+</html>
