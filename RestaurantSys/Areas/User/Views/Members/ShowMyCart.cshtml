@@ -2,9 +2,14 @@
     ViewData["Title"] = "我的購物車";
 }
 
-<h1 class="text-center">@ViewData["Title"]</h1>
+<h1 class="text-center mb-4">@ViewData["Title"]</h1>
 
+<!-- 流程步驟條 -->
+@await Html.PartialAsync("_OrderStepPartial", 1)
+
+<!-- 購物車內容 -->
 <div id="cart-container" class="mt-4">
+    <!-- 預設由 JS 動態生成 -->
 </div>
 
 @section Scripts {
@@ -16,7 +21,6 @@
             minimumFractionDigits: 0
         });
 
-                // 顯示購物車內容的主函數
         function showMyCart() {
             let cart = JSON.parse(localStorage.getItem("cart")) || [];
             let comfirmOrderUrl = '@Url.Action("Create", "Orders", new { area = "User" })';
@@ -28,15 +32,18 @@
 
             if (cart.length === 0) {
                 document.getElementById('cart-container').innerHTML = `
-                    <div class="alert alert-warning text-center" role="alert">
-                        目前沒有任何商品喔，快去新增餐點吧！
+                    <div class="text-center my-5">
+                        <i class="bi bi-cart" style="font-size: 4rem; color: #ccc;"></i>
+                        <h4 class="mt-3">您的購物車是空的</h4>
+                        <p class="text-muted">快去訂餐吧！</p>
+                        <a href="${continueShoppingUrl}" class="btn btn-outline-dark px-4">前往訂餐</a>
                     </div>
                 `;
             } else {
                 items += `
                     <div class="table-responsive">
                         <table class="table table-hover" id="myCart">
-                            <thead>
+                            <thead class="table-light">
                                 <tr>
                                     <th>序號</th>
                                     <th>菜色名稱</th>
@@ -59,8 +66,7 @@
                         <td>
                             <div class="input-group input-group-sm" style="width: 130px;">
                                 <button class="btn btn-outline-secondary" type="button" onclick="changeQty(${item.DishID}, -1)">-</button>
-                                <input type="text" class="form-control text-center cart-qty" value="${item.Qty}"
-                                        data-dish-id="${item.DishID}" readonly>
+                                <input type="text" class="form-control text-center cart-qty" value="${item.Qty}" data-dish-id="${item.DishID}" readonly>
                                 <button class="btn btn-outline-secondary" type="button" onclick="changeQty(${item.DishID}, 1)">+</button>
                             </div>
                         </td>
@@ -83,10 +89,10 @@
                     </table>
                 </div>
                 <div class="d-flex justify-content-end mt-3">
-                    <a href="${continueShoppingUrl}" class="btn btn-outline-dark">
+                    <a href="${continueShoppingUrl}" class="btn btn-outline-dark me-2">
                         <i class="bi bi-shop"></i> 再繼續逛逛
                     </a>
-                    <a href="${comfirmOrderUrl}" class="btn btn-outline-dark">
+                    <a href="${comfirmOrderUrl}" class="btn btn-outline-success">
                         <i class="bi bi-credit-card"></i> 前往結帳
                     </a>
                 </div>`;
@@ -94,20 +100,15 @@
                 document.getElementById('cart-container').innerHTML = items;
             }
 
-            // 同步更新頁面上購物車總數顯示（假設你有 <span id="cart-count">）
             updateCartCount(cart);
         }
 
-        // 更新導覽列購物車數量
         function updateCartCount(cart) {
             let totalQty = cart.reduce((acc, item) => acc + item.Qty, 0);
             let countEl = document.getElementById("cart-count");
-            if (countEl) {
-                countEl.innerText = totalQty;
-            }
+            if (countEl) countEl.innerText = totalQty;
         }
 
-        // 透過 +/- 按鈕修改數量
         function changeQty(dishID, change) {
             let cart = JSON.parse(localStorage.getItem("cart")) || [];
             let item = cart.find(i => i.DishID === dishID);
@@ -118,34 +119,29 @@
                 } else {
                     item.Qty = Math.max(1, item.Qty + change);
                     localStorage.setItem("cart", JSON.stringify(cart));
-                    showMyCart(); // 重新渲染
+                    showMyCart();
                 }
             }
         }
 
-        // 統一的刪除確認函式
         function confirmRemove(dishId) {
             if (confirm("確定要移除此商品嗎？")) {
                 removeItem(dishId);
             }
         }
 
-        // 實際執行移除商品
         function removeItem(dishId) {
             let cart = JSON.parse(localStorage.getItem("cart")) || [];
             let updatedCart = cart.filter(item => item.DishID !== dishId);
             localStorage.setItem("cart", JSON.stringify(updatedCart));
-            showMyCart(); // 重新渲染
+            showMyCart();
         }
 
-        // 清空購物車（下單成功時呼叫）
         function clearCart() {
             localStorage.removeItem("cart");
-            showMyCart(); // 更新畫面數量
+            showMyCart();
         }
 
-        // 頁面載入時顯示購物車
         showMyCart();
-
     </script>
 }

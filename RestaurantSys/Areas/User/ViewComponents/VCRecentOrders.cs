@@ -2,10 +2,11 @@
 using Microsoft.EntityFrameworkCore;
 using RestaurantSys.Access.Data;
 using RestaurantSys.Models;
+using System.Linq;
 
 namespace RestaurantSys.Areas.User.ViewComponents
 {
-    public class VCRecentOrders: ViewComponent
+    public class VCRecentOrders : ViewComponent
     {
         private readonly RestaurantSysContext _context;
 
@@ -14,28 +15,26 @@ namespace RestaurantSys.Areas.User.ViewComponents
             _context = context;
         }
 
-
         public async Task<IViewComponentResult> InvokeAsync(string memberId)
         {
             var recentOrders = await _context.Order
-                // 根據傳入的 memberId 篩選訂單
                 .Where(o => o.MemberID == memberId)
-                .OrderByDescending(o => o.OrderDate) // 假設訂單模型有一個 OrderDate 屬性
+                .OrderByDescending(o => o.OrderDate)
                 .Take(3)
+                .Include(o => o.OrderStatus)
                 .Include(o => o.OrderDetails)
                 .ToListAsync();
 
-            // 建立一個匿名物件的清單
+            // 將資料轉換為動態物件，以符合 View 的需求
             var orderViewModels = recentOrders.Select(o => new
             {
                 OrderID = o.OrderID,
-                OrderDate = o.OrderDate,
-                Status = o.OrderStatus,
-                TotalPrice = o.OrderDetails.Sum(od => od.UnitPrice * od.Quantity)
+                OrderDate = o.OrderDate.ToLocalTime(), // 轉換時間
+                Status = o.OrderStatus?.OrderStatusName, // 使用安全導覽運算子
+                TotalPrice = o.OrderDetails?.Sum(od => od.UnitPrice * od.Quantity) ?? 0 // 計算總價並處理 null
             }).ToList();
 
             return View(orderViewModels);
         }
-
     }
 }

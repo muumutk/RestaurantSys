@@ -101,10 +101,24 @@ namespace RestaurantSys.Areas.User.Controllers
                 .Include(o => o.Member)
                 .Include(o => o.OrderStatus)
                 .Include(o => o.PayType)
+                .Include(o => o.OrderDetails) 
+                .ThenInclude(od => od.Dish)
                 .FirstOrDefaultAsync(m => m.OrderID == id);
             if (order == null)
             {
                 return NotFound();
+            }
+
+            // 只將來自前端的 UTC 時間 (GetTime) 轉換為本地時間
+            if (order.OrderDetails != null)
+            {
+                foreach (var detail in order.OrderDetails)
+                {
+                    if (detail.GetTime.HasValue)
+                    {
+                        detail.GetTime = detail.GetTime.Value.ToLocalTime();
+                    }
+                }
             }
 
             return View(order);

@@ -116,7 +116,7 @@
                     </div>
                     <div class="ms-3">
                         <p class="text-secondary mb-0">會員積分</p>
-                        <p class="fs-4 fw-bold text-dark mb-0">@ViewData["MemberPoints"]</p>
+                        <p class="fs-4 fw-bold text-dark mb-0">@ViewData["Points"]</p>
                     </div>
                 </div>
             </div>
@@ -176,28 +176,24 @@
                             <span class="fw-bold">我的訂單</span>
                             <i class="fas fa-chevron-right text-secondary ms-auto"></i>
                         </a>
-                        <a href="#" class="d-flex align-items-center p-3 rounded text-decoration-none text-dark hover-bg-light">
+
+                        <a asp-area="" asp-controller="Home" asp-action="Maintenance" class="d-flex align-items-center p-3 rounded text-decoration-none text-dark hover-bg-light">
                             <div class="d-flex justify-content-center align-items-center p-3 bg-sage-green-light rounded me-3">
                                 <i class="fas fa-gift sage-green"></i>
                             </div>
                             <span class="fw-bold">我的優惠券</span>
                             <i class="fas fa-chevron-right text-secondary ms-auto"></i>
                         </a>
-                        <a href="#" class="d-flex align-items-center p-3 rounded text-decoration-none text-dark hover-bg-light">
+
+                        <a asp-area="" asp-controller="Home" asp-action="Maintenance" class="d-flex align-items-center p-3 rounded text-decoration-none text-dark hover-bg-light">
                             <div class="d-flex justify-content-center align-items-center p-3 bg-soft-coral-light rounded me-3">
                                 <i class="fas fa-star soft-coral"></i>
                             </div>
                             <span class="fw-bold">積分兌換</span>
                             <i class="fas fa-chevron-right text-secondary ms-auto"></i>
                         </a>
-                        <a href="#" class="d-flex align-items-center p-3 rounded text-decoration-none text-dark hover-bg-light">
-                            <div class="d-flex justify-content-center align-items-center p-3 bg-warm-peach-light rounded me-3">
-                                <i class="fas fa-map-marker-alt warm-peach"></i>
-                            </div>
-                            <span class="fw-bold">收件地址</span>
-                            <i class="fas fa-chevron-right text-secondary ms-auto"></i>
-                        </a>
-                        <a href="#" class="d-flex align-items-center p-3 rounded text-decoration-none text-dark hover-bg-light">
+
+                        <a asp-action="ChangePassword" class="d-flex align-items-center p-3 rounded text-decoration-none text-dark hover-bg-light">
                             <div class="d-flex justify-content-center align-items-center p-3 bg-warm-brown-light rounded me-3">
                                 <i class="fas fa-lock warm-brown"></i>
                             </div>

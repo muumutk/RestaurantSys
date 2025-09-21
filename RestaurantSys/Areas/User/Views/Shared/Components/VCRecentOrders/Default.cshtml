@@ -5,31 +5,31 @@
     <h2 class="h5 fw-bold mb-0">最近訂單</h2>
     <a asp-controller="Orders" asp-action="Index" class="text-decoration-none btn btn-outline-dark btn-sm fw-bold">查看全部</a>
 </div>
-<hr/>
+<hr />
 
 @if (Model != null && Model.Any())
 {
     <div class="list-group list-group-flush mt-3">
         @foreach (var order in Model)
         {
-            <a asp-controller="OrderDetails" asp-action="Details" asp-route-id="@order.OrderID" class="text-decoration-none text-dark card-hover">
-            <div class="list-group-item d-flex align-items-center justify-content-between bg-light rounded mb-2">
-                <div class="d-flex align-items-center">
-                    <div class="d-flex justify-content-center align-items-center p-3 bg-warm-orange-light rounded me-3">
-                        <i class="fas fa-utensils warm-orange"></i>
+            <a asp-controller="Orders" asp-action="Details" asp-route-id="@order.OrderID" class="text-decoration-none text-dark card-hover">
+                <div class="list-group-item d-flex align-items-center justify-content-between bg-light rounded mb-2">
+                    <div class="d-flex align-items-center">
+                        <div class="d-flex justify-content-center align-items-center p-3 bg-warm-orange-light rounded me-3">
+                            <i class="fas fa-utensils warm-orange"></i>
+                        </div>
+                        <div>
+                            <p class="fw-bold mb-0">訂單 #@order.OrderID</p>
+                            <small class="text-muted">@order.OrderDate.ToString("yyyy-MM-dd HH:mm")</small>
+                        </div>
                     </div>
-                    <div>
-                        <p class="fw-bold mb-0">訂單 #@order.OrderID</p>
-                        <small class="text-muted">@order.OrderDate.ToString("yyyy-MM-dd HH:mm")</small>
+                    <div class="text-end">
+                        <p class="fw-bold mb-0">$@order.TotalPrice.ToString("0")</p>
+                        <span class="badge status-badge @(order.Status == "已送出訂單" ? "bg-sage-green-light text-sage-green" : order.Status == "已取餐" ? "bg-warm-peach-light text-warm-peach" : "bg-soft-coral-light text-soft-coral")">
+                            @order.Status
+                        </span>
                     </div>
                 </div>
-                <div class="text-end">
-                    <p class="fw-bold mb-0">$@order.TotalPrice.ToString("0")</p>
-                    <span class="badge status-badge @(order.Status == "已送出訂單" ? "bg-sage-green-light text-sage-green" : order.Status == "已取餐" ? "bg-warm-peach-light text-warm-peach" : "bg-soft-coral-light text-soft-coral")">
-                        @order.Status
-                    </span>
-                </div>
-            </div>
             </a>
         }
     </div>

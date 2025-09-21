@@ -2,8 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using RestaurantSys.Access.Data;
+using RestaurantSys.Areas.User.ViewModels;
 using RestaurantSys.Models;
+using RestaurantSys.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,6 +55,11 @@ namespace RestaurantSys.Areas.User.Controllers
 
             ViewData["TotalSpent"] = totalSpent;
 
+            // 計算會員積分, 假設每消費 100 元累積 1 點
+            var points = (int)(totalSpent / 100);
+            ViewData["Points"] = points;
+
+
             //根據當前會員ID，從資料庫查詢對應的會員資料
             var member = await _context.Member
                 .FirstOrDefaultAsync(m => m.MemberID == currentMemberID);
@@ -63,6 +71,65 @@ namespace RestaurantSys.Areas.User.Controllers
 
             return View(member);
         }
+
+
+        //會員重設密碼
+        // GET: User/Members/ChangePassword
+        [HttpGet]
+        public IActionResult ChangePassword()
+        {
+            return View();
+        }
+
+        // POST: User/Members/ChangePassword
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePassword(VMChangePassword model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var currentMemberID = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var member = await _context.Member.FirstOrDefaultAsync(m => m.MemberID == currentMemberID);
+
+            if (member == null)
+            {
+                return NotFound("找不到會員資料。");
+            }
+
+            // 步驟1: 驗證舊密碼是否正確
+            // 直接呼叫你的靜態方法 HashService.HashPasswordSHA256() 進行比對
+            var hashedOldPassword = HashService.HashPasswordSHA256(model.OldPassword);
+            if (hashedOldPassword != member.Password)
+            {
+                ModelState.AddModelError("OldPassword", "舊密碼不正確。");
+                return View(model);
+            }
+
+            // 步驟2: 雜湊新密碼並更新
+            var hashedNewPassword = HashService.HashPasswordSHA256(model.NewPassword);
+            member.Password = hashedNewPassword;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "密碼已成功變更！";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                ModelState.AddModelError("", "更新密碼時發生衝突，請稍後再試。");
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", $"更新密碼時發生錯誤: {ex.Message}");
+                return View(model);
+            }
+        }
+
 
         public IActionResult ShowMyCart()
         {

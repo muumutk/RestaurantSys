@@ -1,0 +1,38 @@
+﻿@model int
+@* 用 int 表示目前步驟：1=購物車, 2=填寫資料, 3=訂單已送出 *@
+
+<div class="container my-4">
+    <!-- Progress bar -->
+    <div class="progress" style="height: 6px;">
+        <div class="progress-bar bg-dark" role="progressbar"
+             style="width:@(Model == 1 ? "0%" : Model == 2 ? "50%" : "100%")">
+        </div>
+    </div>
+
+    <!-- Steps -->
+    <div class="d-flex justify-content-between position-relative" style="margin-top:-14px;">
+        <div class="text-center" style="width:33%;">
+            <div class="rounded-circle @(Model >= 1 ? "bg-dark text-white" : "bg-secondary text-white") d-inline-flex justify-content-center align-items-center"
+                 style="width:30px;height:30px;">
+                1
+            </div>
+            <div class="mt-2">購物車</div>
+        </div>
+
+        <div class="text-center" style="width:33%;">
+            <div class="rounded-circle @(Model >= 2 ? "bg-dark text-white" : "bg-secondary text-white") d-inline-flex justify-content-center align-items-center"
+                 style="width:30px;height:30px;">
+                2
+            </div>
+            <div class="mt-2">填寫資料</div>
+        </div>
+
+        <div class="text-center" style="width:33%;">
+            <div class="rounded-circle @(Model == 3 ? "bg-dark text-white" : "bg-secondary text-white") d-inline-flex justify-content-center align-items-center"
+                 style="width:30px;height:30px;">
+                3
+            </div>
+            <div class="mt-2">訂單已送出</div>
+        </div>
+    </div>
+</div>

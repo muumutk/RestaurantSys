@@ -1,54 +1,194 @@
 ﻿@model RestaurantSys.Models.Order
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "我的訂單詳情";
+    // 總金額就是所有餐點明細的小計總和
+    var totalAmount = Model.OrderDetails?.Sum(od => od.Quantity * od.UnitPrice) ?? 0;
+
+    // 根據訂單狀態設定徽章顏色
+    var statusBadgeClass = Model.OrderStatusID switch
+    {
+        "01" => "bg-secondary", // 待處理
+        "02" => "bg-primary",   // 準備中
+        "03" => "bg-warning",   // 未取餐
+        "04" => "bg-success",   // 已取餐
+        "05" => "bg-danger",    // 已取消
+        _ => "bg-secondary"
+    };
 }
 
-<h1>Details</h1>
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-xl-10">
+            <!-- 頁面標題 -->
+            <div class="mb-4">
+                <div class="d-flex align-items-center mb-2">
+                    <i class="fas fa-receipt text-primary fs-2 me-3"></i>
+                    <h1 class="display-6 fw-bold text-dark mb-0">我的訂單詳情</h1>
+                </div>
+            </div>
 
-<div>
-    <h4>Order</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.OrderDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.OrderDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.PickUpTime)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PickUpTime)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Note)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Note)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Member)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Member.MemberID)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.PayType)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PayType.PayTypeName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.OrderStatus)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.OrderStatus.OrderStatusID)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.OrderID">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+            <!-- 訂單狀態卡片 -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <div class="icon-circle bg-primary bg-opacity-10 me-3">
+                                <i class="fas fa-hashtag text-primary fs-5"></i>
+                            </div>
+                            <div>
+                                <h2 class="h4 fw-semibold mb-1">訂單 #@Model.OrderID</h2>
+                                <small class="text-muted">@Model.OrderDate.ToString("yyyy年MM月dd日 HH:mm")</small>
+                            </div>
+                        </div>
+                        <span class="badge @statusBadgeClass status-badge">
+                            @if (Model.OrderStatusID == "04")
+                            {
+                                <i class="fas fa-check-circle me-1"></i>
+                            }
+                            else if (Model.OrderStatusID == "05")
+                            {
+                                <i class="fas fa-times-circle me-1"></i>
+                            }
+                            else
+                            {
+                                <i class="fas fa-spinner fa-spin me-1"></i>
+                            }
+                            @Model.OrderStatus?.OrderStatusName
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- 主要內容區 -->
+                <div class="col-12 col-lg-8">
+                    <!-- 基本資訊 -->
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h3 class="card-title h5 fw-semibold mb-3">
+                                <i class="fas fa-info-circle text-primary me-2"></i>基本資訊
+                            </h3>
+                            <div class="row g-3">
+                                <div class="col-12 col-md-6">
+                                    <div class="info-item d-flex align-items-center">
+                                        <i class="fas fa-calendar text-muted me-3"></i>
+                                        <div>
+                                            <small class="text-muted d-block">訂單日期</small>
+                                            <span class="fw-medium">@Model.OrderDate.ToString("yyyy年MM月dd日")</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <div class="info-item d-flex align-items-center">
+                                        <i class="fas fa-clock text-muted me-3"></i>
+                                        <div>
+                                            <small class="text-muted d-block">取餐時間</small>
+                                            @if (Model.OrderDetails != null && Model.OrderDetails.Any(od => od.GetTime.HasValue))
+                                            {
+                                                <span class="fw-medium text-success">@Model.OrderDetails.FirstOrDefault(od => od.GetTime.HasValue).GetTime?.ToString("yyyy/MM/dd HH:mm") (實際)</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="fw-medium">@Model.PickUpTime.ToString("yyyy/MM/dd HH:mm") (預計)</span>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <div class="info-item d-flex align-items-center">
+                                        <i class="fas fa-user text-muted me-3"></i>
+                                        <div>
+                                            <small class="text-muted d-block">會員編號</small>
+                                            <span class="fw-medium">@Model.Member?.MemberID</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <div class="info-item d-flex align-items-center">
+                                        <i class="fas fa-credit-card text-muted me-3"></i>
+                                        <div>
+                                            <small class="text-muted d-block">付款方式</small>
+                                            <span class="fw-medium">@Model.PayType?.PayTypeName</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 備註 -->
+                            @if (!string.IsNullOrEmpty(Model.Note))
+                            {
+                                <div class="note-section mt-3">
+                                    <div class="d-flex align-items-start">
+                                        <i class="fas fa-sticky-note text-warning me-2 mt-1"></i>
+                                        <div>
+                                            <small class="fw-medium text-warning-emphasis d-block">備註</small>
+                                            <span class="text-warning-emphasis">@Model.Note</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- 餐點明細 -->
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h3 class="card-title h5 fw-semibold mb-3">
+                                <i class="fas fa-utensils text-primary me-2"></i>餐點明細
+                            </h3>
+
+                            @if (Model.OrderDetails == null || !Model.OrderDetails.Any())
+                            {
+                                <div class="alert alert-info text-center" role="alert">
+                                    此訂單沒有任何餐點明細。
+                                </div>
+                            }
+                            else
+                            {
+                                @foreach (var detail in Model.OrderDetails)
+                                {
+                                    <div class="dish-item d-flex justify-content-between align-items-center border-bottom pb-2 mb-2">
+                                        <div class="d-flex align-items-center">
+                                            <div class="icon-circle bg-light me-3">
+                                                <i class="fas fa-cookie-bite text-secondary"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="fw-medium mb-1">@detail.Dish?.DishName</h6>
+                                                <small class="text-muted">NT$ @detail.UnitPrice.ToString("N0")</small>
+                                            </div>
+                                        </div>
+                                        <div class="text-end">
+                                            <small class="text-muted d-block">數量: @detail.Quantity</small>
+                                            <span class="fw-semibold">NT$ @(Math.Round(detail.UnitPrice * detail.Quantity, 0).ToString("N0"))</span>
+                                        </div>
+                                    </div>
+                                }
+                                <div class="text-end">
+                                    <span class="h5 fw-bold text-danger">總計： NT$ @totalAmount.ToString("N0")</span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 側邊欄 -->
+                <div class="col-12 col-lg-4">
+                   
+
+                    <!-- 操作按鈕 -->
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h3 class="card-title h5 fw-semibold mb-3">操作</h3>
+                            <div class="d-grid gap-2">
+                                <a asp-action="Index" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>返回我的訂單
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

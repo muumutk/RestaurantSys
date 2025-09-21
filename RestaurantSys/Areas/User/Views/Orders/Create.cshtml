@@ -4,6 +4,9 @@
     ViewData["Title"] = "建立訂單";
 }
 
+@await Html.PartialAsync("_OrderStepPartial", 2)
+
+
 <div class="container my-5">
     <div class="row">
         <div class="col-lg-8 offset-lg-2">
@@ -69,7 +72,7 @@
 
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-primary btn-lg">確認送出訂單</button>
-                            <a asp-action="Index" class="btn btn-outline-secondary">返回訂單列表</a>
+                            <a asp-controller="Members" asp-action="ShowMyCart" class="btn btn-outline-secondary">返回訂單列表</a>
                         </div>
 
                         <input type="hidden" name="Cart" id="Cart" />

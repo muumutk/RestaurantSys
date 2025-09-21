@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using RestaurantSys.Access.Data;
@@ -12,6 +13,7 @@ using System.Threading.Tasks;
 namespace RestaurantSys.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(AuthenticationSchemes = "EmployeeLogin")]
     public class OrdersController : Controller
     {
         private readonly RestaurantSysContext _context;
@@ -23,14 +25,32 @@ namespace RestaurantSys.Areas.Admin.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var restaurantSysContext = _context.Order
+            // 查詢訂單，並急切載入所有相關的導覽屬性
+            var orders = await _context.Order
                 .Include(o => o.Member)
                 .Include(o => o.OrderStatus)
                 .Include(o => o.PayType)
                 .Include(o => o.OrderDetails)
-                .OrderByDescending(o => o.OrderDate); // 依日期由新到舊排序
+                .OrderByDescending(o => o.OrderDate)
+                .ToListAsync();
 
-            return View(await restaurantSysContext.ToListAsync());
+            // 遍歷所有訂單，並將 OrderDetails 中的 GetTime 轉換為本地時間
+            foreach (var order in orders)
+            {
+                if (order.OrderDetails != null)
+                {
+                    foreach (var detail in order.OrderDetails)
+                    {
+                        if (detail.GetTime.HasValue)
+                        {
+                            // 將 UTC 時間轉換為伺服器的本地時間
+                            detail.GetTime = detail.GetTime.Value.ToLocalTime();
+                        }
+                    }
+                }
+            }
+
+            return View(orders);
         }
 
         // 新增：處理前端輪詢請求的 Action
@@ -60,12 +80,25 @@ namespace RestaurantSys.Areas.Admin.Controllers
                 .Include(o => o.Member)
                 .Include(o => o.OrderStatus)
                 .Include(o => o.PayType)
-                .Include(o => o.OrderDetails) // 載入訂單明細
-                .ThenInclude(od => od.Dish) // 載入餐點資訊
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Dish)
                 .FirstOrDefaultAsync(m => m.OrderID == id);
+
             if (order == null)
             {
                 return NotFound();
+            }
+
+            // 只將來自前端的 UTC 時間 (GetTime) 轉換為本地時間
+            if (order.OrderDetails != null)
+            {
+                foreach (var detail in order.OrderDetails)
+                {
+                    if (detail.GetTime.HasValue)
+                    {
+                        detail.GetTime = detail.GetTime.Value.ToLocalTime();
+                    }
+                }
             }
 
             return View(order);
@@ -74,14 +107,18 @@ namespace RestaurantSys.Areas.Admin.Controllers
 
         // 新增：處理訂單狀態變更的 Action
         [HttpPost]
-        public async Task<IActionResult> ChangeStatus([FromForm] string id, [FromForm] string statusId)
+        public async Task<IActionResult> ChangeStatus([FromForm] string id, [FromForm] string statusId, [FromForm] DateTime? getTime)
         {
             if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(statusId))
             {
                 return Json(new { success = false, message = "傳入的資料無效。" });
             }
 
-            var order = await _context.Order.FirstOrDefaultAsync(o => o.OrderID == id);
+            // 使用 Include 方法確保同時載入 OrderDetails
+            var order = await _context.Order
+                .Include(o => o.OrderDetails)
+                .FirstOrDefaultAsync(o => o.OrderID == id);
+
             if (order == null)
             {
                 return Json(new { success = false, message = "找不到此訂單。" });
@@ -90,7 +127,14 @@ namespace RestaurantSys.Areas.Admin.Controllers
             // 更新訂單狀態
             order.OrderStatusID = statusId;
 
-            // 已移除所有關於 EmployeeID 的邏輯，現在只專注於更新狀態
+            // 判斷是否為「已取餐」狀態，並寫入取餐時間
+            if (statusId == "04" && getTime.HasValue)
+            {
+                foreach (var detail in order.OrderDetails)
+                {
+                    detail.GetTime = getTime.Value;
+                }
+            }
 
             try
             {
@@ -99,39 +143,11 @@ namespace RestaurantSys.Areas.Admin.Controllers
             }
             catch (Exception ex)
             {
-                // 將錯誤訊息包含在內，以便於除錯
                 return Json(new { success = false, message = "狀態更新失敗: " + ex.Message + " (Inner Exception: " + ex.InnerException?.Message + ")" });
             }
         }
 
 
-        // GET: Admin/Orders/Create
-        public IActionResult Create()
-        {
-            ViewData["MemberID"] = new SelectList(_context.Member, "MemberID", "MemberID");
-            ViewData["OrderStatusID"] = new SelectList(_context.OrderStatus, "OrderStatusID", "OrderStatusID");
-            ViewData["PayTypeID"] = new SelectList(_context.PayType, "PayTypeID", "PayTypeID");
-            return View();
-        }
-
-        // POST: Admin/Orders/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("OrderID,OrderDate,PickUpTime,PayTypeID,Note,MemberID,OrderStatusID")] Order order)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(order);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["MemberID"] = new SelectList(_context.Member, "MemberID", "MemberID", order.MemberID);
-            ViewData["OrderStatusID"] = new SelectList(_context.OrderStatus, "OrderStatusID", "OrderStatusID", order.OrderStatusID);
-            ViewData["PayTypeID"] = new SelectList(_context.PayType, "PayTypeID", "PayTypeID", order.PayTypeID);
-            return View(order);
-        }
 
         // GET: Admin/Orders/Edit/5
         public async Task<IActionResult> Edit(string id)
