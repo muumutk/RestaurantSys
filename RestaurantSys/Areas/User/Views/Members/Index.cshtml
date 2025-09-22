@@ -123,94 +123,92 @@
         </div>
     </div>
 
-        <div class="row g-4">
-            <div class="col-lg-8">
-                <div class="bg-white rounded-3 shadow-sm mb-4">
-                    <div class="p-4 border-bottom border-gray-200">
-                        <div class="card p-3">
-                            @await Component.InvokeAsync("VCRecentOrders", new { memberId = Model.MemberID })
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-3 shadow-sm">
-                    <div class="p-4 border-bottom border-gray-200">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <h2 class="h5 fw-bold mb-0">個人資料</h2>
-                            <a asp-action="Edit" asp-route-id="@Model.MemberID" class="text-decoration-none btn btn-outline-dark btn-sm fw-bold">編輯</a>
-                        </div>
-                    </div>
-                    <div class="p-4">
-                        <div class="row g-4">
-                            <div class="col-md-6">
-                                <label class="form-label text-secondary mb-1">電子郵件</label>
-                                <p class="text-dark">@Html.DisplayFor(model => model.MEmail)</p>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label text-secondary mb-1">聯絡電話</label>
-                                <p class="text-dark">@Html.DisplayFor(model => model.MemberTel)</p>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label text-secondary mb-1">生日</label>
-                                <p class="text-dark">@Html.DisplayFor(model => model.Birthday)</p>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label text-secondary mb-1">地址</label>
-                                <p class="text-dark">@Html.DisplayFor(model => model.City) @Html.DisplayFor(model => model.Address)</p>
-                            </div>
-                        </div>
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="bg-white rounded-3 shadow-sm mb-4">
+                <div class="p-4 border-bottom border-gray-200">
+                    <div class="card p-3">
+                        @await Component.InvokeAsync("VCRecentOrders", new { memberId = Model.MemberID })
                     </div>
                 </div>
             </div>
 
-            <div class="col-lg-4">
-                <div class="bg-white rounded-3 shadow-sm">
-                    <div class="p-4 border-bottom border-gray-200">
-                        <h2 class="h5 fw-bold mb-0">快速功能</h2>
+            <div class="bg-white rounded-3 shadow-sm">
+                <div class="p-4 border-bottom border-gray-200">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <h2 class="h5 fw-bold mb-0">個人資料</h2>
+                        <a asp-action="Edit" asp-route-id="@Model.MemberID" class="text-decoration-none btn btn-outline-dark btn-sm fw-bold">編輯</a>
                     </div>
-                    <div class="p-4 quick-links">
-                        <a asp-controller="Orders" asp-action="Index" class="d-flex align-items-center p-3 rounded text-decoration-none text-dark hover-bg-light">
-                            <div class="d-flex justify-content-center align-items-center p-3 bg-warm-orange-light rounded me-3">
-                                <i class="fas fa-receipt warm-orange"></i>
-                            </div>
-                            <span class="fw-bold">我的訂單</span>
-                            <i class="fas fa-chevron-right text-secondary ms-auto"></i>
-                        </a>
-
-                        <a asp-area="" asp-controller="Home" asp-action="Maintenance" class="d-flex align-items-center p-3 rounded text-decoration-none text-dark hover-bg-light">
-                            <div class="d-flex justify-content-center align-items-center p-3 bg-sage-green-light rounded me-3">
-                                <i class="fas fa-gift sage-green"></i>
-                            </div>
-                            <span class="fw-bold">我的優惠券</span>
-                            <i class="fas fa-chevron-right text-secondary ms-auto"></i>
-                        </a>
-
-                        <a asp-area="" asp-controller="Home" asp-action="Maintenance" class="d-flex align-items-center p-3 rounded text-decoration-none text-dark hover-bg-light">
-                            <div class="d-flex justify-content-center align-items-center p-3 bg-soft-coral-light rounded me-3">
-                                <i class="fas fa-star soft-coral"></i>
-                            </div>
-                            <span class="fw-bold">積分兌換</span>
-                            <i class="fas fa-chevron-right text-secondary ms-auto"></i>
-                        </a>
-
-                        <a asp-action="ChangePassword" class="d-flex align-items-center p-3 rounded text-decoration-none text-dark hover-bg-light">
-                            <div class="d-flex justify-content-center align-items-center p-3 bg-warm-brown-light rounded me-3">
-                                <i class="fas fa-lock warm-brown"></i>
-                            </div>
-                            <span class="fw-bold">變更密碼</span>
-                            <i class="fas fa-chevron-right text-secondary ms-auto"></i>
-                        </a>
+                </div>
+                <div class="p-4">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label class="form-label text-secondary mb-1">電子郵件</label>
+                            <p class="text-dark">@Html.DisplayFor(model => model.MEmail)</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-secondary mb-1">聯絡電話</label>
+                            <p class="text-dark">@Html.DisplayFor(model => model.MemberTel)</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-secondary mb-1">生日</label>
+                            <p class="text-dark">@Html.DisplayFor(model => model.Birthday)</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-secondary mb-1">地址</label>
+                            <p class="text-dark">@Html.DisplayFor(model => model.City) @Html.DisplayFor(model => model.Address)</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <div class="col-lg-4">
+            <div class="bg-white rounded-3 shadow-sm">
+                <div class="p-4 border-bottom border-gray-200">
+                    <h2 class="h5 fw-bold mb-0">快速功能</h2>
+                </div>
+                <div class="p-4 quick-links">
+                    <a asp-controller="Orders" asp-action="Index" class="d-flex align-items-center p-3 rounded text-decoration-none text-dark hover-bg-light">
+                        <div class="d-flex justify-content-center align-items-center p-3 bg-warm-orange-light rounded me-3">
+                            <i class="fas fa-receipt warm-orange"></i>
+                        </div>
+                        <span class="fw-bold">我的訂單</span>
+                        <i class="fas fa-chevron-right text-secondary ms-auto"></i>
+                    </a>
+
+                    <a asp-area="" asp-controller="Home" asp-action="Maintenance" class="d-flex align-items-center p-3 rounded text-decoration-none text-dark hover-bg-light">
+                        <div class="d-flex justify-content-center align-items-center p-3 bg-sage-green-light rounded me-3">
+                            <i class="fas fa-gift sage-green"></i>
+                        </div>
+                        <span class="fw-bold">我的優惠券</span>
+                        <i class="fas fa-chevron-right text-secondary ms-auto"></i>
+                    </a>
+
+                    <a asp-area="" asp-controller="Home" asp-action="Maintenance" class="d-flex align-items-center p-3 rounded text-decoration-none text-dark hover-bg-light">
+                        <div class="d-flex justify-content-center align-items-center p-3 bg-soft-coral-light rounded me-3">
+                            <i class="fas fa-star soft-coral"></i>
+                        </div>
+                        <span class="fw-bold">積分兌換</span>
+                        <i class="fas fa-chevron-right text-secondary ms-auto"></i>
+                    </a>
+
+                    <a asp-action="ChangePassword" class="d-flex align-items-center p-3 rounded text-decoration-none text-dark hover-bg-light">
+                        <div class="d-flex justify-content-center align-items-center p-3 bg-warm-brown-light rounded me-3">
+                            <i class="fas fa-lock warm-brown"></i>
+                        </div>
+                        <span class="fw-bold">變更密碼</span>
+                        <i class="fas fa-chevron-right text-secondary ms-auto"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
 
 @section Scripts {
     <script>
-
         document.addEventListener('DOMContentLoaded', function() {
-            // 這段 JavaScript 程式碼將由 Razor 根據 TempData 狀態來渲染
             @if (TempData["ShowProfileModal"] != null && (bool)TempData["ShowProfileModal"])
             {
                     <text>
@@ -218,12 +216,12 @@
                         profileModal.show();
                     </text>
             }
+            attachDeleteEvent();
         });
 
 
         const uploadUrl = '@Url.Action("UploadAvatar", "Members")';
 
-        // 監聽檔案選擇事件
         document.getElementById('avatarFile').addEventListener('change', async function(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -248,7 +246,8 @@
                     console.log(result.message);
                     document.getElementById('avatarPreview').src = result.avatarUrl;
 
-                    if (!document.getElementById('deleteAvatarBtn')) {
+                    let deleteBtn = document.getElementById('deleteAvatarBtn');
+                    if (!deleteBtn) {
                         const deleteBtnHtml = `
                             <div id="deleteAvatarBtn" class="position-absolute bottom-0 start-0 bg-danger d-flex justify-content-center align-items-center text-white avatar-btn cursor-pointer">
                                 <i class="fas fa-trash-alt"></i>
@@ -258,7 +257,7 @@
                         relativeDiv.insertAdjacentHTML('beforeend', deleteBtnHtml);
                         attachDeleteEvent();
                     } else {
-                         document.getElementById('deleteAvatarBtn').style.display = 'flex';
+                        deleteBtn.style.display = 'flex';
                     }
                 } else {
                     const error = await response.text();
@@ -271,38 +270,50 @@
             }
         });
 
-        // 刪除頭像功能
         function attachDeleteEvent() {
             const deleteBtn = document.getElementById('deleteAvatarBtn');
             if (deleteBtn) {
-                deleteBtn.addEventListener('click', async function() {
-                    if (!confirm('確定要刪除頭像嗎？')) {
-                        return;
-                    }
-
-                    try {
-                        const response = await fetch('/User/Members/DeleteAvatar', {
-                            method: 'POST'
-                        });
-
-                        if (response.ok) {
-                            const result = await response.json();
-                            alert(result.message);
-                            document.getElementById('avatarPreview').src = 'https://via.placeholder.com/80';
-                            this.style.display = 'none';
-                        } else {
-                            const error = await response.text();
-                            console.error("刪除失敗：", error);
-                            alert("刪除失敗，請稍後再試。");
-                        }
-                    } catch (error) {
-                        console.error('刪除過程中發生錯誤：', error);
-                        alert("刪除過程中發生網路錯誤。");
-                    }
-                });
+                deleteBtn.removeEventListener('click', handleDeleteClick);
+                deleteBtn.addEventListener('click', handleDeleteClick);
             }
         }
 
-        attachDeleteEvent();
+        async function handleDeleteClick() {
+            if (!confirm('確定要刪除頭像嗎？')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/User/Members/DeleteAvatar', {
+                    method: 'POST'
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    alert(result.message);
+
+                    // 關鍵修正：確保圖片來源立刻更新，並加入快取防禦機制
+                    const avatarPreview = document.getElementById('avatarPreview');
+                    const defaultAvatarUrl = 'https://via.placeholder.com/80';
+
+                    // 加上時間戳，確保瀏覽器不會使用快取
+                    const newUrl = defaultAvatarUrl + '?' + new Date().getTime();
+                    avatarPreview.src = newUrl;
+
+                    // 關鍵修正：將整個刪除按鈕元素從 DOM 中移除
+                    const deleteBtn = document.getElementById('deleteAvatarBtn');
+                    if (deleteBtn) {
+                        deleteBtn.remove();
+                    }
+                } else {
+                    const error = await response.text();
+                    console.error("刪除失敗：", error);
+                    alert("刪除失敗，請稍後再試。");
+                }
+            } catch (error) {
+                console.error('刪除過程中發生錯誤：', error);
+                alert("刪除過程中發生網路錯誤。");
+            }
+        }
     </script>
 }

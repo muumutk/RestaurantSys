@@ -25,14 +25,27 @@ namespace RestaurantSys.Areas.User.ViewComponents
                 .Include(o => o.OrderDetails)
                 .ToListAsync();
 
+            TimeZoneInfo taipeiTimeZone;
+            try
+            {
+                taipeiTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Taipei Standard Time");
+            }
+            catch (TimeZoneNotFoundException)
+            {
+                taipeiTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Taipei");
+            }
+
+
             // 將資料轉換為動態物件，以符合 View 的需求
             var orderViewModels = recentOrders.Select(o => new
             {
                 OrderID = o.OrderID,
-                OrderDate = o.OrderDate.ToLocalTime(), // 轉換時間
-                Status = o.OrderStatus?.OrderStatusName, // 使用安全導覽運算子
-                TotalPrice = o.OrderDetails?.Sum(od => od.UnitPrice * od.Quantity) ?? 0 // 計算總價並處理 null
+                // ✨ 修正開始：假設資料庫時間是本地時間，並直接轉換到目標時區 ✨
+                OrderDate = TimeZoneInfo.ConvertTime(o.OrderDate, TimeZoneInfo.Local, taipeiTimeZone),
+                Status = o.OrderStatus?.OrderStatusName,
+                TotalPrice = o.OrderDetails?.Sum(od => od.UnitPrice * od.Quantity) ?? 0
             }).ToList();
+
 
             return View(orderViewModels);
         }

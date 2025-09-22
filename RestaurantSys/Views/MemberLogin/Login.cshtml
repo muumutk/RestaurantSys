@@ -1,38 +1,51 @@
 ﻿@model RestaurantSys.ViewModels.VMMemberLogin
 
 @{
-    ViewData["Title"] = "登入系統";
+    ViewData["Title"] = "會員登入";
 }
 
-<h2 class="fw-bold">@ViewData["Title"] </h2>
-<hr />
-<div class="row">
-    <div class="col">
-        <form asp-controller="MemberLogin" asp-action="Login">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="EmailOrPhone" class="control-label"></label>
-                <input asp-for="EmailOrPhone" class="form-control" />
-                <span asp-validation-for="EmailOrPhone" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Password" class="control-label"></label>
-                <input asp-for="Password" class="form-control" />
-                <span asp-validation-for="Password" class="text-danger"></span>
-            </div>
+<div class="d-flex justify-content-center align-items-center vh-100 bg-light">
+    <div class="card shadow-lg p-4" style="width: 25rem;">
+        <div class="card-body">
+            <h2 class="fw-bold text-center mb-4">@ViewData["Title"]</h2>
             <hr />
-            <div class="form-group">
-                <input type="submit" value="登入" class="btn btn-outline-dark" />
-            </div>
-            <div class="text-danger">
-                @ViewData["Error"]
-            </div>
-        </form>
+
+            <form asp-controller="MemberLogin" asp-action="Login">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="form-floating mb-3">
+                    <input asp-for="EmailOrPhone" class="form-control" placeholder="電子郵件或手機號碼" />
+                    <label asp-for="EmailOrPhone">電子郵件或手機號碼</label>
+                    <span asp-validation-for="EmailOrPhone" class="text-danger"></span>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <input asp-for="Password" class="form-control" type="password" placeholder="密碼" />
+                    <label asp-for="Password">密碼</label>
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                @if (ViewData["Error"] != null)
+                {
+                    <div class="text-danger mb-3 text-center">
+                        @ViewData["Error"]
+                    </div>
+                }
+
+                <div class="d-grid gap-2">
+                    <input type="submit" value="登入" class="btn btn-outline-dark fw-bold btn-lg" />
+
+                    <a asp-action="Register" asp-controller="Register" class="btn btn-link">
+                        <small>還沒有會員嗎？立即註冊</small>
+                    </a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
-<div class="mt-2">
-    <a class="btn btn-outline-dark fw-bold" asp-controller="Menu" asp-action="Index">返回首頁</a>
+<div class="text-center mt-3">
+    <a class="btn btn-outline-secondary fw-bold" asp-controller="Menu" asp-action="Index">返回首頁</a>
 </div>
 
 @section Scripts {
